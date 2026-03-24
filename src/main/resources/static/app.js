@@ -14,6 +14,7 @@ const messages = {
       internships: "Internships",
       applications: "Applications",
       reports: "Reports",
+      analytics: "Analytics",
       ai: "AI Assistant",
       admin: "Admin",
     },
@@ -32,6 +33,7 @@ const messages = {
       runSummary: "Run Summary",
       generateMatch: "Generate Match",
       createDraft: "Create Draft",
+      toggleMenu: "Menu",
       openChat: "Open Chat",
       addUser: "Add User",
       apply: "Apply",
@@ -131,7 +133,19 @@ const messages = {
       title: "Review outcomes and evaluate performance.",
       pendingLabel: "pending",
     },
+    analytics: {
+      title: "Insights and statistics across the platform.",
+      totalTrips: "Total Trips",
+      totalPositions: "Total Positions",
+      totalApplications: "Total Applications",
+      totalReports: "Total Reports",
+      overviewTitle: "Platform Overview",
+      tripsByStatus: "Trips by Status",
+      applicationsByStatus: "Applications by Status",
+      recentActivity: "Recent Activity",
+    },
     filters: {
+      all: "All",
       draft: "Draft",
       published: "Published",
       completed: "Completed",
@@ -199,6 +213,7 @@ const messages = {
       internships: "ฝึกงาน",
       applications: "คำขอสมัคร",
       reports: "รายงาน",
+      analytics: "สถิติ",
       ai: "ผู้ช่วย AI",
       admin: "ผู้ดูแลระบบ",
     },
@@ -218,6 +233,7 @@ const messages = {
       generateMatch: "สร้างคำแนะนำ",
       createDraft: "สร้างร่าง",
       openChat: "เปิดแชต",
+      toggleMenu: "เมนู",
       addUser: "เพิ่มผู้ใช้",
       apply: "สมัคร",
       approve: "อนุมัติ",
@@ -316,7 +332,19 @@ const messages = {
       title: "ตรวจผลลัพธ์และประเมินผลงาน",
       pendingLabel: "รายการ",
     },
+    analytics: {
+      title: "ข้อมูลเชิงลึกและสถิติของแพลตฟอร์ม",
+      totalTrips: "ทริปทั้งหมด",
+      totalPositions: "ตำแหน่งทั้งหมด",
+      totalApplications: "คำขอทั้งหมด",
+      totalReports: "รายงานทั้งหมด",
+      overviewTitle: "ภาพรวมแพลตฟอร์ม",
+      tripsByStatus: "ทริปตามสถานะ",
+      applicationsByStatus: "คำขอตามสถานะ",
+      recentActivity: "กิจกรรมล่าสุด",
+    },
     filters: {
+      all: "ทั้งหมด",
       draft: "ฉบับร่าง",
       published: "เผยแพร่",
       completed: "เสร็จสิ้น",
@@ -512,13 +540,14 @@ const api = {
 };
 
 const navItems = [
-  { path: "/dashboard", label: "nav.dashboard", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/trips", label: "nav.trips", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/internships", label: "nav.internships", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/applications", label: "nav.applications", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/reports", label: "nav.reports", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/ai", label: "nav.ai", roles: ["ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/admin", label: "nav.admin", roles: ["ADMIN"] },
+  { path: "/dashboard", label: "nav.dashboard", icon: "fa-solid fa-chart-pie", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/trips", label: "nav.trips", icon: "fa-solid fa-route", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/internships", label: "nav.internships", icon: "fa-solid fa-briefcase", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/applications", label: "nav.applications", icon: "fa-solid fa-file-signature", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/reports", label: "nav.reports", icon: "fa-solid fa-folder-open", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/analytics", label: "nav.analytics", icon: "fa-solid fa-chart-line", roles: ["ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/ai", label: "nav.ai", icon: "fa-solid fa-wand-magic-sparkles", roles: ["ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/admin", label: "nav.admin", icon: "fa-solid fa-user-shield", roles: ["ADMIN"] },
 ];
 
 const formatDate = (value, locale) => {
@@ -560,75 +589,59 @@ const statusKey = (status) => `status.${status?.toLowerCase() || "draft"}`;
 
 const LoginView = {
   template: `
-    <div class="app-shell">
-      <div class="bg-shape shape-one" aria-hidden="true"></div>
-      <div class="bg-shape shape-two" aria-hidden="true"></div>
-      <div class="bg-shape shape-three" aria-hidden="true"></div>
-      <section class="login-page">
-        <div class="login-hero">
-          <div class="login-hero-top">
-            <div class="brand brand-inline">
-              <div class="brand-mark">UT</div>
-              <div>
-                <p class="brand-title">UTCCTP</p>
-                <p class="brand-subtitle">{{ $t("app.subtitle") }}</p>
-              </div>
-            </div>
-            <div class="login-lang">
-              <p class="eyebrow">{{ $t("labels.language") }}</p>
-              <button class="ghost pill" @click="toggleLocale">{{ localeLabel }}</button>
-            </div>
+    <div class="split-login-shell">
+      <div class="split-video-side">
+        <div class="split-video-wrapper">
+          <iframe 
+            src="https://www.youtube.com/embed/cITK1pnMPMw?si=GRSmXWmF3sByMvcE&autoplay=1&mute=1&loop=1&playlist=cITK1pnMPMw&controls=0&showinfo=0&rel=0" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+        </div>
+        <div class="split-video-overlay">
+        </div>
+      </div>
+      
+      <div class="split-form-side">
+        <div class="form-container">
+          <div class="form-header animate-fade-in-1">
+             <div class="header-top">
+                <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
+                <button class="lang-btn" @click="toggleLocale">{{ localeLabel }}</button>
+             </div>
+             <h2 class="title">{{ $t("login.title") }}</h2>
+             <p class="subtitle">{{ $t("login.subtitle") }}</p>
           </div>
-          <div class="login-hero-body">
-            <span class="login-badge">{{ $t("login.badge") }}</span>
-            <h1>{{ $t("login.heroTitle") }}</h1>
-            <p class="hero-note">{{ $t("login.heroNote") }}</p>
-            <ul class="login-features">
-              <li>{{ $t("login.featurePlan") }}</li>
-              <li>{{ $t("login.featureApprove") }}</li>
-              <li>{{ $t("login.featureTrack") }}</li>
-            </ul>
-            <div class="login-ticket">
-              <div>
-                <span class="ticket-label">UTCCTP</span>
-                <span class="ticket-value">{{ $t("login.ticket") }}</span>
-              </div>
-              <span class="ticket-code">#TRIP-2026</span>
-            </div>
+          
+          <form class="animated-form" @submit.prevent="submit">
+             <div class="input-float animate-fade-in-2">
+                <input v-model="username" id="username" placeholder=" " required />
+                <label for="username">{{ $t("login.username") }}</label>
+             </div>
+             <div class="input-float animate-fade-in-3">
+                <input v-model="password" id="password" type="password" placeholder=" " required />
+                <label for="password">{{ $t("login.password") }}</label>
+             </div>
+             
+             <button class="btn-ripple animate-fade-in-4" type="submit">
+               <span>{{ $t("actions.login") }}</span>
+             </button>
+          </form>
+          
+          <div v-if="error" class="error-toast animate-scale-in">{{ $t("login.error") }}</div>
+
+          <div class="demo-section animate-fade-in-5">
+             <p class="demo-label">{{ $t("login.demoTitle") }}</p>
+             <div class="demo-grid">
+               <button v-for="demo in demoUsers" :key="demo.username" class="demo-btn" @click="username = demo.username; password = demo.password; submit()">
+                  <span class="d-user">{{ demo.username }}</span>
+                  <span class="d-role">{{ $t(\`roles.\${demo.role}\`) }}</span>
+               </button>
+             </div>
           </div>
         </div>
-        <div class="login-panel">
-          <div class="login-card">
-            <h2>{{ $t("login.title") }}</h2>
-            <p>{{ $t("login.subtitle") }}</p>
-            <form class="login-form" @submit.prevent="submit">
-              <div>
-                <label>{{ $t("login.username") }}</label>
-                <input v-model="username" placeholder="student1" required />
-              </div>
-              <div>
-                <label>{{ $t("login.password") }}</label>
-                <input v-model="password" type="password" placeholder="pass123" required />
-              </div>
-              <button class="solid" type="submit">{{ $t("actions.login") }}</button>
-            </form>
-            <div v-if="error" class="banner">{{ $t("login.error") }}</div>
-          </div>
-          <aside class="login-side">
-            <div class="login-side-head">
-              <h3>{{ $t("login.demoTitle") }}</h3>
-              <p class="muted">{{ $t("login.demoNote") }}</p>
-            </div>
-            <div class="demo-list">
-              <div class="demo-item" v-for="demo in demoUsers" :key="demo.username">
-                <strong>{{ demo.username }}</strong>
-                <span>{{ demo.password }}</span>
-                <span class="chip">{{ $t(\`roles.\${demo.role}\`) }}</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
+      </div>
     </div>
   `,
   setup() {
@@ -671,63 +684,91 @@ const LoginView = {
 
 const AppLayout = {
   template: `
-    <div class="app-shell">
-      <div class="bg-shape shape-one" aria-hidden="true"></div>
-      <div class="bg-shape shape-two" aria-hidden="true"></div>
-      <div class="bg-shape shape-three" aria-hidden="true"></div>
+    <div class="app-shell dash-shell">
       <header class="top-bar">
-        <div class="brand">
-          <div class="brand-mark">UT</div>
-          <div>
-            <p class="brand-title">UTCCTP</p>
-            <p class="brand-subtitle">{{ $t("app.subtitle") }}</p>
+        <div class="top-bar-left">
+          <button class="hamburger" @click="toggleMenu" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="brand">
+            <img src="/utcc-logo.png?v=13" alt="UTCC" class="official-logo-dash" />
+            <div class="brand-text-dash">
+              <p class="brand-title">UTCCTP</p>
+              <p class="brand-subtitle">{{ $t("app.subtitle") }}</p>
+            </div>
           </div>
         </div>
         <div class="top-actions">
-          <button class="ghost" @click="toggleNotifications">
-            {{ $t("actions.notifications") }}
-            <span v-if="unreadCount" class="badge">{{ unreadCount }}</span>
+          <button class="ghost action-btn btn-icon" @click="toggleNotifications">
+            <i class="fas fa-bell"></i>
+            <span v-if="unreadCount" class="badge badge-pulse">{{ unreadCount }}</span>
           </button>
-          <button class="ghost" @click="toggleLocale">{{ localeLabel }}</button>
-          <button class="solid" @click="logout">{{ $t("actions.logout") }}</button>
-          <div class="avatar">{{ initials }}</div>
+          <button class="ghost action-btn locale-btn" @click="toggleLocale"><i class="fas fa-globe"></i> {{ localeLabel }}</button>
+          
+          <div class="avatar-wrap">
+            <div class="avatar dropdown-trigger" @click.stop="toggleProfileMenu">{{ initials }}</div>
+            <div v-if="showProfileMenu" class="avatar-dropdown modern-dropdown" style="display: block;">
+               <div class="dropdown-header">
+                  <p class="dropdown-name">{{ userName }}</p>
+                  <p class="dropdown-role">{{ roleLabel }}</p>
+               </div>
+               <div class="dropdown-divider"></div>
+               <button class="dropdown-item text-danger" @click="logout" style="border-radius: 0 0 16px 16px;">
+                 <i class="fas fa-sign-out-alt"></i> {{ $t("actions.logout") }}
+               </button>
+            </div>
+            <!-- Overlay to close the menu when clicking elsewhere -->
+            <div v-if="showProfileMenu" style="position: fixed; inset: 0; z-index: 80;" @click="showProfileMenu = false"></div>
+          </div>
         </div>
       </header>
-      <div v-if="showNotifications" class="notification-panel">
+
+      <div v-if="showNotifications" class="notification-panel modern-dropdown animate-scale-in">
         <div class="panel-head">
-          <h4>{{ $t("actions.notifications") }}</h4>
+          <h4 class="panel-title-text">{{ $t("actions.notifications") }}</h4>
           <div class="panel-actions">
-            <button class="ghost small" @click="loadNotifications">{{ $t("actions.refresh") }}</button>
-            <button class="ghost small" @click="toggleNotifications">{{ $t("actions.close") }}</button>
+            <button class="btn-icon-small" @click="loadNotifications" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn-icon-small" @click="toggleNotifications" title="Close"><i class="fas fa-times"></i></button>
           </div>
         </div>
         <div class="panel-body">
-          <div v-if="!notifications.length" class="muted">No notifications</div>
+          <div v-if="!notifications.length" class="empty-state-sm">
+             <i class="fas fa-bell-slash"></i>
+             <p>No new notifications</p>
+          </div>
           <div class="notification-item" v-for="item in notifications" :key="item.id">
-            <div>
+            <div class="notif-icon bg-blue-light"><i class="fas fa-info-circle text-blue"></i></div>
+            <div class="notif-content">
               <strong>{{ item.title }}</strong>
-              <p class="muted">{{ item.message }}</p>
+              <p class="muted-text">{{ item.message }}</p>
             </div>
-            <button class="link" @click="markRead(item.id)">Mark read</button>
+            <button class="btn-icon-small check" @click="markRead(item.id)" title="Mark as read"><i class="fas fa-check"></i></button>
           </div>
         </div>
       </div>
       <div class="layout">
-        <nav class="side-nav">
+        <nav class="side-nav" :class="{ open: menuOpen }">
           <button
             v-for="item in availableNav"
             :key="item.path"
             class="nav-item"
             :class="{ active: route.path === item.path }"
-            @click="go(item.path)"
+            @click="go(item.path); menuOpen = false;"
           >
+            <i :class="item.icon" class="nav-icon"></i>
             {{ $t(item.label) }}
           </button>
           <div class="nav-foot">
-            <span>{{ $t("labels.role") }}: {{ roleLabel }}</span>
-            <span>{{ $t("labels.user") }}: {{ userName }}</span>
+            <div class="user-pill">
+               <div class="pill-avatar">{{ initials }}</div>
+               <div class="pill-info">
+                  <strong>{{ userName }}</strong>
+                  <span>{{ roleLabel }}</span>
+               </div>
+            </div>
           </div>
         </nav>
+        <div v-if="menuOpen" class="nav-overlay" @click="menuOpen = false"></div>
         <main class="content">
           <router-view />
         </main>
@@ -737,6 +778,7 @@ const AppLayout = {
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const menuOpen = ref(false);
 
     const role = computed(() => state.user?.roles?.[0] || "GUEST");
     const availableNav = computed(() =>
@@ -745,7 +787,17 @@ const AppLayout = {
 
     const notifications = ref([]);
     const showNotifications = ref(false);
+    const showProfileMenu = ref(false);
     let eventSource = null;
+
+    const toggleMenu = () => {
+      menuOpen.value = !menuOpen.value;
+    };
+
+    const toggleProfileMenu = () => {
+      showProfileMenu.value = !showProfileMenu.value;
+      if (showProfileMenu.value) showNotifications.value = false;
+    };
 
     const logout = () => {
       state.token = "";
@@ -829,77 +881,71 @@ const AppLayout = {
       toggleNotifications,
       loadNotifications,
       markRead,
+      menuOpen,
+      toggleMenu,
+      showProfileMenu,
+      toggleProfileMenu,
     };
   },
 };
 
 const DashboardView = {
   template: `
-    <section v-if="summary">
-      <div class="hero reveal">
-        <div>
-          <p class="eyebrow">{{ $t("dashboard.eyebrow") }}</p>
-          <h1>{{ $t("dashboard.heroTitle") }}</h1>
-          <p class="hero-note">{{ $t("dashboard.heroNote") }}</p>
-          <div class="hero-actions">
-            <button class="solid">{{ $t("actions.openApplications") }}</button>
-            <button class="ghost">{{ $t("actions.viewAnalytics") }}</button>
-          </div>
-        </div>
-        <div class="hero-panel">
-          <div class="panel-title">{{ $t("dashboard.liveStatus") }}</div>
-          <div class="panel-grid">
-            <div class="panel-card">
-              <p>{{ $t("dashboard.activeTrips") }}</p>
-              <h3>{{ summary.activeTrips }}</h3>
-              <span class="muted">{{ $t("dashboard.awaiting") }}</span>
-            </div>
-            <div class="panel-card">
-              <p>{{ $t("dashboard.internshipSlots") }}</p>
-              <h3>{{ summary.internshipSlots }}</h3>
-              <span class="muted">{{ summary.unmatchedSlots }} {{ $t("dashboard.openSlots") }}</span>
-            </div>
-            <div class="panel-card">
-              <p>{{ $t("dashboard.reportsDue") }}</p>
-              <h3>{{ summary.reportsDue }}</h3>
-              <span class="muted">{{ $t("dashboard.next7Days") }}</span>
-            </div>
-          </div>
+    <section v-if="summary" class="dashboard-page animate-fade-in-up">
+      <div class="kpi-banner">
+        <div class="kpi-header">
+           <h1 class="welcome-heading">{{ $t("dashboard.heroTitle") }}</h1>
+           <p class="welcome-sub">{{ $t("dashboard.heroNote") }}</p>
+           <div class="hero-actions-modern">
+               <button class="btn-primary" @click="$router.push('/applications')"><i class="fas fa-folder-open"></i> {{ $t("actions.openApplications") }}</button>
+               <button class="btn-secondary" @click="$router.push('/analytics')"><i class="fas fa-chart-line"></i> {{ $t("actions.viewAnalytics") }}</button>
+           </div>
         </div>
       </div>
-      <div class="grid reveal">
-        <div class="card">
-          <div class="card-head">
-            <h2>{{ $t("dashboard.upcomingTrips") }}</h2>
-            <button class="link">{{ $t("dashboard.viewAll") }}</button>
-          </div>
-          <div class="list">
-            <div class="list-row" v-for="trip in trips" :key="trip.id">
-              <div>
-                <h4>{{ trip.title }}</h4>
-                <p>{{ trip.location }} · {{ formatDate(trip.startDate) }}-{{ formatDate(trip.endDate) }}</p>
-              </div>
-              <span :class="statusClass(trip.status)">{{ $t(statusKey(trip.status)) }}</span>
+
+      <div class="bento-grid-modern delay-1">
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <div>
+                    <h2 class="bento-title">{{ $t("dashboard.upcomingTrips") }}</h2>
+                    <p class="bento-subtitle">Scheduled academic visits & tours</p>
+                </div>
+                <button class="btn-text" @click="$router.push('/trips')">{{ $t("dashboard.viewAll") }}</button>
             </div>
-          </div>
+            <div class="bento-list">
+                <div class="bento-item" v-for="trip in trips" :key="trip.id">
+                    <div class="item-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="item-details">
+                        <h4 class="item-name">{{ trip.title }}</h4>
+                        <p class="item-meta">{{ trip.location }} &bull; {{ formatDate(trip.startDate) }} - {{ formatDate(trip.endDate) }}</p>
+                    </div>
+                    <span :class="['modern-badge', statusClass(trip.status)]">{{ $t(statusKey(trip.status)) }}</span>
+                </div>
+                <div v-if="trips.length === 0" class="empty-state">No upcoming trips</div>
+            </div>
         </div>
-        <div class="card">
-          <div class="card-head">
-            <h2>{{ $t("dashboard.approvalQueue") }}</h2>
-            <button class="link">{{ $t("actions.openApplications") }}</button>
-          </div>
-          <div class="queue">
-            <div class="queue-item" v-for="app in applications" :key="app.id">
-              <div>
-                <h4>{{ app.studentName }}</h4>
-                <p>{{ app.type }} · {{ app.studentMajor || "-" }}</p>
-              </div>
-              <div class="queue-actions">
-                <button class="solid small">{{ $t("actions.review") }}</button>
-                <button class="ghost small">{{ $t("actions.notifications") }}</button>
-              </div>
+
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <div>
+                    <h2 class="bento-title">{{ $t("dashboard.approvalQueue") }}</h2>
+                    <p class="bento-subtitle">Action required on applications</p>
+                </div>
+                <button class="btn-text" @click="$router.push('/applications')">{{ $t("actions.openApplications") }}</button>
             </div>
-          </div>
+            <div class="bento-list">
+                <div class="bento-item align-center" v-for="app in applications" :key="app.id">
+                    <div class="avatar-sm">{{ app.studentName.charAt(0) }}</div>
+                    <div class="item-details flex-1">
+                        <h4 class="item-name">{{ app.studentName }}</h4>
+                        <p class="item-meta">{{ app.type }} &bull; {{ app.studentMajor || "-" }}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-action primary" @click="$router.push('/applications')">{{ $t("actions.review") }}</button>
+                    </div>
+                </div>
+                <div v-if="applications.length === 0" class="empty-state">All caught up!</div>
+            </div>
         </div>
       </div>
     </section>
@@ -930,122 +976,139 @@ const DashboardView = {
 
 const TripsView = {
   template: `
-    <section>
-      <div class="section-head">
-        <div>
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
           <p class="eyebrow">{{ $t("nav.trips") }}</p>
-          <h2>{{ $t("trips.title") }}</h2>
+          <h2 class="modern-section-title">{{ $t("trips.title") }}</h2>
+          <p class="section-subtitle">Manage educational excursions from planning to feedback</p>
         </div>
-        <div class="filters">
-          <button class="ghost">{{ $t("filters.draft") }}</button>
-          <button class="ghost">{{ $t("filters.published") }}</button>
-          <button class="ghost">{{ $t("filters.completed") }}</button>
-        </div>
-      </div>
-
-      <div v-if="canManage" class="card form-card">
-        <h3>{{ $t("actions.createTrip") }}</h3>
-        <div class="form-grid">
-          <div>
-            <label>{{ $t("labels.title") }}</label>
-            <input v-model="form.title" placeholder="Industry Visit 2026" />
-          </div>
-          <div>
-            <label>{{ $t("labels.location") }}</label>
-            <input v-model="form.location" placeholder="Bangkok" />
-          </div>
-          <div>
-            <label>{{ $t("labels.startDate") }}</label>
-            <input type="date" v-model="form.startDate" />
-          </div>
-          <div>
-            <label>{{ $t("labels.endDate") }}</label>
-            <input type="date" v-model="form.endDate" />
-          </div>
-          <div>
-            <label>{{ $t("labels.capacity") }}</label>
-            <input type="number" v-model="form.capacity" />
-          </div>
-          <div>
-            <label>{{ $t("labels.budget") }}</label>
-            <input type="number" v-model="form.budgetTotal" />
-          </div>
-          <div class="full">
-            <label>{{ $t("labels.objective") }}</label>
-            <textarea v-model="form.objective" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="solid" @click="submitTrip">{{ $t("actions.save") }}</button>
+        <div class="filters-modern">
+          <button 
+            v-for="f in availableFilters" 
+            :key="f"
+            class="filter-tab"
+            :class="{ active: currentFilter === f }"
+            @click="currentFilter = f"
+          >
+            {{ $t('filters.' + f.toLowerCase()) }}
+          </button>
         </div>
       </div>
 
-      <div v-if="canManage" class="card form-card">
-        <h3>Trip Tools</h3>
-        <div class="form-grid">
-          <div class="full">
-            <label>{{ $t("labels.status") }}</label>
-            <select v-model="selectedTripId">
-              <option disabled value="">Select trip</option>
-              <option v-for="trip in trips" :key="trip.id" :value="trip.id">
-                {{ trip.title }}
-              </option>
-            </select>
+      <!-- Management Tools for Staff/Advisors -->
+      <div v-if="canManage" class="admin-tools-grid animate-fade-in-delayed">
+        <div class="card modern-form-card">
+          <div class="form-card-header">
+            <i class="fas fa-plus-circle"></i>
+            <h3>{{ $t("actions.createTrip") }}</h3>
           </div>
-          <div>
-            <label>Activity</label>
-            <input v-model="schedule.activity" />
+          <div class="form-grid-modern">
+            <div class="input-group">
+              <label>{{ $t("labels.title") }}</label>
+              <input v-model="form.title" placeholder="Industry Visit 2026" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.location") }}</label>
+              <input v-model="form.location" placeholder="Bangkok" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.startDate") }}</label>
+              <input type="date" v-model="form.startDate" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.endDate") }}</label>
+              <input type="date" v-model="form.endDate" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.capacity") }}</label>
+              <input type="number" v-model="form.capacity" placeholder="40" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.budget") }}</label>
+              <input type="number" v-model="form.budgetTotal" placeholder="150000" />
+            </div>
+            <div class="input-group full">
+              <label>{{ $t("labels.objective") }}</label>
+              <textarea v-model="form.objective" rows="2" placeholder="Describe the educational goals..."></textarea>
+            </div>
           </div>
-          <div>
-            <label>{{ $t("labels.startDate") }}</label>
-            <input type="datetime-local" v-model="schedule.startTime" />
-          </div>
-          <div>
-            <label>{{ $t("labels.endDate") }}</label>
-            <input type="datetime-local" v-model="schedule.endTime" />
-          </div>
-          <div>
-            <label>Budget Category</label>
-            <input v-model="budget.category" />
-          </div>
-          <div>
-            <label>Amount</label>
-            <input type="number" v-model="budget.amount" />
-          </div>
-          <div>
-            <label>Document Type</label>
-            <input v-model="document.docType" />
-          </div>
-          <div>
-            <label>{{ $t("labels.file") }}</label>
-            <input type="file" @change="handleDocFile" />
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="ghost" @click="addSchedule">{{ $t("actions.addSchedule") }}</button>
-          <button class="ghost" @click="addBudget">{{ $t("actions.addBudget") }}</button>
-          <button class="solid" @click="addDocument">{{ $t("actions.addDocument") }}</button>
-        </div>
-      </div>
-
-      <div class="trip-grid">
-        <article class="trip-card" v-for="trip in trips" :key="trip.id">
-          <h3>{{ trip.title }}</h3>
-          <p>{{ trip.location }}</p>
-          <div class="meta">
-            <span>{{ formatDate(trip.startDate) }} - {{ formatDate(trip.endDate) }}</span>
-            <span>{{ formatCurrency(trip.budgetTotal || 0) }}</span>
-          </div>
-          <span :class="statusClass(trip.status)">{{ $t(statusKey(trip.status)) }}</span>
-          <div class="card-actions">
-            <button v-if="isStudent" class="solid small" @click="applyTrip(trip.id)">
-              {{ $t("actions.apply") }}
+          <div class="form-footer">
+            <button class="btn-primary-glow" @click="submitTrip">
+              <i class="fas fa-save"></i> {{ $t("actions.saveDraft") }}
             </button>
-            <button v-if="canManage && trip.status === 'DRAFT'" class="ghost small" @click="publishTrip(trip.id)">
-              {{ $t("actions.publishTrip") }}
-            </button>
+          </div>
+        </div>
+
+        <div class="card modern-form-card">
+          <div class="form-card-header">
+            <i class="fas fa-tools"></i>
+            <h3>Trip Utils</h3>
+          </div>
+          <p class="muted-text-sm">Manage details for existing trips</p>
+          <div class="form-grid-modern" style="margin-top: 20px;">
+            <div class="input-group full">
+               <label>Target Trip</label>
+               <select v-model="selectedTripId" class="modern-select">
+                 <option disabled value="">Choose a trip to edit...</option>
+                 <option v-for="trip in trips" :key="trip.id" :value="trip.id">{{ trip.title }}</option>
+               </select>
+            </div>
+            <div class="input-group">
+              <label>Service Category</label>
+              <input v-model="budget.category" placeholder="Transportation" />
+            </div>
+            <div class="input-group">
+              <label>Cost</label>
+              <input v-model="budget.amount" type="number" placeholder="5000" />
+            </div>
+          </div>
+          <div class="form-footer">
+             <button class="btn-secondary-glow" @click="addBudget">{{ $t("actions.addBudget") }}</button>
+             <button class="btn-secondary-glow" v-if="selectedTripId" @click="publishTrip(selectedTripId)">
+               <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
+             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Trip Grid -->
+      <div class="modern-trip-grid">
+        <article v-for="trip in filteredTrips" :key="trip.id" class="trip-card-bento animate-scale-in">
+          <div class="trip-card-content">
+            <div class="trip-type-tag">{{ trip.location }}</div>
+            <h3 class="trip-name">{{ trip.title }}</h3>
+            <div class="trip-details">
+              <div class="detail-item">
+                <i class="far fa-calendar-alt"></i>
+                <span>{{ formatDate(trip.startDate) }} - {{ formatDate(trip.endDate) }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-coins"></i>
+                <span>{{ formatCurrency(trip.budgetTotal || 0) }}</span>
+              </div>
+            </div>
+            <div :class="['status-pill-large', statusClass(trip.status)]">
+              {{ $t(statusKey(trip.status)) }}
+            </div>
+          </div>
+          <div class="trip-card-footer">
+             <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn-apply" @click="applyTrip(trip.id)">
+               {{ $t("actions.apply") }}
+             </button>
+             <button v-if="canManage && trip.status === 'DRAFT'" class="btn-manage-draft" @click="publishTrip(trip.id)">
+               <i class="fas fa-paper-plane"></i> Publish
+             </button>
+             <button v-if="canManage" class="btn-icon-ghost" title="Edit Trip">
+               <i class="fas fa-edit"></i>
+             </button>
           </div>
         </article>
+        
+        <div v-if="filteredTrips.length === 0" class="empty-state-large">
+           <i class="fas fa-folder-open"></i>
+           <p>No trips found in this category</p>
+        </div>
       </div>
     </section>
   `,
@@ -1069,9 +1132,31 @@ const TripsView = {
     const canManage = computed(() => ["ADVISOR", "STAFF", "ADMIN"].includes(role.value));
     const isStudent = computed(() => role.value === "STUDENT");
 
+    const currentFilter = ref("ALL");
+    const availableFilters = computed(() => {
+      const base = ['ALL', 'DRAFT', 'PUBLISHED', 'COMPLETED'];
+      if (isStudent.value) return ['ALL', 'PUBLISHED', 'COMPLETED'];
+      return base;
+    });
     const loadTrips = async () => {
       trips.value = await api.listTrips();
     };
+
+    const filteredTrips = computed(() => {
+      let result = trips.value;
+      
+      // Role-based visibility
+      if (isStudent.value) {
+        result = result.filter(t => t.status === 'PUBLISHED' || t.status === 'COMPLETED');
+      }
+
+      // Status filter tab
+      if (currentFilter.value !== "ALL") {
+        result = result.filter(t => t.status === currentFilter.value);
+      }
+      
+      return result;
+    });
 
     const submitTrip = async () => {
       await api.createTrip({
@@ -1146,6 +1231,9 @@ const TripsView = {
 
     return {
       trips,
+      filteredTrips,
+      currentFilter,
+      availableFilters,
       form,
       schedule,
       budget,
@@ -1784,6 +1872,156 @@ const AdminView = {
   },
 };
 
+const AnalyticsView = {
+  template: `
+    <section>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{{ $t("nav.analytics") }}</p>
+          <h2>{{ $t("analytics.title") }}</h2>
+        </div>
+      </div>
+      <div class="analytics-kpi-grid" v-if="data">
+        <div class="analytics-kpi-card">
+          <div class="kpi-icon trips-icon">📋</div>
+          <h3>{{ data.trips }}</h3>
+          <p>{{ $t("analytics.totalTrips") }}</p>
+        </div>
+        <div class="analytics-kpi-card">
+          <div class="kpi-icon positions-icon">🏢</div>
+          <h3>{{ data.internships }}</h3>
+          <p>{{ $t("analytics.totalPositions") }}</p>
+        </div>
+        <div class="analytics-kpi-card">
+          <div class="kpi-icon apps-icon">📝</div>
+          <h3>{{ data.applications }}</h3>
+          <p>{{ $t("analytics.totalApplications") }}</p>
+        </div>
+        <div class="analytics-kpi-card">
+          <div class="kpi-icon reports-icon">📊</div>
+          <h3>{{ data.reports }}</h3>
+          <p>{{ $t("analytics.totalReports") }}</p>
+        </div>
+      </div>
+      <div class="grid" v-if="trips.length || applications.length">
+        <div class="card">
+          <h3>{{ $t("analytics.tripsByStatus") }}</h3>
+          <div class="analytics-bar-chart">
+            <div class="bar-row" v-for="item in tripStatusData" :key="item.label">
+              <span class="bar-label">{{ $t(statusKey(item.label)) }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" :style="{ width: item.percent + '%' }" :class="item.color"></div>
+              </div>
+              <span class="bar-value">{{ item.count }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>{{ $t("analytics.applicationsByStatus") }}</h3>
+          <div class="analytics-bar-chart">
+            <div class="bar-row" v-for="item in appStatusData" :key="item.label">
+              <span class="bar-label">{{ $t(statusKey(item.label)) }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" :style="{ width: item.percent + '%' }" :class="item.color"></div>
+              </div>
+              <span class="bar-value">{{ item.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" v-if="applications.length">
+        <h3>{{ $t("analytics.recentActivity") }}</h3>
+        <div class="table">
+          <div class="table-row header">
+            <span>{{ $t("applications.student") }}</span>
+            <span>{{ $t("applications.type") }}</span>
+            <span>{{ $t("labels.status") }}</span>
+            <span>{{ $t("labels.startDate") }}</span>
+            <span></span>
+          </div>
+          <div class="table-row" v-for="app in recentApps" :key="app.id">
+            <span>{{ app.studentName }}</span>
+            <span>{{ app.type }}</span>
+            <span :class="statusClass(app.status)">{{ $t(statusKey(app.status)) }}</span>
+            <span>{{ formatDate(app.createdAt) }}</span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  `,
+  setup() {
+    const data = ref(null);
+    const trips = ref([]);
+    const applications = ref([]);
+
+    const load = async () => {
+      data.value = await api.analytics();
+      trips.value = await api.listTrips();
+      applications.value = await api.listApplications();
+    };
+
+    const countByStatus = (items, statusField) => {
+      const counts = {};
+      items.forEach((item) => {
+        const status = item[statusField] || "UNKNOWN";
+        counts[status] = (counts[status] || 0) + 1;
+      });
+      return counts;
+    };
+
+    const colorForStatus = (status) => {
+      const s = status?.toLowerCase();
+      if (s === "published" || s === "approved" || s === "completed" || s === "graded") return "bar-green";
+      if (s === "pending" || s === "awaiting_review" || s === "draft") return "bar-amber";
+      if (s === "rejected") return "bar-red";
+      return "bar-slate";
+    };
+
+    const tripStatusData = computed(() => {
+      const counts = countByStatus(trips.value, "status");
+      const total = Math.max(trips.value.length, 1);
+      return Object.entries(counts).map(([label, count]) => ({
+        label,
+        count,
+        percent: Math.round((count / total) * 100),
+        color: colorForStatus(label),
+      }));
+    });
+
+    const appStatusData = computed(() => {
+      const counts = countByStatus(applications.value, "status");
+      const total = Math.max(applications.value.length, 1);
+      return Object.entries(counts).map(([label, count]) => ({
+        label,
+        count,
+        percent: Math.round((count / total) * 100),
+        color: colorForStatus(label),
+      }));
+    });
+
+    const recentApps = computed(() => {
+      return [...applications.value]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 10);
+    });
+
+    onMounted(load);
+
+    return {
+      data,
+      trips,
+      applications,
+      tripStatusData,
+      appStatusData,
+      recentApps,
+      formatDate: (value) => formatDate(value, state.locale),
+      statusClass,
+      statusKey,
+    };
+  },
+};
+
 const routes = [
   { path: "/login", component: LoginView, meta: { public: true } },
   {
@@ -1796,6 +2034,7 @@ const routes = [
       { path: "internships", component: InternshipsView },
       { path: "applications", component: ApplicationsView },
       { path: "reports", component: ReportsView },
+      { path: "analytics", component: AnalyticsView, meta: { roles: ["ADVISOR", "STAFF", "ADMIN"] } },
       { path: "ai", component: AiView, meta: { roles: ["ADVISOR", "STAFF", "ADMIN"] } },
       { path: "admin", component: AdminView, meta: { roles: ["ADMIN"] } },
     ],
