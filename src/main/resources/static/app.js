@@ -804,7 +804,9 @@ const LoginView = {
         <div class="form-container">
           <div class="form-header animate-fade-in-1">
              <div class="header-top">
-                <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
+                <a href="/#/" class="back-home-link" title="กลับหน้าแรก">
+                  <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
+                </a>
                 <button class="lang-btn" @click="toggleLocale">{{ localeLabel }}</button>
              </div>
              <h2 class="title">{{ $t("login.title") }}</h2>
@@ -887,13 +889,13 @@ const AppLayout = {
           <button class="hamburger" @click="toggleMenu" aria-label="Toggle menu">
             <span></span><span></span><span></span>
           </button>
-          <div class="brand">
+          <a href="/#/" class="brand brand-link" title="กลับหน้าแรก">
             <img src="/utcc-logo.png?v=13" alt="UTCC" class="official-logo-dash" />
             <div class="brand-text-dash">
               <p class="brand-title">UTCCTP</p>
               <p class="brand-subtitle">{{ $t("app.subtitle") }}</p>
             </div>
-          </div>
+          </a>
         </div>
         <div class="top-actions">
           <button class="ghost action-btn btn-icon" @click="toggleNotifications">

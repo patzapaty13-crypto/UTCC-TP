@@ -2103,3 +2103,28 @@ button { font-family: inherit; }
   .hero-video-container { height: 100%; }
 }
 
+/* Back-to-home links */
+.back-home-link {
+  text-decoration: none;
+  display: inline-flex;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.back-home-link:hover {
+  opacity: 0.75;
+  transform: scale(1.05);
+}
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: opacity 0.2s;
+}
+.brand-link:hover {
+  opacity: 0.8;
+}
+.brand-link p {
+  color: inherit;
+}
+
