@@ -201,6 +201,23 @@ const messages = {
       open: "Open",
       closed: "Closed",
     },
+    landing: {
+      heroTitle: "Transforming Careers through Practical Excellence",
+      heroSubtitle: "Your gateway to professional field trips and global internship placements.",
+      getStarted: "Get Started",
+      exploreTrips: "Explore Trips",
+      feature1Title: "Professional Field Trips",
+      feature1Desc: "Immerse yourself in industry-leading environments with structured university-led visits.",
+      feature2Title: "Global Internships",
+      feature2Desc: "Connect with world-class organizations and secure life-changing internship positions.",
+      feature3Title: "AI-Powered Coaching",
+      feature3Desc: "Harness the power of AI to match your skills with the perfect industry placement.",
+      stat1: "Corporate Partners",
+      stat2: "Trips Managed",
+      stat3: "Placement Rate",
+      aboutTitle: "About UTCC-TP",
+      aboutDesc: "The University of the Thai Chamber of Commerce (UTCC) is leading the way in integrating academic knowledge with real-world business experience. Our Trip & Internship Platform (TP) is designed to give students a professional edge.",
+    },
   },
   th: {
     app: {
@@ -400,6 +417,23 @@ const messages = {
       open: "เปิดรับ",
       closed: "ปิดรับ",
     },
+    landing: {
+      heroTitle: "ยกระดับอาชีพด้วยความเป็นเลิศเชิงปฏิบัติ",
+      heroSubtitle: "ประตูสู่เส้นทางอาชีพผ่านทริปดูงานระดับมืออาชีพและการฝึกงานระดับโลก",
+      getStarted: "เริ่มต้นใช้งาน",
+      exploreTrips: "สำรวจทริปดูงาน",
+      feature1Title: "ทริปดูงานมืออาชีพ",
+      feature1Desc: "สัมผัสประสบการณ์จริงในอุตสาหกรรมชั้นนำผ่านทริปที่มหาวิทยาลัยจัดขึ้นอย่างเป็นระบบ",
+      feature2Title: "ฝึกงานระดับสากล",
+      feature2Desc: "เชื่อมต่อกับองค์กรระดับโลกและคว้าโอกาสในการฝึกงานที่เปลี่ยนชีวิตคุณ",
+      feature3Title: "โค้ชชิ่งด้วย AI",
+      feature3Desc: "ใช้พลังของ AI เพื่อจับคู่ทักษะของคุณกับตำแหน่งงานที่เหมาะสมที่สุด",
+      stat1: "พันธมิตรทางธุรกิจ",
+      stat2: "ทริปที่จัดการแล้ว",
+      stat3: "อัตราการได้ที่ฝึกงาน",
+      aboutTitle: "เกี่ยวกับ UTCC-TP",
+      aboutDesc: "มหาวิทยาลัยหอการค้าไทย (UTCC) ผู้นำในการบูรณาการความรู้ทางวิชาการเข้ากับประสบการณ์ธุรกิจจริง แพลตฟอร์ม TP ของเราออกแบบมาเพื่อให้นักศึกษามีความได้เปรียบในระดับมืออาชีพ",
+    },
   },
 };
 
@@ -540,14 +574,14 @@ const api = {
 };
 
 const navItems = [
-  { path: "/dashboard", label: "nav.dashboard", icon: "fa-solid fa-chart-pie", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/trips", label: "nav.trips", icon: "fa-solid fa-route", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/internships", label: "nav.internships", icon: "fa-solid fa-briefcase", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/applications", label: "nav.applications", icon: "fa-solid fa-file-signature", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/reports", label: "nav.reports", icon: "fa-solid fa-folder-open", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/analytics", label: "nav.analytics", icon: "fa-solid fa-chart-line", roles: ["ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/ai", label: "nav.ai", icon: "fa-solid fa-wand-magic-sparkles", roles: ["ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/admin", label: "nav.admin", icon: "fa-solid fa-user-shield", roles: ["ADMIN"] },
+  { path: "/app/dashboard", label: "nav.dashboard", icon: "fa-solid fa-chart-pie", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/trips", label: "nav.trips", icon: "fa-solid fa-route", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/internships", label: "nav.internships", icon: "fa-solid fa-briefcase", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/applications", label: "nav.applications", icon: "fa-solid fa-file-signature", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/reports", label: "nav.reports", icon: "fa-solid fa-folder-open", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/analytics", label: "nav.analytics", icon: "fa-solid fa-chart-line", roles: ["ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/ai", label: "nav.ai", icon: "fa-solid fa-wand-magic-sparkles", roles: ["ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/admin", label: "nav.admin", icon: "fa-solid fa-user-shield", roles: ["ADMIN"] },
 ];
 
 const formatDate = (value, locale) => {
@@ -586,6 +620,169 @@ const statusClass = (status) => {
 };
 
 const statusKey = (status) => `status.${status?.toLowerCase() || "draft"}`;
+
+const LandingView = {
+  template: `
+    <div class="landing-page">
+      <!-- Sophisticated Sticky Navbar -->
+      <nav class="landing-nav" :class="{ scrolled: isScrolled }">
+        <div class="container landing-nav-inner">
+          <div class="brand">
+            <img src="/utcc-logo.png?v=13" alt="UTCC" class="official-logo-dash" />
+            <div class="brand-text-dash">
+              <p class="brand-title">UTCCTP</p>
+              <p class="brand-subtitle">{{ $t("app.subtitle") }}</p>
+            </div>
+          </div>
+          <div class="nav-links">
+            <a href="#about" class="nav-link-item">{{ $t("landing.aboutTitle") }}</a>
+            <a href="#features" class="nav-link-item">Features</a>
+            <button class="ghost action-btn locale-btn" @click="toggleLocale">
+               <i class="fas fa-globe"></i> {{ localeLabel }}
+            </button>
+            <router-link v-if="state.token" to="/app/dashboard" class="solid btn-signin">{{ $t("nav.dashboard") }}</router-link>
+            <router-link v-else to="/login" class="solid btn-signin">{{ $t("actions.login") }}</router-link>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Hero Section with Video Background -->
+      <section class="landing-hero">
+        <div class="hero-video-container">
+          <iframe 
+            src="https://www.youtube.com/embed/gu4zf2yK6oI?autoplay=1&mute=1&loop=1&playlist=gu4zf2yK6oI&controls=0&showinfo=0&rel=0&modestbranding=1" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media" 
+            class="hero-video">
+          </iframe>
+          <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content container">
+          <div class="hero-text-wrap animate-slide-up">
+            <h1 class="hero-display-title">{{ $t("landing.heroTitle") }}</h1>
+            <p class="hero-display-subtitle">{{ $t("landing.heroSubtitle") }}</p>
+            <div class="hero-actions-modern">
+              <router-link to="/login" class="solid btn-hero-primary">
+                {{ $t("landing.getStarted") }} <i class="fas fa-arrow-right"></i>
+              </router-link>
+              <a href="#features" class="ghost btn-hero-secondary">
+                {{ $t("landing.exploreTrips") }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="landing-stats">
+        <div class="container stats-grid">
+          <div class="stat-item">
+            <h2>100+</h2>
+            <p>{{ $t("landing.stat1") }}</p>
+          </div>
+          <div class="stat-item">
+            <h2>500+</h2>
+            <p>{{ $t("landing.stat2") }}</p>
+          </div>
+          <div class="stat-item">
+            <h2>98%</h2>
+            <p>{{ $t("landing.stat3") }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="landing-features">
+        <div class="container">
+          <div class="section-head-center">
+            <p class="eyebrow">Excellence in Motion</p>
+            <h2 class="modern-section-title">Professional Development Redefined</h2>
+          </div>
+          <div class="features-grid">
+            <div class="feature-card-atelier">
+              <div class="f-icon"><i class="fas fa-route"></i></div>
+              <h3>{{ $t("landing.feature1Title") }}</h3>
+              <p>{{ $t("landing.feature1Desc") }}</p>
+              <router-link to="/login" class="link">Learn More <i class="fas fa-chevron-right"></i></router-link>
+            </div>
+            <div class="feature-card-atelier">
+              <div class="f-icon"><i class="fas fa-briefcase"></i></div>
+              <h3>{{ $t("landing.feature2Title") }}</h3>
+              <p>{{ $t("landing.feature2Desc") }}</p>
+              <router-link to="/login" class="link">Learn More <i class="fas fa-chevron-right"></i></router-link>
+            </div>
+            <div class="feature-card-atelier">
+              <div class="f-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+              <h3>{{ $t("landing.feature3Title") }}</h3>
+              <p>{{ $t("landing.feature3Desc") }}</p>
+              <router-link to="/login" class="link">Learn More <i class="fas fa-chevron-right"></i></router-link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="landing-about">
+        <div class="container about-flex">
+          <div class="about-image-wrap">
+             <div class="about-video-context">
+                <iframe 
+                  src="https://www.youtube.com/embed/1aXaSzhdPus?autoplay=0&mute=1&controls=1" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                  class="context-video">
+                </iframe>
+             </div>
+          </div>
+          <div class="about-content-wrap">
+            <p class="eyebrow">{{ $t("landing.aboutTitle") }}</p>
+            <h2 class="modern-about-title">Leading the Thai Chamber of Commerce Spirit</h2>
+            <p class="about-text">{{ $t("landing.aboutDesc") }}</p>
+            <router-link to="/login" class="solid btn-about">Join the Cohort</router-link>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="landing-footer">
+        <div class="container footer-content">
+          <div class="footer-brand">
+            <img src="/utcc-logo.png?v=13" alt="UTCC" class="footer-logo" />
+            <p>&copy; 2026 UTCC Trip & Internship Platform. All rights reserved.</p>
+          </div>
+          <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  `,
+  setup() {
+    const i18n = useI18n();
+    const isScrolled = ref(false);
+    
+    const handleScroll = () => {
+      isScrolled.value = window.scrollY > 50;
+    };
+
+    onMounted(() => {
+      window.addEventListener("scroll", handleScroll);
+    });
+
+    const toggleLocale = () => {
+      state.locale = state.locale === "th" ? "en" : "th";
+      i18n.locale.value = state.locale;
+      localStorage.setItem("utcctp_locale", state.locale);
+      document.documentElement.lang = state.locale;
+    };
+
+    const localeLabel = computed(() => (state.locale === "th" ? "English" : "ไทย"));
+
+    return { isScrolled, toggleLocale, localeLabel, state };
+  }
+};
 
 const LoginView = {
   template: `
@@ -672,7 +869,7 @@ const LoginView = {
         state.token = data.token;
         state.user = data.user;
         localStorage.setItem("utcctp_token", data.token);
-        router.push("/dashboard");
+        router.push("/app/dashboard");
       } catch (err) {
         error.value = true;
       }
@@ -897,8 +1094,8 @@ const DashboardView = {
            <h1 class="welcome-heading">{{ $t("dashboard.heroTitle") }}</h1>
            <p class="welcome-sub">{{ $t("dashboard.heroNote") }}</p>
            <div class="hero-actions-modern">
-               <button class="btn-primary" @click="$router.push('/applications')"><i class="fas fa-folder-open"></i> {{ $t("actions.openApplications") }}</button>
-               <button class="btn-secondary" @click="$router.push('/analytics')"><i class="fas fa-chart-line"></i> {{ $t("actions.viewAnalytics") }}</button>
+               <button class="btn-primary" @click="$router.push('/app/applications')"><i class="fas fa-folder-open"></i> {{ $t("actions.openApplications") }}</button>
+               <button class="btn-secondary" @click="$router.push('/app/analytics')"><i class="fas fa-chart-line"></i> {{ $t("actions.viewAnalytics") }}</button>
            </div>
         </div>
       </div>
@@ -910,7 +1107,7 @@ const DashboardView = {
                     <h2 class="bento-title">{{ $t("dashboard.upcomingTrips") }}</h2>
                     <p class="bento-subtitle">Scheduled academic visits & tours</p>
                 </div>
-                <button class="btn-text" @click="$router.push('/trips')">{{ $t("dashboard.viewAll") }}</button>
+                <button class="btn-text" @click="$router.push('/app/trips')">{{ $t("dashboard.viewAll") }}</button>
             </div>
             <div class="bento-list">
                 <div class="bento-item" v-for="trip in trips" :key="trip.id">
@@ -931,7 +1128,7 @@ const DashboardView = {
                     <h2 class="bento-title">{{ $t("dashboard.approvalQueue") }}</h2>
                     <p class="bento-subtitle">Action required on applications</p>
                 </div>
-                <button class="btn-text" @click="$router.push('/applications')">{{ $t("actions.openApplications") }}</button>
+                <button class="btn-text" @click="$router.push('/app/applications')">{{ $t("actions.openApplications") }}</button>
             </div>
             <div class="bento-list">
                 <div class="bento-item align-center" v-for="app in applications" :key="app.id">
@@ -941,7 +1138,7 @@ const DashboardView = {
                         <p class="item-meta">{{ app.type }} &bull; {{ app.studentMajor || "-" }}</p>
                     </div>
                     <div class="item-actions">
-                        <button class="btn-action primary" @click="$router.push('/applications')">{{ $t("actions.review") }}</button>
+                        <button class="btn-action primary" @click="$router.push('/app/applications')">{{ $t("actions.review") }}</button>
                     </div>
                 </div>
                 <div v-if="applications.length === 0" class="empty-state">All caught up!</div>
@@ -2023,12 +2220,13 @@ const AnalyticsView = {
 };
 
 const routes = [
+  { path: "/", component: LandingView, meta: { public: true } },
   { path: "/login", component: LoginView, meta: { public: true } },
   {
-    path: "/",
+    path: "/app",
     component: AppLayout,
     children: [
-      { path: "", redirect: "/dashboard" },
+      { path: "", redirect: "/app/dashboard" },
       { path: "dashboard", component: DashboardView },
       { path: "trips", component: TripsView },
       { path: "internships", component: InternshipsView },
@@ -2039,7 +2237,7 @@ const routes = [
       { path: "admin", component: AdminView, meta: { roles: ["ADMIN"] } },
     ],
   },
-  { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
+  { path: "/:pathMatch(.*)*", redirect: "/" },
 ];
 
 const router = createRouter({
@@ -2071,7 +2269,7 @@ router.beforeEach(async (to) => {
     }
   }
   if (to.meta.roles && !to.meta.roles.some((role) => state.user.roles.includes(role))) {
-    return "/dashboard";
+    return "/app/dashboard";
   }
   return true;
 });

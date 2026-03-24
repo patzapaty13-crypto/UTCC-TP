@@ -33,4 +33,17 @@ public class AuthService {
                 .map(UserProfile::from)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
+
+    public AuthResponse refreshToken(String username) {
+        User user = userRepository.findByUsername(username)
+                .filter(User::isActive)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid session"));
+        String token = jwtService.generateToken(user);
+        return AuthResponse.from(user, token);
+    }
+
+    public void logout() {
+        // Stateless JWT — no server-side invalidation needed.
+        // Client should discard the token.
+    }
 }

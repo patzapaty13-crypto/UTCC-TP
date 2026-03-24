@@ -29,6 +29,17 @@ public class AuthController {
         return authService.me(principal.getName());
     }
 
+    @PostMapping("/refresh")
+    public AuthResponse refresh(Principal principal) {
+        return authService.refreshToken(principal.getName());
+    }
+
+    @PostMapping("/logout")
+    public Map<String, String> logout() {
+        authService.logout();
+        return Map.of("status", "logged_out");
+    }
+
     @GetMapping("/health")
     public Map<String, String> health() {
         return Map.of("status", "ok");

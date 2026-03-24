@@ -10,17 +10,21 @@ import org.example.utcctp.api.dto.TripResponse;
 import org.example.utcctp.api.dto.TripScheduleRequest;
 import org.example.utcctp.api.dto.TripScheduleResponse;
 import org.example.utcctp.model.FileAsset;
+import org.example.utcctp.model.NotificationType;
+import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.TripBudget;
 import org.example.utcctp.model.TripDocument;
 import org.example.utcctp.model.TripSchedule;
 import org.example.utcctp.model.TripStatus;
 import org.example.utcctp.model.User;
+import org.example.utcctp.notification.NotificationService;
 import org.example.utcctp.repository.FileAssetRepository;
 import org.example.utcctp.repository.TripBudgetRepository;
 import org.example.utcctp.repository.TripDocumentRepository;
 import org.example.utcctp.repository.TripRepository;
 import org.example.utcctp.repository.TripScheduleRepository;
+import org.example.utcctp.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,19 +39,25 @@ public class TripService {
     private final TripBudgetRepository budgetRepository;
     private final TripDocumentRepository documentRepository;
     private final FileAssetRepository fileAssetRepository;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public TripService(
             TripRepository tripRepository,
             TripScheduleRepository scheduleRepository,
             TripBudgetRepository budgetRepository,
             TripDocumentRepository documentRepository,
-            FileAssetRepository fileAssetRepository
+            FileAssetRepository fileAssetRepository,
+            NotificationService notificationService,
+            UserRepository userRepository
     ) {
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.budgetRepository = budgetRepository;
         this.documentRepository = documentRepository;
         this.fileAssetRepository = fileAssetRepository;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     public List<TripResponse> listTrips() {
@@ -101,6 +111,20 @@ public class TripService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         trip.setStatus(TripStatus.PUBLISHED);
         tripRepository.save(trip);
+
+        // Notify all students about the new trip
+        List<User> students = userRepository.findAll().stream()
+                .filter(u -> u.getRoles().contains(RoleType.STUDENT))
+                .toList();
+        for (User student : students) {
+            notificationService.notifyUser(
+                    student,
+                    "New Trip: " + trip.getTitle(),
+                    "A new trip \"" + trip.getTitle() + "\" has been published. Apply now!",
+                    NotificationType.TRIP
+            );
+        }
+
         return mapTrip(trip);
     }
 
