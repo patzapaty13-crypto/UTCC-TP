@@ -1,0 +1,212 @@
+/* ═════════════════════════════════════════════════════ */
+/*  UTCC Trip & Internship Platform — UI Components      */
+/* ═════════════════════════════════════════════════════ */
+
+/* ── 1. Buttons ─────────────────────────────────── */
+button { font-family: inherit; }
+
+.solid, .btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px rgba(10,31,68,0.1);
+}
+
+.solid:hover, .btn-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 6px 12px rgba(10,31,68,0.15);
+  transform: translateY(-1px);
+}
+
+.ghost, .btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--primary);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ghost:hover, .btn-secondary:hover {
+  background: var(--bg-subtle);
+  border-color: #cbd5e1;
+}
+
+.link {
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+.link:hover { color: var(--accent); }
+
+.small { padding: 6px 12px; font-size: 12px; }
+
+/* ── 2. Cards & Bento System ────────────────────── */
+.card, .trip-card, .bento-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover, .trip-card:hover, .bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.card h3, .trip-card h3, .bento-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.card-head, .bento-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.bento-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ── 3. KPI Analytics Cards ─────────────────────── */
+.kpi-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, #041026 100%);
+  border: none;
+  border-radius: var(--radius);
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.kpi-banner::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.12;
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.kpi-card-modern, .analytics-kpi-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.kpi-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.kpi-icon-wrap {
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+
+/* ── 4. Badges & Status ────────────────────────── */
+.status, .chip, .modern-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status.amber { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+.status.green { background: var(--success-light); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+.status.slate { background: var(--primary-light); color: var(--primary); border: 1px solid var(--border-light); }
+.status.red   { background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+/* ── 5. Tables & Lists ──────────────────────────── */
+.table { display: grid; gap: 4px; }
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr 0.7fr;
+  align-items: center;
+  background: var(--bg-surface);
+  padding: 16px 20px;
+  border-radius: var(--radius-xs);
+  gap: 12px;
+  font-size: 14px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.table-row.header {
+  background: transparent; border: none; box-shadow: none; font-size: 12px; color: var(--text-muted); font-weight: 700;
+}
+
+.bento-list { display: flex; flex-direction: column; gap: 16px; }
+
+.bento-item {
+  display: flex; align-items: center; gap: 16px; padding: 16px;
+  border-radius: 12px; background: var(--bg-main); transition: all 0.2s;
+}
+
+.bento-item:hover {
+  background: var(--bg-surface); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transform: translateX(8px);
+}

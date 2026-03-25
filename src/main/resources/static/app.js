@@ -887,6 +887,69 @@ const statusClass = (status) => {
 
 const statusKey = (status) => `status.${status?.toLowerCase() || "draft"}`;
 
+const LanguageSelector = {
+  template: `
+    <div class="lang-dropdown-wrapper" v-click-outside="close">
+      <button class="btn btn-ghost btn-sm" @click="toggle" type="button">
+        <span class="mr-2">{{ currentFlag }}</span> {{ currentName }} <i class="fas fa-chevron-down ml-2" :class="{ 'rotate-180': isOpen }"></i>
+      </button>
+      <div class="lang-dropdown" :class="{ active: isOpen }">
+        <button 
+          v-for="lang in langs" 
+          :key="lang.code" 
+          class="lang-dropdown-item"
+          :class="{ active: state.locale === lang.code }"
+          @click="select(lang.code)"
+        >
+          <span class="flag">{{ lang.flag }}</span>
+          <span>{{ lang.name }}</span>
+        </button>
+      </div>
+    </div>
+  `,
+  setup() {
+    const isOpen = ref(false);
+    const i18n = useI18n();
+    const langs = [
+      { code: "th", name: "ภาษาไทย", flag: "🇹🇭" },
+      { code: "en", name: "English", flag: "🇺🇸" },
+      { code: "zh", name: "中文", flag: "🇨🇳" }
+    ];
+
+    const currentFlag = computed(() => langs.find(l => l.code === state.locale)?.flag || "🇹🇭");
+    const currentName = computed(() => langs.find(l => l.code === state.locale)?.name || "ไทย");
+
+    const toggle = () => isOpen.value = !isOpen.value;
+    const close = () => isOpen.value = false;
+
+    const select = (code) => {
+      state.locale = code;
+      i18n.locale.value = code;
+      if (i18n.global) i18n.global.locale.value = code;
+      localStorage.setItem("utcctp_locale", code);
+      document.documentElement.lang = code;
+      isOpen.value = false;
+    };
+
+    return { isOpen, toggle, close, select, langs, currentFlag, currentName, state };
+  },
+  directives: {
+    "click-outside": {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function(event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event);
+          }
+        };
+        document.body.addEventListener("click", el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener("click", el.clickOutsideEvent);
+      }
+    }
+  }
+};
+
 const LandingView = {
   template: `
     <div class="landing-page">
@@ -903,9 +966,7 @@ const LandingView = {
           <div class="nav-links">
             <a href="#about" class="nav-link-item">{{ $t("landing.aboutTitle") }}</a>
             <a href="#features" class="nav-link-item">Features</a>
-            <button class="ghost action-btn locale-btn" @click="toggleLocale">
-               <i class="fas fa-globe"></i> {{ localeLabel }}
-            </button>
+            <language-selector />
             <router-link v-if="state.token" to="/app/dashboard" class="solid btn-signin">{{ $t("nav.dashboard") }}</router-link>
             <router-link v-else to="/login" class="solid btn-signin">{{ $t("actions.login") }}</router-link>
           </div>
@@ -1025,6 +1086,7 @@ const LandingView = {
       </footer>
     </div>
   `,
+  components: { LanguageSelector },
   setup() {
     const i18n = useI18n();
     const isScrolled = ref(false);
@@ -1037,22 +1099,7 @@ const LandingView = {
       window.addEventListener("scroll", handleScroll);
     });
 
-    const toggleLocale = () => {
-      const locales = ["th", "en", "zh"];
-      const nextIndex = (locales.indexOf(state.locale) + 1) % locales.length;
-      state.locale = locales[nextIndex];
-      i18n.locale.value = state.locale;
-      localStorage.setItem("utcctp_locale", state.locale);
-      document.documentElement.lang = state.locale;
-    };
-
-    const localeLabel = computed(() => {
-      if (state.locale === "th") return "English";
-      if (state.locale === "en") return "中文";
-      return "ไทย";
-    });
-
-    return { isScrolled, toggleLocale, localeLabel, state };
+    return { isScrolled, state };
   }
 };
 
@@ -1079,9 +1126,7 @@ const LoginView = {
                 <a href="/#/" class="back-home-link" title="กลับหน้าแรก">
                   <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
                 </a>
-                <button class="btn btn-ghost btn-sm" @click="toggleLocale">
-                   <i class="fas fa-globe"></i> {{ localeLabel }}
-                </button>
+                <language-selector />
              </div>
              <h2 class="title">{{ $t("login.title") }}</h2>
              <p class="subtitle">{{ $t("login.subtitle") }}</p>
@@ -1117,6 +1162,7 @@ const LoginView = {
       </div>
     </div>
   `,
+  components: { LanguageSelector },
   setup() {
     const router = useRouter();
     const username = ref("");
@@ -1128,15 +1174,6 @@ const LoginView = {
       { username: "staff1", password: "pass123", role: "STAFF" },
       { username: "admin1", password: "pass123", role: "ADMIN" },
     ];
-
-    const toggleLocale = () => {
-      state.locale = state.locale === "th" ? "en" : "th";
-      i18n.global.locale.value = state.locale;
-      localStorage.setItem("utcctp_locale", state.locale);
-      document.documentElement.lang = state.locale;
-    };
-
-    const localeLabel = computed(() => (state.locale === "th" ? "English" : "ไทย"));
 
     const submit = async () => {
       error.value = false;
@@ -1151,8 +1188,120 @@ const LoginView = {
       }
     };
 
-    return { username, password, submit, error, demoUsers, toggleLocale, localeLabel };
+    return { username, password, submit, error, demoUsers };
   },
+};
+
+const RegistrationView = {
+  template: `
+    <div class="split-login-shell">
+      <div class="split-video-side">
+        <div class="split-video-wrapper">
+          <iframe 
+            src="https://www.youtube.com/embed/gu4zf2yK6oI?autoplay=1&mute=1&loop=1&playlist=gu4zf2yK6oI&controls=0&showinfo=0&rel=0" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media" 
+            class="hero-video">
+          </iframe>
+        </div>
+        <div class="split-video-overlay">
+          <div class="overlay-content animate-slide-up">
+            <h2 class="welcome-heading">Welcome to UTCC</h2>
+            <p class="welcome-sub">Join our Elite community and shape your future with professional opportunities.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="split-form-side">
+        <div class="form-container">
+          <div class="form-header animate-fade-in-1">
+             <div class="header-top">
+                <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
+                <language-selector />
+             </div>
+             <h2 class="title">{{ $t("registration.title") }}</h2>
+             <p class="subtitle">{{ $t("registration.subtitle") }}</p>
+          </div>
+          
+          <form class="animated-form" @submit.prevent="submit">
+             <div class="input-float animate-fade-in-2">
+                <input v-model="form.studentId" id="sid" placeholder=" " required />
+                <label for="sid">{{ $t("registration.studentId") }}</label>
+             </div>
+             <div class="form-grid-2">
+               <div class="input-float animate-fade-in-2">
+                  <input v-model="form.firstName" id="fname" placeholder=" " required />
+                  <label for="fname">{{ $t("registration.firstName") }}</label>
+               </div>
+               <div class="input-float animate-fade-in-2">
+                  <input v-model="form.lastName" id="lname" placeholder=" " required />
+                  <label for="lname">{{ $t("registration.lastName") }}</label>
+               </div>
+             </div>
+             <div class="input-float animate-fade-in-3">
+                <select v-model="form.academicYear" id="year" class="modern-select-float" required>
+                  <option disabled value="">Choose Year...</option>
+                  <option value="1">1st Year</option>
+                  <option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option>
+                  <option value="4">4th Year</option>
+                  <option value="5">Other</option>
+                </select>
+                <label for="year" class="select-label">{{ $t("registration.year") }}</label>
+             </div>
+             <div class="input-float animate-fade-in-3">
+                <input v-model="form.faculty" id="faculty" placeholder=" " required />
+                <label for="faculty">{{ $t("registration.faculty") }}</label>
+             </div>
+             <div class="input-float animate-fade-in-3">
+                <input v-model="form.major" id="major" placeholder=" " required />
+                <label for="major">{{ $t("registration.major") }}</label>
+             </div>
+             
+             <button class="btn btn-primary w-full animate-fade-in-4" type="submit">
+               <span>{{ $t("registration.submit") }}</span> <i class="fas fa-check-circle ml-2"></i>
+             </button>
+          </form>
+          
+          <div v-if="error" class="error-toast animate-scale-in">{{ errorMsg }}</div>
+        </div>
+      </div>
+    </div>
+  `,
+  components: { LanguageSelector },
+  setup() {
+    const router = useRouter();
+    const error = ref(false);
+    const errorMsg = ref("");
+    const form = reactive({
+      studentId: "",
+      firstName: "",
+      lastName: "",
+      academicYear: "",
+      faculty: "",
+      major: ""
+    });
+
+    const submit = async () => {
+      error.value = false;
+      try {
+        await api.updateProfile({
+          displayName: `${form.firstName} ${form.lastName}`,
+          academicYear: Number(form.academicYear),
+          faculty: form.faculty,
+          major: form.major,
+          username: form.studentId // Optional: sync with student ID
+        });
+        localStorage.setItem("utcctp_registered", "true");
+        router.push("/app/dashboard");
+      } catch (err) {
+        error.value = true;
+        errorMsg.value = err.message || "Registration failed";
+      }
+    };
+
+    return { form, submit, error, errorMsg };
+  }
 };
 
 const AppLayout = {
@@ -1176,9 +1325,7 @@ const AppLayout = {
             <i class="fas fa-bell"></i>
             <span v-if="unreadCount" class="badge badge-pulse">{{ unreadCount }}</span>
           </button>
-          <button class="btn btn-ghost btn-sm" @click="toggleLocale">
-            <i class="fas fa-globe"></i> {{ localeLabel }}
-          </button>
+          <language-selector />
           
           <div class="avatar-wrap">
             <div class="avatar dropdown-trigger" @click.stop="toggleProfileMenu">{{ initials }}</div>
@@ -1188,14 +1335,14 @@ const AppLayout = {
                   <p class="dropdown-role">{{ roleLabel }}</p>
                </div>
                <div class="dropdown-divider"></div>
-               <button class="btn btn-ghost w-full justify-start btn-sm px-4 py-3" @click="go('/app/profile'); showProfileMenu = false;">
-                 <i class="fas fa-user-circle mr-3"></i> {{ $t("nav.profile") }}
+               <button class="dropdown-item" @click="go('/app/profile'); showProfileMenu = false;">
+                 <i class="fas fa-user-circle"></i> {{ $t("nav.profile") }}
                </button>
-               <button class="btn btn-ghost w-full justify-start btn-sm px-4 py-3" @click="go('/app/settings'); showProfileMenu = false;">
-                 <i class="fas fa-cog mr-3"></i> {{ $t("nav.settings") }}
+               <button class="dropdown-item" @click="go('/app/settings'); showProfileMenu = false;">
+                 <i class="fas fa-cog"></i> {{ $t("nav.settings") }}
                </button>
                <div class="dropdown-divider"></div>
-               <button class="dropdown-item text-danger" @click="logout" style="border-radius: 0 0 16px 16px;">
+               <button class="dropdown-item text-danger" @click="logout">
                  <i class="fas fa-sign-out-alt"></i> {{ $t("actions.logout") }}
                </button>
             </div>
@@ -1288,20 +1435,6 @@ const AppLayout = {
       router.push("/login");
     };
 
-    const toggleLocale = () => {
-      const locales = ["th", "en", "zh"];
-      const nextIndex = (locales.indexOf(state.locale) + 1) % locales.length;
-      state.locale = locales[nextIndex];
-      i18n.global.locale.value = state.locale;
-      localStorage.setItem("utcctp_locale", state.locale);
-      document.documentElement.lang = state.locale;
-    };
-
-    const localeLabel = computed(() => {
-      if (state.locale === "th") return "English";
-      if (state.locale === "en") return "中文";
-      return "ไทย";
-    });
     const roleLabel = computed(() => (state.user ? i18n.global.t(`roles.${role.value}`) : "-"));
     const userName = computed(() => state.user?.displayName || "-");
     const initials = computed(() =>
@@ -1360,8 +1493,6 @@ const AppLayout = {
       roleLabel,
       userName,
       initials,
-      localeLabel,
-      toggleLocale,
       go,
       notifications,
       showNotifications,
@@ -1380,25 +1511,25 @@ const AppLayout = {
 const DashboardView = {
   template: `
     <section v-if="summary" class="dashboard-page animate-fade-in-up">
-      <div class="kpi-banner">
-        <div class="kpi-header">
-           <h1 class="welcome-heading">{{ $t("dashboard.heroTitle") }}</h1>
-           <p class="welcome-sub">{{ $t("dashboard.heroNote") }}</p>
-           <div class="hero-actions-modern">
-               <button class="btn-primary" @click="$router.push('/app/applications')"><i class="fas fa-folder-open"></i> {{ $t("actions.openApplications") }}</button>
-               <button class="btn-secondary" @click="$router.push('/app/analytics')"><i class="fas fa-chart-line"></i> {{ $t("actions.viewAnalytics") }}</button>
-           </div>
+      <div class="bento-grid">
+        <div class="kpi-banner span-12">
+          <div class="kpi-header">
+             <h1 class="welcome-heading">{{ $t("dashboard.heroTitle") }}</h1>
+             <p class="welcome-sub">{{ $t("dashboard.heroNote") }}</p>
+             <div class="hero-actions-modern">
+                 <button class="btn-primary" @click="$router.push('/app/applications')"><i class="fas fa-folder-open"></i> {{ $t("actions.openApplications") }}</button>
+                 <button class="btn-secondary" @click="$router.push('/app/analytics')"><i class="fas fa-chart-line"></i> {{ $t("actions.viewAnalytics") }}</button>
+             </div>
+          </div>
         </div>
-      </div>
 
-      <div class="bento-grid-modern delay-1">
-        <div class="bento-card">
+        <div class="bento-card span-6 delay-1">
             <div class="bento-card-header">
                 <div>
                     <h2 class="bento-title">{{ $t("dashboard.upcomingTrips") }}</h2>
                     <p class="bento-subtitle">Scheduled academic visits & tours</p>
                 </div>
-                <button class="btn btn-ghost btn-sm" @click="$router.push('/app/trips')">{{ $t("dashboard.viewAll") }}</button>
+                <button class="btn-icon-small" @click="$router.push('/app/trips')" title="View All"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="bento-list">
                 <div class="bento-item" v-for="trip in trips" :key="trip.id">
@@ -1413,24 +1544,24 @@ const DashboardView = {
             </div>
         </div>
 
-        <div class="bento-card">
+        <div class="bento-card span-6 delay-2">
             <div class="bento-card-header">
                 <div>
                     <h2 class="bento-title">{{ $t("dashboard.approvalQueue") }}</h2>
                     <p class="bento-subtitle">Action required on applications</p>
                 </div>
-                <button class="btn btn-ghost btn-sm" @click="$router.push('/app/applications')">{{ $t("actions.openApplications") }}</button>
+                <button class="btn-icon-small" @click="$router.push('/app/applications')" title="Open Queue"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="bento-list">
-                <div class="bento-item align-center" v-for="app in applications" :key="app.id">
-                    <div class="avatar-sm">{{ app.studentName.charAt(0) }}</div>
-                    <div class="item-details flex-1">
+                <div class="bento-item" v-for="app in applications" :key="app.id">
+                    <div class="avatar" style="width: 48px; height: 48px;">{{ app.studentName.charAt(0) }}</div>
+                    <div class="item-details">
                         <h4 class="item-name">{{ app.studentName }}</h4>
                         <p class="item-meta">{{ app.type }} &bull; {{ app.studentMajor || "-" }}</p>
                     </div>
                     <div class="item-actions">
-                        <button class="btn btn-primary btn-sm" @click="$router.push('/app/applications')">
-                           <i class="fas fa-magnifying-glass"></i> {{ $t("actions.review") }}
+                        <button class="btn-icon-small" @click="$router.push('/app/applications')" title="Review">
+                           <i class="fas fa-magnifying-glass"></i>
                         </button>
                     </div>
                 </div>
@@ -1640,12 +1771,13 @@ const TripsView = {
                   <div class="map-container-mini">
                     <iframe 
                       width="100%" 
-                      height="300" 
+                      height="400" 
                       frameborder="0" 
-                      scrolling="no" 
-                      marginheight="0" 
-                      marginwidth="0" 
-                      :src="'https://maps.google.com/maps?q=' + encodeURIComponent(selectedTripForDetails.mapUrl || selectedTripForDetails.location) + '&t=&z=14&ie=UTF8&iwloc=&output=embed'">
+                      style="border:0; border-radius: 12px;"
+                      allowfullscreen
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      :src="'https://www.google.com/maps/embed/v1/place?key=' + (window.__APP_CONFIG__?.googleMapsKey || '') + '&q=' + encodeURIComponent(selectedTripForDetails.location || 'UTCC Thailand')">
                     </iframe>
                   </div>
                 </div>

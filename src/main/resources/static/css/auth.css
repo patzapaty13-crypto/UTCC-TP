@@ -1,0 +1,106 @@
+/* ═════════════════════════════════════════════════════ */
+/*  UTCC Trip & Internship Platform — Auth & Login       */
+/* ═════════════════════════════════════════════════════ */
+
+.split-login-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.split-video-side {
+  flex: 1.2;
+  position: relative;
+  overflow: hidden;
+  background: var(--primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.split-video-wrapper {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+.split-video-wrapper iframe {
+  width: 150vw;
+  height: 84.375vw;
+  min-height: 100vh;
+  min-width: 177.77vh; 
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+  z-index: 0;
+}
+
+.split-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(10,31,68,0.3) 0%, rgba(10,31,68,0.95) 100%);
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  padding: 80px 60px;
+}
+
+.overlay-content {
+  color: #fff;
+  max-width: 600px;
+  position: relative;
+  z-index: 20;
+}
+
+.split-form-side {
+  flex: 0.8;
+  min-width: 450px;
+  max-width: 600px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 50;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.form-header .title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -1px;
+}
+
+.demo-btn {
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  padding: 16px;
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: scale(1.02);
+}
+
+@media (max-width: 900px) {
+  .split-video-side { display: none; }
+  .split-form-side { flex: 1; max-width: 100%; min-width: unset; box-shadow: none; }
+}

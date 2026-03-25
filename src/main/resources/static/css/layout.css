@@ -1,0 +1,228 @@
+/* ═════════════════════════════════════════════════════ */
+/*  UTCC Trip & Internship Platform — Main Layout System */
+/* ═════════════════════════════════════════════════════ */
+
+.dash-shell {
+  min-height: 100vh;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top Bar ───────────────────────────────────── */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Increased to ensure visibility */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 72px;
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-main);
+  margin-bottom: 5px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.hamburger:hover span {
+  background: var(--accent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.official-logo-dash {
+  height: 48px;
+  width: auto;
+}
+
+.brand-text-dash {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.1;
+  letter-spacing: -0.2px;
+}
+
+.brand-subtitle {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ── Main Drawer/Side Nav ───────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 72px);
+  position: relative;
+}
+
+.side-nav {
+  position: sticky;
+  top: 72px;
+  height: calc(100vh - 72px);
+  background: #ffffff;
+  border-right: 1px solid var(--border-light);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+}
+
+.nav-item {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-icon {
+  width: 20px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.nav-item.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(10, 31, 68, 0.15);
+}
+
+.nav-item.active .nav-icon {
+  color: var(--accent);
+}
+
+.nav-foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ── Content Area ──────────────────────────────── */
+.content {
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Bento Grid System Consolidation ─────────────── */
+.grid, .card-grid, .ai-grid, .trip-grid, .bento-grid {
+  display: grid;
+  gap: 24px;
+}
+
+/* Regular Grid Layout */
+.grid, .card-grid, .ai-grid, .trip-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Elite Bento Layout Grid */
+.bento-grid {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.span-4 { grid-column: span 4; }
+.span-6 { grid-column: span 6; }
+.span-8 { grid-column: span 8; }
+.span-12 { grid-column: span 12; }
+
+@media (max-width: 1200px) {
+  .bento-card.span-4, .bento-card.span-6, .bento-card.span-8 {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .side-nav {
+    position: fixed;
+    left: -280px;
+    top: 72px;
+    width: 280px;
+    z-index: 1500;
+    height: calc(100vh - 72px);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    box-shadow: 20px 0 40px rgba(0,0,0,0.1);
+  }
+  .side-nav.open {
+    left: 0;
+  }
+  .bento-card {
+    grid-column: span 12 !important;
+  }
+  .content {
+    padding: 24px 20px;
+  }
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    top: 72px;
+    background: rgba(10, 31, 68, 0.3);
+    backdrop-filter: blur(4px);
+    z-index: 1400;
+  }
+}
