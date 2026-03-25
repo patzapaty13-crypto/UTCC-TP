@@ -17,6 +17,8 @@ const messages = {
       analytics: "Analytics",
       ai: "AI Assistant",
       admin: "Admin",
+      profile: "Profile",
+      settings: "Settings",
     },
     actions: {
       notifications: "Notifications",
@@ -51,6 +53,8 @@ const messages = {
       addBudget: "Add Budget",
       addDocument: "Add Document",
       publishTrip: "Publish Trip",
+      publish: "Publish",
+      saveDraft: "Save Draft",
       submit: "Submit",
       uploadFile: "Upload File",
     },
@@ -212,11 +216,22 @@ const messages = {
       feature2Desc: "Connect with world-class organizations and secure life-changing internship positions.",
       feature3Title: "AI-Powered Coaching",
       feature3Desc: "Harness the power of AI to match your skills with the perfect industry placement.",
+      aboutTitle: "About UTCC-TP",
+      aboutDesc: "The University of the Thai Chamber of Commerce (UTCC) is leading the way in integrating academic knowledge with real-world business experience. Our Trip & Internship Platform (TP) is designed to give students a professional edge.",
       stat1: "Corporate Partners",
       stat2: "Trips Managed",
       stat3: "Placement Rate",
-      aboutTitle: "About UTCC-TP",
-      aboutDesc: "The University of the Thai Chamber of Commerce (UTCC) is leading the way in integrating academic knowledge with real-world business experience. Our Trip & Internship Platform (TP) is designed to give students a professional edge.",
+    },
+    profile: {
+      title: "Your Profile",
+      personalInfo: "Personal Information",
+      updateSuccess: "Profile updated successfully",
+    },
+    settings: {
+      title: "Settings",
+      account: "Account Settings",
+      appearance: "Appearance",
+      language: "Language",
     },
   },
   th: {
@@ -233,6 +248,8 @@ const messages = {
       analytics: "สถิติ",
       ai: "ผู้ช่วย AI",
       admin: "ผู้ดูแลระบบ",
+      profile: "โปรไฟล์",
+      settings: "การตั้งค่า",
     },
     actions: {
       notifications: "การแจ้งเตือน",
@@ -267,6 +284,8 @@ const messages = {
       addBudget: "เพิ่มงบ",
       addDocument: "เพิ่มเอกสาร",
       publishTrip: "เผยแพร่ทริป",
+      publish: "เผยแพร่",
+      saveDraft: "บันทึกร่าง",
       submit: "ยืนยัน",
       uploadFile: "อัปโหลดไฟล์",
     },
@@ -434,6 +453,246 @@ const messages = {
       aboutTitle: "เกี่ยวกับ UTCC-TP",
       aboutDesc: "มหาวิทยาลัยหอการค้าไทย (UTCC) ผู้นำในการบูรณาการความรู้ทางวิชาการเข้ากับประสบการณ์ธุรกิจจริง แพลตฟอร์ม TP ของเราออกแบบมาเพื่อให้นักศึกษามีความได้เปรียบในระดับมืออาชีพ",
     },
+    profile: {
+      title: "โปรไฟล์ของคุณ",
+      personalInfo: "ข้อมูลส่วนตัว",
+      updateSuccess: "อัปเดตโปรไฟล์สำเร็จแล้ว",
+    },
+    settings: {
+      title: "การตั้งค่า",
+      account: "ตั้งค่าบัญชี",
+      appearance: "รูปลักษณ์",
+      language: "ภาษา",
+    },
+  },
+  zh: {
+    app: {
+      title: "出游与实习平台",
+      subtitle: "大学出游、实习和报告中心",
+    },
+    nav: {
+      dashboard: "仪表板",
+      trips: "出游",
+      internships: "实习",
+      applications: "申请",
+      reports: "报告",
+      analytics: "分析",
+      ai: "AI 助手",
+      admin: "管理员",
+      profile: "个人资料",
+      settings: "设置",
+    },
+    actions: {
+      notifications: "通知",
+      createTrip: "创建出游",
+      openApplications: "打开申请",
+      viewAnalytics: "查看分析",
+      logout: "登出",
+      login: "登录",
+      review: "审阅",
+      viewAll: "查看全部",
+      openPlan: "打开计划",
+      viewDetails: "查看详情",
+      reviewBatch: "批量审阅",
+      runSummary: "运行摘要",
+      generateMatch: "生成匹配",
+      createDraft: "创建草稿",
+      toggleMenu: "菜单",
+      openChat: "打开聊天",
+      addUser: "添加用户",
+      apply: "申请",
+      approve: "批准",
+      reject: "拒绝",
+      save: "保存",
+      createCompany: "创建公司",
+      createPosition: "创建职位",
+      uploadReport: "上传报告",
+      send: "发送",
+      openNotifications: "打开通知",
+      close: "关闭",
+      refresh: "刷新",
+      addSchedule: "添加日程",
+      addBudget: "添加预算",
+      addDocument: "添加文件",
+      publishTrip: "发布出游",
+      publish: "发布",
+      saveDraft: "保存草稿",
+      submit: "提交",
+      uploadFile: "上传文件",
+    },
+    labels: {
+      role: "角色",
+      user: "用户",
+      language: "语言",
+      status: "状态",
+      title: "标题",
+      email: "电子邮件",
+      major: "专业",
+      year: "年级",
+      company: "公司",
+      position: "职位",
+      startDate: "开始日期",
+      endDate: "结束日期",
+      capacity: "容量",
+      budget: "预算",
+      objective: "目的",
+      location: "位置",
+      file: "文件",
+      note: "备注",
+      score: "分数",
+    },
+    login: {
+      title: "欢迎回来",
+      subtitle: "登录以管理出游、实习和报告。",
+      username: "用户名",
+      password: "密码",
+      demoTitle: "演示帐户",
+      demoNote: "使用这些帐户探索基于角色的视图。",
+      error: "用户名或密码无效。",
+      badge: "2026年队列",
+      heroTitle: "清晰地安排实地考察和实习。",
+      heroNote: "用于规划、审批、预算和学生报告的单一工作区。",
+      featurePlan: "具有实时时间表的结构化出游规划",
+      featureApprove: "顾问和员工的快速审批",
+      featureTrack: "实时学生进度和提交情况",
+      ticket: "实地考察入场券",
+    },
+    roles: {
+      STUDENT: "学生",
+      ADVISOR: "顾问",
+      STAFF: "教职员工",
+      ADMIN: "管理员",
+    },
+    dashboard: {
+      eyebrow: "系统概览",
+      heroTitle: "在一个流程中计划出游、安排实习并跟踪结果。",
+      heroNote: "专为顾问和教职团队打造。所有批准、报告和分析都保持连接状态。",
+      liveStatus: "实时状态",
+      activeTrips: "活跃出游",
+      internshipSlots: "实习名额",
+      reportsDue: "到期报告",
+      upcomingTrips: "即将到来的出游",
+      approvalQueue: "审批队列",
+      viewAll: "查看全部",
+      awaiting: "等待批准",
+      next7Days: "未来7天",
+      openSlots: "开放",
+    },
+    trips: {
+      title: "从草稿到完成管理出游。",
+      newTrip: "新出游",
+    },
+    internships: {
+      title: "充满信心地将学生与职位匹配。",
+      addPosition: "添加职位",
+      slots: "名额",
+    },
+    applications: {
+      title: "保持审批流转和透明。",
+      student: "学生",
+      program: "项目",
+      type: "类型",
+    },
+    reports: {
+      title: "审查结果并评估绩效。",
+      pendingLabel: "待定",
+    },
+    analytics: {
+      title: "跨平台的见解和统计数据。",
+      totalTrips: "出游总数",
+      totalPositions: "职位总数",
+      totalApplications: "申请总数",
+      totalReports: "报告总数",
+      overviewTitle: "平台概览",
+      tripsByStatus: "按状态划分的出游",
+      applicationsByStatus: "按状态划分的申请",
+      recentActivity: "最近的活动",
+    },
+    filters: {
+      all: "全部",
+      draft: "草稿",
+      published: "已发布",
+      completed: "已完成",
+      allSectors: "所有行业",
+      openSlots: "开放名额",
+      pending: "待定",
+      approved: "已批准",
+      rejected: "已拒绝",
+      awaitingReview: "等待审查",
+      graded: "已评分",
+      uploadTemplate: "上传模板",
+      users: "用户",
+      roles: "角色",
+      auditLogs: "审计日志",
+      action: "操作",
+    },
+    ai: {
+      title: "在监督下起草、总结和推荐。",
+      summary: "报告摘要",
+      recommend: "职位匹配推荐",
+      draft: "审批草稿",
+      chatbot: "聊天机器人",
+      summaryNote: "生成一份草稿摘要供顾问审查。",
+      recommendNote: "根据技能和专业推荐匹配项。",
+      draftNote: "自动起草出游批准文件。",
+      chatbotNote: "回答学生有关流程和步骤的问题。",
+    },
+    admin: {
+      title: "管理用户、权限和合规性。",
+      activeUsers: "活跃用户",
+      security: "安全",
+      systemHealth: "系统运行状况",
+      advisors: "顾问",
+      admins: "管理员",
+      alerts: "严重警报",
+      lastScan: "上次扫描",
+      pdpaReady: "已就绪PDPA",
+      uptime: "正常运行时间",
+      apiAvg: "API平均值",
+      cacheHit: "缓存命中率",
+    },
+    status: {
+      pending: "待办",
+      published: "已发布",
+      draft: "草稿",
+      approved: "已批准",
+      rejected: "已拒绝",
+      completed: "已完成",
+      submitted: "已提交",
+      awaiting_review: "等待审核",
+      graded: "已评分",
+      in_progress: "进行中",
+      open: "开放",
+      closed: "已关闭",
+    },
+    landing: {
+      heroTitle: "通过卓越的实践改变职业生涯",
+      heroSubtitle: "通往专业实地考察和全球实习安置的门户。",
+      getStarted: "开始使用",
+      exploreTrips: "探索行程",
+      feature1Title: "专业实地考察",
+      feature1Desc: "通过大学主导的考察沉浸在行业领先的环境中。",
+      feature2Title: "全球实习",
+      feature2Desc: "与世界级组织合作并获得改变职业的实习安排。",
+      feature3Title: "AI 辅助教练",
+      feature3Desc: "利用 AI 的能力将您的技能与理想岗位匹配。",
+      stat1: "企业合作伙伴",
+      stat2: "已成功管理的行程",
+      stat3: "实习成功率",
+      aboutTitle: "关于 UTCC-TP",
+      aboutDesc: "泰国商会大学 (UTCC) 在将学术知识与实际商业经验相结合方面处于领先地位。我们的出游和实习平台能够为您增加求职优势。",
+    },
+    profile: {
+      title: "您的主页",
+      personalInfo: "个人信息",
+      updateSuccess: "个人主页已成功更新",
+    },
+    settings: {
+      title: "设置",
+      account: "账户设置",
+      appearance: "外观",
+      language: "语言",
+    },
   },
 };
 
@@ -478,6 +737,11 @@ const api = {
       body: JSON.stringify(payload),
     }),
   me: () => apiFetch("/auth/me"),
+  updateProfile: (payload) =>
+    apiFetch("/auth/me", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
   dashboard: () => apiFetch("/dashboard/summary"),
   analytics: () => apiFetch("/analytics/overview"),
   listTrips: () => apiFetch("/trips"),
@@ -582,6 +846,8 @@ const navItems = [
   { path: "/app/analytics", label: "nav.analytics", icon: "fa-solid fa-chart-line", roles: ["ADVISOR", "STAFF", "ADMIN"] },
   { path: "/app/ai", label: "nav.ai", icon: "fa-solid fa-wand-magic-sparkles", roles: ["ADVISOR", "STAFF", "ADMIN"] },
   { path: "/app/admin", label: "nav.admin", icon: "fa-solid fa-user-shield", roles: ["ADMIN"] },
+  { path: "/app/profile", label: "nav.profile", icon: "fa-solid fa-user-circle", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/settings", label: "nav.settings", icon: "fa-solid fa-cog", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
 ];
 
 const formatDate = (value, locale) => {
@@ -661,11 +927,11 @@ const LandingView = {
           <div class="hero-text-wrap animate-slide-up">
             <h1 class="hero-display-title">{{ $t("landing.heroTitle") }}</h1>
             <p class="hero-display-subtitle">{{ $t("landing.heroSubtitle") }}</p>
-            <div class="hero-actions-modern">
-              <router-link to="/login" class="solid btn-hero-primary">
+            <div class="hero-actions-atelier animate-fade-in-3">
+              <router-link to="/login" class="btn btn-primary">
                 {{ $t("landing.getStarted") }} <i class="fas fa-arrow-right"></i>
               </router-link>
-              <a href="#features" class="ghost btn-hero-secondary">
+              <a href="#features" class="btn btn-secondary">
                 {{ $t("landing.exploreTrips") }}
               </a>
             </div>
@@ -738,7 +1004,7 @@ const LandingView = {
             <p class="eyebrow">{{ $t("landing.aboutTitle") }}</p>
             <h2 class="modern-about-title">Leading the Thai Chamber of Commerce Spirit</h2>
             <p class="about-text">{{ $t("landing.aboutDesc") }}</p>
-            <router-link to="/login" class="solid btn-about">Join the Cohort</router-link>
+            <router-link to="/login" class="btn btn-primary btn-about">Join the Cohort</router-link>
           </div>
         </div>
       </section>
@@ -772,13 +1038,19 @@ const LandingView = {
     });
 
     const toggleLocale = () => {
-      state.locale = state.locale === "th" ? "en" : "th";
+      const locales = ["th", "en", "zh"];
+      const nextIndex = (locales.indexOf(state.locale) + 1) % locales.length;
+      state.locale = locales[nextIndex];
       i18n.locale.value = state.locale;
       localStorage.setItem("utcctp_locale", state.locale);
       document.documentElement.lang = state.locale;
     };
 
-    const localeLabel = computed(() => (state.locale === "th" ? "English" : "ไทย"));
+    const localeLabel = computed(() => {
+      if (state.locale === "th") return "English";
+      if (state.locale === "en") return "中文";
+      return "ไทย";
+    });
 
     return { isScrolled, toggleLocale, localeLabel, state };
   }
@@ -807,7 +1079,9 @@ const LoginView = {
                 <a href="/#/" class="back-home-link" title="กลับหน้าแรก">
                   <img src="/utcc-logo.png?v=13" alt="UTCC Logo" class="official-logo-form" />
                 </a>
-                <button class="lang-btn" @click="toggleLocale">{{ localeLabel }}</button>
+                <button class="btn btn-ghost btn-sm" @click="toggleLocale">
+                   <i class="fas fa-globe"></i> {{ localeLabel }}
+                </button>
              </div>
              <h2 class="title">{{ $t("login.title") }}</h2>
              <p class="subtitle">{{ $t("login.subtitle") }}</p>
@@ -823,8 +1097,8 @@ const LoginView = {
                 <label for="password">{{ $t("login.password") }}</label>
              </div>
              
-             <button class="btn-ripple animate-fade-in-4" type="submit">
-               <span>{{ $t("actions.login") }}</span>
+             <button class="btn btn-primary w-full animate-fade-in-4" type="submit">
+               <span>{{ $t("actions.login") }}</span> <i class="fas fa-arrow-right-to-bracket ml-2"></i>
              </button>
           </form>
           
@@ -898,11 +1172,13 @@ const AppLayout = {
           </a>
         </div>
         <div class="top-actions">
-          <button class="ghost action-btn btn-icon" @click="toggleNotifications">
+          <button class="btn btn-ghost btn-sm" @click="toggleNotifications">
             <i class="fas fa-bell"></i>
             <span v-if="unreadCount" class="badge badge-pulse">{{ unreadCount }}</span>
           </button>
-          <button class="ghost action-btn locale-btn" @click="toggleLocale"><i class="fas fa-globe"></i> {{ localeLabel }}</button>
+          <button class="btn btn-ghost btn-sm" @click="toggleLocale">
+            <i class="fas fa-globe"></i> {{ localeLabel }}
+          </button>
           
           <div class="avatar-wrap">
             <div class="avatar dropdown-trigger" @click.stop="toggleProfileMenu">{{ initials }}</div>
@@ -911,6 +1187,13 @@ const AppLayout = {
                   <p class="dropdown-name">{{ userName }}</p>
                   <p class="dropdown-role">{{ roleLabel }}</p>
                </div>
+               <div class="dropdown-divider"></div>
+               <button class="btn btn-ghost w-full justify-start btn-sm px-4 py-3" @click="go('/app/profile'); showProfileMenu = false;">
+                 <i class="fas fa-user-circle mr-3"></i> {{ $t("nav.profile") }}
+               </button>
+               <button class="btn btn-ghost w-full justify-start btn-sm px-4 py-3" @click="go('/app/settings'); showProfileMenu = false;">
+                 <i class="fas fa-cog mr-3"></i> {{ $t("nav.settings") }}
+               </button>
                <div class="dropdown-divider"></div>
                <button class="dropdown-item text-danger" @click="logout" style="border-radius: 0 0 16px 16px;">
                  <i class="fas fa-sign-out-alt"></i> {{ $t("actions.logout") }}
@@ -1006,13 +1289,19 @@ const AppLayout = {
     };
 
     const toggleLocale = () => {
-      state.locale = state.locale === "th" ? "en" : "th";
+      const locales = ["th", "en", "zh"];
+      const nextIndex = (locales.indexOf(state.locale) + 1) % locales.length;
+      state.locale = locales[nextIndex];
       i18n.global.locale.value = state.locale;
       localStorage.setItem("utcctp_locale", state.locale);
       document.documentElement.lang = state.locale;
     };
 
-    const localeLabel = computed(() => (state.locale === "th" ? "English" : "ไทย"));
+    const localeLabel = computed(() => {
+      if (state.locale === "th") return "English";
+      if (state.locale === "en") return "中文";
+      return "ไทย";
+    });
     const roleLabel = computed(() => (state.user ? i18n.global.t(`roles.${role.value}`) : "-"));
     const userName = computed(() => state.user?.displayName || "-");
     const initials = computed(() =>
@@ -1109,7 +1398,7 @@ const DashboardView = {
                     <h2 class="bento-title">{{ $t("dashboard.upcomingTrips") }}</h2>
                     <p class="bento-subtitle">Scheduled academic visits & tours</p>
                 </div>
-                <button class="btn-text" @click="$router.push('/app/trips')">{{ $t("dashboard.viewAll") }}</button>
+                <button class="btn btn-ghost btn-sm" @click="$router.push('/app/trips')">{{ $t("dashboard.viewAll") }}</button>
             </div>
             <div class="bento-list">
                 <div class="bento-item" v-for="trip in trips" :key="trip.id">
@@ -1130,7 +1419,7 @@ const DashboardView = {
                     <h2 class="bento-title">{{ $t("dashboard.approvalQueue") }}</h2>
                     <p class="bento-subtitle">Action required on applications</p>
                 </div>
-                <button class="btn-text" @click="$router.push('/app/applications')">{{ $t("actions.openApplications") }}</button>
+                <button class="btn btn-ghost btn-sm" @click="$router.push('/app/applications')">{{ $t("actions.openApplications") }}</button>
             </div>
             <div class="bento-list">
                 <div class="bento-item align-center" v-for="app in applications" :key="app.id">
@@ -1140,7 +1429,9 @@ const DashboardView = {
                         <p class="item-meta">{{ app.type }} &bull; {{ app.studentMajor || "-" }}</p>
                     </div>
                     <div class="item-actions">
-                        <button class="btn-action primary" @click="$router.push('/app/applications')">{{ $t("actions.review") }}</button>
+                        <button class="btn btn-primary btn-sm" @click="$router.push('/app/applications')">
+                           <i class="fas fa-magnifying-glass"></i> {{ $t("actions.review") }}
+                        </button>
                     </div>
                 </div>
                 <div v-if="applications.length === 0" class="empty-state">All caught up!</div>
@@ -1228,13 +1519,17 @@ const TripsView = {
               <input type="number" v-model="form.budgetTotal" placeholder="150000" />
             </div>
             <div class="input-group full">
+              <label>Google Map Link / Custom Location</label>
+              <input v-model="form.mapUrl" placeholder="https://maps.google.com/?q=..." />
+            </div>
+            <div class="input-group full">
               <label>{{ $t("labels.objective") }}</label>
               <textarea v-model="form.objective" rows="2" placeholder="Describe the educational goals..."></textarea>
             </div>
           </div>
           <div class="form-footer">
-            <button class="btn-primary-glow" @click="submitTrip">
-              <i class="fas fa-save"></i> {{ $t("actions.saveDraft") }}
+            <button class="btn btn-primary w-full" @click="submitTrip">
+              <i class="fas fa-floppy-disk"></i> {{ $t("actions.saveDraft") }}
             </button>
           </div>
         </div>
@@ -1263,8 +1558,10 @@ const TripsView = {
             </div>
           </div>
           <div class="form-footer">
-             <button class="btn-secondary-glow" @click="addBudget">{{ $t("actions.addBudget") }}</button>
-             <button class="btn-secondary-glow" v-if="selectedTripId" @click="publishTrip(selectedTripId)">
+             <button class="btn btn-secondary w-full" @click="addBudget">
+               <i class="fas fa-plus"></i> {{ $t("actions.addBudget") }}
+             </button>
+             <button class="btn btn-accent w-full" v-if="selectedTripId" @click="publishTrip(selectedTripId)">
                <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
              </button>
           </div>
@@ -1273,8 +1570,8 @@ const TripsView = {
 
       <!-- Main Trip Grid -->
       <div class="modern-trip-grid">
-        <article v-for="trip in filteredTrips" :key="trip.id" class="trip-card-bento animate-scale-in">
-          <div class="trip-card-content">
+        <article v-for="trip in filteredTrips" :key="trip.id" class="trip-card-bento animate-scale-in" @click="openTripDetails(trip)">
+          <div class="trip-card-content clickable">
             <div class="trip-type-tag">{{ trip.location }}</div>
             <h3 class="trip-name">{{ trip.title }}</h3>
             <div class="trip-details">
@@ -1292,14 +1589,17 @@ const TripsView = {
             </div>
           </div>
           <div class="trip-card-footer">
-             <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn-apply" @click="applyTrip(trip.id)">
-               {{ $t("actions.apply") }}
+             <button class="btn btn-ghost btn-sm w-full" @click="openTripDetails(trip)">
+               <i class="fas fa-eye"></i> {{ $t("actions.viewDetails") }}
              </button>
-             <button v-if="canManage && trip.status === 'DRAFT'" class="btn-manage-draft" @click="publishTrip(trip.id)">
-               <i class="fas fa-paper-plane"></i> Publish
+             <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn btn-accent w-full" @click.stop="applyTrip(trip.id)">
+               <i class="fas fa-signature"></i> {{ $t("actions.apply") }}
              </button>
-             <button v-if="canManage" class="btn-icon-ghost" title="Edit Trip">
-               <i class="fas fa-edit"></i>
+             <button v-if="canManage && trip.status === 'DRAFT'" class="btn btn-primary w-full" @click.stop="publishTrip(trip.id)">
+               <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
+             </button>
+             <button v-if="canManage" class="btn btn-ghost btn-sm" title="Edit Trip">
+               <i class="fas fa-pen-to-square"></i>
              </button>
           </div>
         </article>
@@ -1307,6 +1607,88 @@ const TripsView = {
         <div v-if="filteredTrips.length === 0" class="empty-state-large">
            <i class="fas fa-folder-open"></i>
            <p>No trips found in this category</p>
+        </div>
+      </div>
+
+      <!-- Trip Details Modal -->
+      <div v-if="selectedTripForDetails" class="modal-overlay" @click="closeTripDetails">
+        <div class="modal-content animate-scale-in" @click.stop>
+          <div class="modal-header">
+            <h3>{{ selectedTripForDetails.title }}</h3>
+            <button class="close-btn" @click="closeTripDetails"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="details-grid-modal">
+              <div class="details-main">
+                <div class="detail-section">
+                  <label><i class="fas fa-bullseye"></i> {{ $t("labels.objective") }}</label>
+                  <p>{{ selectedTripForDetails.objective || 'No objective provided.' }}</p>
+                </div>
+                
+                <div class="detail-section" v-if="tripDetailsContent && tripDetailsContent.schedules.length">
+                  <label><i class="fas fa-list-check"></i> Schedule</label>
+                  <div class="schedule-list">
+                    <div v-for="item in tripDetailsContent.schedules" :key="item.id" class="schedule-item-mini">
+                      <span class="time">{{ formatDate(item.startTime) }}</span>
+                      <span class="activity">{{ item.activity }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-section">
+                  <label><i class="fas fa-location-dot"></i> {{ $t("labels.location") }}</label>
+                  <div class="map-container-mini">
+                    <iframe 
+                      width="100%" 
+                      height="300" 
+                      frameborder="0" 
+                      scrolling="no" 
+                      marginheight="0" 
+                      marginwidth="0" 
+                      :src="'https://maps.google.com/maps?q=' + encodeURIComponent(selectedTripForDetails.mapUrl || selectedTripForDetails.location) + '&t=&z=14&ie=UTF8&iwloc=&output=embed'">
+                    </iframe>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="details-sidebar">
+                <div class="info-card-modal">
+                  <div class="info-row">
+                    <i class="far fa-calendar"></i>
+                    <div>
+                      <p class="label">{{ $t("labels.startDate") }}</p>
+                      <p>{{ formatDate(selectedTripForDetails.startDate) }}</p>
+                    </div>
+                  </div>
+                  <div class="info-row">
+                    <i class="far fa-calendar-check"></i>
+                    <div>
+                      <p class="label">{{ $t("labels.endDate") }}</p>
+                      <p>{{ formatDate(selectedTripForDetails.endDate) }}</p>
+                    </div>
+                  </div>
+                  <div class="info-row">
+                    <i class="fas fa-users"></i>
+                    <div>
+                      <p class="label">{{ $t("labels.capacity") }}</p>
+                      <p>{{ selectedTripForDetails.capacity }} Students</p>
+                    </div>
+                  </div>
+                  <div class="info-row">
+                    <i class="fas fa-coins"></i>
+                    <div>
+                      <p class="label">{{ $t("labels.budget") }}</p>
+                      <p>{{ formatCurrency(selectedTripForDetails.budgetTotal || 0) }}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <button v-if="isStudent && selectedTripForDetails.status === 'PUBLISHED'" class="btn btn-primary w-full mt-4" @click="applyTrip(selectedTripForDetails.id)">
+                  <i class="fas fa-signature"></i> {{ $t("actions.apply") }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1321,11 +1703,14 @@ const TripsView = {
       endDate: "",
       capacity: "",
       budgetTotal: "",
+      mapUrl: "",
     });
     const schedule = reactive({ activity: "", startTime: "", endTime: "" });
     const budget = reactive({ category: "", amount: "" });
     const document = reactive({ docType: "", file: null });
     const selectedTripId = ref("");
+    const selectedTripForDetails = ref(null);
+    const tripDetailsContent = ref(null);
 
     const role = computed(() => state.user?.roles?.[0] || "GUEST");
     const canManage = computed(() => ["ADVISOR", "STAFF", "ADMIN"].includes(role.value));
@@ -1366,6 +1751,7 @@ const TripsView = {
         endDate: form.endDate || null,
         capacity: form.capacity ? Number(form.capacity) : null,
         budgetTotal: form.budgetTotal ? Number(form.budgetTotal) : null,
+        mapUrl: form.mapUrl,
       });
       form.title = "";
       form.objective = "";
@@ -1374,6 +1760,7 @@ const TripsView = {
       form.endDate = "";
       form.capacity = "";
       form.budgetTotal = "";
+      form.mapUrl = "";
       await loadTrips();
     };
 
@@ -1447,6 +1834,21 @@ const TripsView = {
       addBudget,
       addDocument,
       handleDocFile,
+      openTripDetails: async (trip) => {
+        selectedTripForDetails.value = trip;
+        tripDetailsContent.value = null;
+        try {
+          tripDetailsContent.value = await api.getTrip(trip.id);
+        } catch (e) {
+          console.error("Failed to load details", e);
+        }
+      },
+      closeTripDetails: () => {
+        selectedTripForDetails.value = null;
+        tripDetailsContent.value = null;
+      },
+      tripDetailsContent,
+      selectedTripForDetails,
       formatDate: (value) => formatDate(value, state.locale),
       formatCurrency: (value) => formatCurrency(value, state.locale),
       statusClass,
@@ -1457,102 +1859,126 @@ const TripsView = {
 
 const InternshipsView = {
   template: `
-    <section>
-      <div class="section-head">
-        <div>
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
           <p class="eyebrow">{{ $t("nav.internships") }}</p>
-          <h2>{{ $t("internships.title") }}</h2>
+          <h2 class="modern-section-title">{{ $t("internships.title") }}</h2>
+          <p class="section-subtitle">Discover premium placement opportunities and industry partnerships</p>
         </div>
-        <div class="filters">
-          <button class="ghost">{{ $t("filters.allSectors") }}</button>
-          <button class="ghost">{{ $t("filters.openSlots") }}</button>
-        </div>
-      </div>
-
-      <div v-if="canManage" class="card form-card">
-        <h3>{{ $t("actions.createCompany") }}</h3>
-        <div class="form-grid">
-          <div>
-            <label>{{ $t("labels.company") }}</label>
-            <input v-model="companyForm.name" />
-          </div>
-          <div>
-            <label>Industry</label>
-            <input v-model="companyForm.industry" />
-          </div>
-          <div>
-            <label>{{ $t("labels.location") }}</label>
-            <input v-model="companyForm.location" />
-          </div>
-          <div>
-            <label>Contact Name</label>
-            <input v-model="companyForm.contactName" />
-          </div>
-          <div>
-            <label>Contact Email</label>
-            <input v-model="companyForm.contactEmail" />
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="solid" @click="submitCompany">{{ $t("actions.createCompany") }}</button>
+        <div class="filters-modern">
+          <button class="filter-tab active">{{ $t("filters.allSectors") }}</button>
+          <button class="filter-tab">{{ $t("filters.openSlots") }}</button>
         </div>
       </div>
 
-      <div v-if="canManage" class="card form-card">
-        <h3>{{ $t("actions.createPosition") }}</h3>
-        <div class="form-grid">
-          <div class="full">
-            <label>{{ $t("labels.company") }}</label>
-            <select v-model="positionForm.companyId">
-              <option disabled value="">Select company</option>
-              <option v-for="company in companies" :key="company.id" :value="company.id">
-                {{ company.name }}
-              </option>
-            </select>
+      <!-- Admin Tools for Company/Position Management -->
+      <div v-if="canManage" class="admin-tools-grid animate-fade-in-delayed">
+        <div class="card modern-form-card shadow-soft">
+          <div class="form-card-header">
+            <i class="fas fa-building-circle-check"></i>
+            <h3>{{ $t("actions.createCompany") }}</h3>
           </div>
-          <div>
-            <label>{{ $t("labels.position") }}</label>
-            <input v-model="positionForm.title" />
+          <div class="form-grid-modern">
+            <div class="input-group">
+              <label>{{ $t("labels.company") }}</label>
+              <input v-model="companyForm.name" placeholder="UTCC Tech Solutions" />
+            </div>
+            <div class="input-group">
+              <label>Industry</label>
+              <input v-model="companyForm.industry" placeholder="SaaS / Fintech" />
+            </div>
+            <div class="input-group full">
+              <label>{{ $t("labels.location") }}</label>
+              <input v-model="companyForm.location" placeholder="Bangkok, Thailand" />
+            </div>
+            <div class="input-group">
+              <label>Contact Person</label>
+              <input v-model="companyForm.contactName" placeholder="John Doe" />
+            </div>
+            <div class="input-group">
+              <label>Contact Email</label>
+              <input v-model="companyForm.contactEmail" placeholder="hr@utcc-solutions.com" />
+            </div>
           </div>
-          <div>
-            <label>{{ $t("labels.location") }}</label>
-            <input v-model="positionForm.location" />
-          </div>
-          <div>
-            <label>Mode</label>
-            <input v-model="positionForm.mode" placeholder="Hybrid" />
-          </div>
-          <div>
-            <label>Slots</label>
-            <input type="number" v-model="positionForm.slots" />
-          </div>
-          <div class="full">
-            <label>Description</label>
-            <textarea v-model="positionForm.description" rows="2"></textarea>
-          </div>
-          <div class="full">
-            <label>Requirements</label>
-            <textarea v-model="positionForm.requirements" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="solid" @click="submitPosition">{{ $t("actions.createPosition") }}</button>
-        </div>
-      </div>
-
-      <div class="card-grid">
-        <div class="card accent" v-for="internship in internships" :key="internship.id">
-          <h3>{{ internship.company }}</h3>
-          <p>{{ internship.title }} ({{ internship.slots }} {{ $t("internships.slots") }})</p>
-          <div class="meta">
-            <span>{{ internship.location }}</span>
-            <span>{{ internship.mode }}</span>
-          </div>
-          <div class="card-actions">
-            <button v-if="isStudent" class="solid small" @click="applyInternship(internship.id)">
-              {{ $t("actions.apply") }}
+          <div class="form-footer">
+            <button class="btn btn-primary w-full" @click="submitCompany">
+              <i class="fas fa-plus"></i> {{ $t("actions.createCompany") }}
             </button>
           </div>
+        </div>
+
+        <div class="card modern-form-card shadow-soft">
+          <div class="form-card-header">
+            <i class="fas fa-briefcase"></i>
+            <h3>{{ $t("actions.createPosition") }}</h3>
+          </div>
+          <div class="form-grid-modern">
+            <div class="input-group full">
+              <label>{{ $t("labels.company") }}</label>
+              <select v-model="positionForm.companyId" class="modern-select">
+                <option disabled value="">Choose a partner company...</option>
+                <option v-for="company in companies" :key="company.id" :value="company.id">
+                  {{ company.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.position") }}</label>
+              <input v-model="positionForm.title" placeholder="Frontend Developer Intern" />
+            </div>
+            <div class="input-group">
+              <label>Availability Slots</label>
+              <input type="number" v-model="positionForm.slots" placeholder="5" />
+            </div>
+            <div class="input-group">
+              <label>Mode</label>
+              <input v-model="positionForm.mode" placeholder="Hybrid / Remote" />
+            </div>
+            <div class="input-group">
+              <label>{{ $t("labels.location") }}</label>
+              <input v-model="positionForm.location" placeholder="Sukhumvit, Bangkok" />
+            </div>
+          </div>
+          <div class="form-footer">
+            <button class="btn btn-secondary w-full" @click="submitPosition">
+              <i class="fas fa-plus"></i> {{ $t("actions.createPosition") }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Internship Listings -->
+      <div class="modern-trip-grid">
+        <article class="trip-card-bento animate-scale-in" v-for="internship in internships" :key="internship.id">
+          <div class="trip-card-content">
+            <div class="trip-type-tag">{{ internship.location }}</div>
+            <h3 class="trip-name">{{ internship.company }}</h3>
+            <p class="position-title" style="font-weight: 700; color: var(--text-muted); margin-bottom: 12px;">{{ internship.title }}</p>
+            <div class="trip-details">
+              <div class="detail-item">
+                <i class="fas fa-user-group"></i>
+                <span>{{ internship.slots }} {{ $t("internships.slots") }} available</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-laptop-house"></i>
+                <span>{{ internship.mode }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="trip-card-footer">
+             <button v-if="isStudent" class="btn btn-accent w-full" @click="applyInternship(internship.id)">
+               <i class="fas fa-file-signature"></i> {{ $t("actions.apply") }}
+             </button>
+             <button v-if="canManage" class="btn btn-ghost btn-sm" title="Edit Position">
+               <i class="fas fa-pen-to-square"></i>
+             </button>
+          </div>
+        </article>
+        
+        <div v-if="internships.length === 0" class="empty-state-large">
+           <i class="fas fa-briefcase"></i>
+           <p>No internship opportunities currently open</p>
         </div>
       </div>
     </section>
@@ -1634,40 +2060,71 @@ const InternshipsView = {
 
 const ApplicationsView = {
   template: `
-    <section>
-      <div class="section-head">
-        <div>
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
           <p class="eyebrow">{{ $t("nav.applications") }}</p>
-          <h2>{{ $t("applications.title") }}</h2>
+          <h2 class="modern-section-title">{{ $t("applications.title") }}</h2>
+          <p class="section-subtitle">Review and manage student admission requests</p>
         </div>
-        <div class="filters">
-          <button class="ghost">{{ $t("filters.pending") }}</button>
-          <button class="ghost">{{ $t("filters.approved") }}</button>
-          <button class="ghost">{{ $t("filters.rejected") }}</button>
+        <div class="filters-modern">
+          <button class="filter-tab active">{{ $t("filters.pending") }}</button>
+          <button class="filter-tab">{{ $t("filters.approved") }}</button>
+          <button class="filter-tab">{{ $t("filters.rejected") }}</button>
         </div>
       </div>
-      <div class="table">
-        <div class="table-row header">
-          <span>{{ $t("applications.student") }}</span>
-          <span>{{ $t("applications.program") }}</span>
-          <span>{{ $t("applications.type") }}</span>
-          <span>{{ $t("labels.status") }}</span>
-          <span>{{ $t("filters.action") }}</span>
-        </div>
-        <div class="table-row" v-for="app in applications" :key="app.id">
-          <span>{{ app.studentName }}</span>
-          <span>{{ app.studentMajor || "-" }}</span>
-          <span>{{ app.type }}</span>
-          <span :class="statusClass(app.status)">{{ $t(statusKey(app.status)) }}</span>
-          <div class="row-actions">
-            <button v-if="canDecide" class="solid small" @click="decide(app.id, 'APPROVE')">
-              {{ $t("actions.approve") }}
-            </button>
-            <button v-if="canDecide" class="ghost small" @click="decide(app.id, 'REJECT')">
-              {{ $t("actions.reject") }}
-            </button>
-            <span v-if="!canDecide" class="muted">{{ app.tripTitle || app.internshipTitle }}</span>
-          </div>
+
+      <div class="modern-table-card shadow-soft">
+        <div class="table-responsive">
+          <table class="modern-data-table">
+            <thead>
+              <tr>
+                <th>{{ $t("applications.student") }}</th>
+                <th>{{ $t("applications.program") }}</th>
+                <th>{{ $t("applications.type") }}</th>
+                <th>{{ $t("labels.status") }}</th>
+                <th class="text-right">{{ $t("filters.action") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="app in applications" :key="app.id" class="table-row-hover">
+                <td>
+                  <div class="user-info-cell">
+                    <div class="avatar-xs">{{ app.studentName.charAt(0) }}</div>
+                    <span>{{ app.studentName }}</span>
+                  </div>
+                </td>
+                <td><span class="major-tag">{{ app.studentMajor || "-" }}</span></td>
+                <td><span class="type-badge">{{ app.type }}</span></td>
+                <td>
+                  <span :class="['status-pill-sm', statusClass(app.status)]">
+                    {{ $t(statusKey(app.status)) }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <div class="table-actions" v-if="canDecide && app.status === 'PENDING'">
+                    <button class="btn-table-approve" @click="decide(app.id, 'APPROVE')" title="Approve">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-table-reject" @click="decide(app.id, 'REJECT')" title="Reject">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div v-else class="table-meta-cell">
+                    {{ app.tripTitle || app.internshipTitle || "-" }}
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="applications.length === 0">
+                <td colspan="5" class="empty-table-cell">
+                   <div class="empty-state">
+                     <i class="fas fa-inbox"></i>
+                     <p>No applications to display</p>
+                   </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -1693,77 +2150,99 @@ const ApplicationsView = {
 
 const ReportsView = {
   template: `
-    <section>
-      <div class="section-head">
-        <div>
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
           <p class="eyebrow">{{ $t("nav.reports") }}</p>
-          <h2>{{ $t("reports.title") }}</h2>
+          <h2 class="modern-section-title">{{ $t("reports.title") }}</h2>
+          <p class="section-subtitle">Review outcomes and evaluate performance metrics</p>
         </div>
-        <div class="filters">
-          <button class="ghost">{{ $t("filters.awaitingReview") }}</button>
-          <button class="ghost">{{ $t("filters.graded") }}</button>
+        <div class="filters-modern">
+          <button class="filter-tab active">{{ $t("filters.awaitingReview") }}</button>
+          <button class="filter-tab">{{ $t("filters.graded") }}</button>
         </div>
       </div>
 
-      <div v-if="isStudent" class="card form-card">
-        <h3>{{ $t("actions.uploadReport") }}</h3>
-        <div class="form-grid">
-          <div class="full">
+      <!-- Student Upload Section -->
+      <div v-if="isStudent" class="card modern-form-card shadow-soft mb-10 animate-fade-in-delayed">
+        <div class="form-card-header">
+          <i class="fas fa-file-upload"></i>
+          <h3>{{ $t("actions.uploadReport") }}</h3>
+        </div>
+        <div class="form-grid-modern">
+          <div class="input-group">
             <label>{{ $t("labels.position") }}</label>
-            <select v-model="reportForm.type">
+            <select v-model="reportForm.type" class="modern-select">
               <option value="TRIP">Trip</option>
               <option value="INTERNSHIP">Internship</option>
             </select>
           </div>
-          <div class="full" v-if="reportForm.type === 'TRIP'">
+          <div class="input-group" v-if="reportForm.type === 'TRIP'">
             <label>{{ $t("nav.trips") }}</label>
-            <select v-model="reportForm.tripId">
+            <select v-model="reportForm.tripId" class="modern-select">
               <option disabled value="">Select trip</option>
-              <option v-for="trip in trips" :key="trip.id" :value="trip.id">
-                {{ trip.title }}
-              </option>
+              <option v-for="trip in trips" :key="trip.id" :value="trip.id">{{ trip.title }}</option>
             </select>
           </div>
-          <div class="full" v-if="reportForm.type === 'INTERNSHIP'">
+          <div class="input-group" v-if="reportForm.type === 'INTERNSHIP'">
             <label>{{ $t("nav.internships") }}</label>
-            <select v-model="reportForm.internshipId">
+            <select v-model="reportForm.internshipId" class="modern-select">
               <option disabled value="">Select position</option>
-              <option v-for="internship in internships" :key="internship.id" :value="internship.id">
-                {{ internship.title }}
-              </option>
+              <option v-for="internship in internships" :key="internship.id" :value="internship.id">{{ internship.title }}</option>
             </select>
           </div>
-          <div class="full">
+          <div class="input-group" :class="{ 'full': reportForm.type === '' }">
             <label>{{ $t("labels.file") }}</label>
-            <input type="file" @change="handleReportFile" />
+            <input type="file" @change="handleReportFile" class="modern-file-input" />
           </div>
         </div>
-        <div class="form-actions">
-          <button class="solid" @click="submitReport">{{ $t("actions.submit") }}</button>
+        <div class="form-footer">
+          <button class="btn btn-primary w-full" @click="submitReport">
+            <i class="fas fa-paper-plane"></i> {{ $t("actions.submit") }}
+          </button>
         </div>
       </div>
 
-      <div class="card-grid">
-        <div class="card" v-for="report in reports" :key="report.id">
-          <h3>{{ report.title }}</h3>
-          <div class="meta">
-            <span :class="statusClass(report.status)">{{ $t(statusKey(report.status)) }}</span>
-            <span>{{ formatDate(report.submittedAt) }}</span>
-          </div>
-          <div v-if="canGrade" class="form-grid compact">
-            <div>
-              <label>{{ $t("labels.score") }}</label>
-              <input type="number" v-model="grades[report.id].score" />
+      <!-- Reports List (Bento Gallery) -->
+      <div class="modern-trip-grid">
+        <article v-for="report in reports" :key="report.id" class="trip-card-bento animate-scale-in">
+          <div class="trip-card-content">
+            <div class="trip-type-tag">{{ report.type }}</div>
+            <h3 class="trip-name">{{ report.title }}</h3>
+            <div class="trip-details">
+              <div class="detail-item">
+                <i class="far fa-clock"></i>
+                <span>{{ formatDate(report.submittedAt) }}</span>
+              </div>
             </div>
-            <div class="full">
-              <label>{{ $t("labels.note") }}</label>
-              <input v-model="grades[report.id].comment" />
+            <div :class="['status-pill-large', statusClass(report.status)]" style="margin-top: 16px;">
+              {{ $t(statusKey(report.status)) }}
+            </div>
+            
+            <!-- Grading Section for Staff -->
+            <div v-if="canGrade && report.status === 'SUBMITTED'" class="admin-grading-panel animate-fade-in">
+              <div class="divider"></div>
+              <div class="form-grid-modern compact">
+                <div class="input-group">
+                  <label>{{ $t("labels.score") }}</label>
+                  <input type="number" v-model="grades[report.id].score" placeholder="0-100" />
+                </div>
+                <div class="input-group">
+                  <label>{{ $t("labels.note") }}</label>
+                  <input v-model="grades[report.id].comment" placeholder="Feedback..." />
+                </div>
+              </div>
             </div>
           </div>
-          <div class="form-actions" v-if="canGrade">
-            <button class="solid small" @click="grade(report.id)">{{ $t("actions.approve") }}</button>
+          <div class="trip-card-footer">
+             <button v-if="canGrade" class="btn btn-primary btn-sm" @click="grade(report.id)">
+               {{ $t("actions.approve") }}
+             </button>
+             <button class="btn btn-ghost btn-sm" title="Download File">
+               <i class="fas fa-download"></i>
+             </button>
           </div>
-        </div>
+        </article>
       </div>
     </section>
   `,
@@ -1861,14 +2340,14 @@ const AiView = {
               {{ report.title }}
             </option>
           </select>
-          <button class="solid" @click="runSummary">{{ $t("actions.runSummary") }}</button>
+          <button class="btn btn-primary w-full" @click="runSummary">{{ $t("actions.runSummary") }}</button>
         </div>
         <div class="card">
           <h3>{{ $t("ai.recommend") }}</h3>
           <p>{{ $t("ai.recommendNote") }}</p>
           <input v-model="recommend.major" :placeholder="$t('labels.major')" />
           <input v-model="recommend.skills" placeholder="SQL, Python" />
-          <button class="solid" @click="runRecommend">{{ $t("actions.generateMatch") }}</button>
+          <button class="btn btn-primary w-full" @click="runRecommend">{{ $t("actions.generateMatch") }}</button>
         </div>
         <div class="card">
           <h3>{{ $t("ai.draft") }}</h3>
@@ -1879,13 +2358,13 @@ const AiView = {
               {{ trip.title }}
             </option>
           </select>
-          <button class="solid" @click="runDraft">{{ $t("actions.createDraft") }}</button>
+          <button class="btn btn-primary w-full" @click="runDraft">{{ $t("actions.createDraft") }}</button>
         </div>
         <div class="card">
           <h3>{{ $t("ai.chatbot") }}</h3>
           <p>{{ $t("ai.chatbotNote") }}</p>
           <input v-model="chat.message" placeholder="Ask a question" />
-          <button class="solid" @click="runChat">{{ $t("actions.openChat") }}</button>
+          <button class="btn btn-primary w-full" @click="runChat">{{ $t("actions.openChat") }}</button>
         </div>
       </div>
       <div v-if="response" class="card ai-response">
@@ -1982,15 +2461,19 @@ const AdminView = {
             </div>
           </div>
         </div>
-        <div class="form-actions">
-          <button class="solid" @click="submitUser">{{ $t("actions.save") }}</button>
+        <div class="form-actions mt-6">
+          <button class="btn btn-primary w-full" @click="submitUser">
+            <i class="fas fa-floppy-disk"></i> {{ $t("actions.save") }}
+          </button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-head">
           <h3>{{ $t("filters.users") }}</h3>
-          <button class="ghost" @click="loadUsers">{{ $t("actions.refresh") }}</button>
+          <button class="btn btn-ghost btn-sm" @click="loadUsers">
+            <i class="fas fa-rotate"></i> {{ $t("actions.refresh") }}
+          </button>
         </div>
         <div class="table">
           <div class="table-row header">
@@ -2005,7 +2488,7 @@ const AdminView = {
             <span>{{ user.email || "-" }}</span>
             <span>{{ user.major || "-" }}</span>
             <span class="status green">{{ user.roles.join(", ") }}</span>
-            <button class="ghost small" @click="selectUser(user)">Edit</button>
+            <button class="btn btn-ghost btn-xs" @click="selectUser(user)">Edit</button>
           </div>
         </div>
       </div>
@@ -2071,40 +2554,364 @@ const AdminView = {
   },
 };
 
+const ProfileView = {
+  template: `
+    <section class="animate-fade-in-up">
+      <div v-if="!isEditing" class="official-profile-shell">
+        <!-- Sidebar Identity -->
+        <div class="profile-sidebar-official">
+          <div class="sidebar-id-card">
+            <div class="official-avatar" :style="avatarStyle">
+               <span v-if="!user?.profilePictureUrl" class="avatar-text">{{ initials }}</span>
+               <div class="verified-badge"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="sidebar-id-text">
+               <h3>{{ userName }}</h3>
+               <p class="role-pill">{{ roleLabel }}</p>
+               <p class="id-number text-xs opacity-60 mt-2">ID: {{ user?.username }}</p>
+            </div>
+            <button class="btn btn-secondary w-full mt-6" @click="startEdit">
+               <i class="fas fa-edit"></i> Edit Profile
+            </button>
+          </div>
+          <div class="sidebar-nav-hint">
+             <div class="hint-item active"><i class="fas fa-id-card"></i> ข้อมูลส่วนตัว</div>
+             <div class="hint-item"><i class="fas fa-shield-halved"></i> ความปลอดภัย</div>
+          </div>
+        </div>
+
+        <!-- Main Content area -->
+        <div class="profile-content-official">
+          <div class="content-head-official">
+             <h2>ใบข้อมูลส่วนบุคคล (Electronic ID)</h2>
+             <div class="official-stamp">UTCC VERIFIED</div>
+          </div>
+          
+          <div class="official-section">
+            <div class="section-title-official">
+               <i class="fas fa-graduation-cap"></i> ข้อมูลด้านการศึกษา (Academic Details)
+            </div>
+            <div class="official-grid-layout">
+              <div class="grid-cell">
+                 <label>คณะ (Faculty)</label>
+                 <span>{{ user?.faculty || 'มหาวิทยาลัยหอการค้าไทย' }}</span>
+              </div>
+              <div class="grid-cell">
+                 <label>สาขาวิชา (Major)</label>
+                 <span>{{ user?.major || '-' }}</span>
+              </div>
+              <div class="grid-cell">
+                 <label>ชั้นปี (Academic Year)</label>
+                 <span>ปีที่ {{ user?.academicYear || '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="official-section">
+            <div class="section-title-official">
+               <i class="fas fa-envelope"></i> ข้อมูลการติดต่อ (Account Details)
+            </div>
+            <div class="official-grid-layout">
+              <div class="grid-cell">
+                 <label>อีเมลมหาวิทยาลัย (University Email)</label>
+                 <span class="text-blue-600 font-medium">{{ user?.email || '-' }}</span>
+              </div>
+              <div class="grid-cell">
+                 <label>สถานะบัญชี (Status)</label>
+                 <span class="status-indicator active">ใช้งานได้ (Active)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="official-footer-note">
+             <i class="fas fa-info-circle"></i> ข้อมูลนี้ได้รับการยืนยันจากระบบฐานข้อมูลกลางมหาวิทยาลัยหอการค้าไทย (UTCC Central Registry)
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div v-else class="official-profile-shell">
+        <div class="profile-content-official" style="grid-column: 1 / -1; padding: 4rem;">
+          <div class="content-head-official">
+             <h2>Edit Profile</h2>
+             <button class="btn btn-ghost" @click="isEditing = false"><i class="fas fa-times"></i></button>
+          </div>
+          
+          <div class="official-section">
+            <div class="flex flex-col items-center mb-8">
+               <div class="official-avatar mb-4" :style="editAvatarStyle">
+                 <span v-if="!editForm.profilePictureUrl" class="avatar-text">{{ initials }}</span>
+               </div>
+               <div class="input-group">
+                 <label>Profile Picture</label>
+                 <input type="file" @change="handleFileUpload" class="modern-file-input" accept="image/*" />
+               </div>
+               <p v-if="uploading" class="text-xs text-blue-500 mt-2">Uploading...</p>
+            </div>
+            <div class="official-grid-layout mt-4">
+              <div class="grid-cell">
+                 <label>Display Name</label>
+                 <input v-model="editForm.displayName" class="modern-input w-full" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-light);" />
+              </div>
+              <div class="grid-cell">
+                 <label>Email</label>
+                 <input v-model="editForm.email" class="modern-input w-full" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-light);" />
+              </div>
+              <div class="grid-cell">
+                 <label>Major</label>
+                 <input v-model="editForm.major" class="modern-input w-full" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-light);" />
+              </div>
+              <div class="grid-cell">
+                 <label>Academic Year</label>
+                 <input type="number" v-model="editForm.academicYear" class="modern-input w-full" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-light);" />
+              </div>
+            </div>
+          </div>
+          <div class="form-footer mt-8 flex justify-end">
+             <button class="btn btn-secondary mr-4" @click="isEditing = false">Cancel</button>
+             <button class="btn btn-primary" @click="saveProfile" :disabled="uploading">
+               <i class="fas fa-save"></i> Save Changes
+             </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  `,
+  setup() {
+    const user = computed(() => state.user);
+    const userName = computed(() => user.value?.displayName || "-");
+    const role = computed(() => user.value?.roles?.[0] || "GUEST");
+    const roleLabel = computed(() => i18n.global.t(`roles.${role.value}`));
+    const initials = computed(() =>
+      (userName.value || "U")
+        .split(" ")
+        .map((p) => p[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    );
+
+    const isEditing = ref(false);
+    const uploading = ref(false);
+    const editForm = reactive({
+      displayName: "",
+      email: "",
+      major: "",
+      academicYear: "",
+      profilePictureUrl: ""
+    });
+
+    const rootUrl = apiBase ? (apiBase + "/api/v1/files/download/") : "/api/v1/files/download/";
+
+    const avatarStyle = computed(() => {
+      if (user.value?.profilePictureUrl) {
+        const pic = user.value.profilePictureUrl;
+        const url = pic.startsWith('data:image') || pic.startsWith('http') ? pic : (rootUrl + pic);
+        return { backgroundImage: "url('" + url + "')", backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' };
+      }
+      return {};
+    });
+
+    const editAvatarStyle = computed(() => {
+      if (editForm.profilePictureUrl) {
+        const pic = editForm.profilePictureUrl;
+        const url = pic.startsWith('data:image') || pic.startsWith('http') ? pic : (rootUrl + pic);
+        return { backgroundImage: "url('" + url + "')", backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' };
+      }
+      return {};
+    });
+
+    const startEdit = () => {
+      editForm.displayName = user.value?.displayName || "";
+      editForm.email = user.value?.email || "";
+      editForm.major = user.value?.major || "";
+      editForm.academicYear = user.value?.academicYear || "";
+      editForm.profilePictureUrl = user.value?.profilePictureUrl || "";
+      isEditing.value = true;
+    };
+
+    const handleFileUpload = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      uploading.value = true;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        editForm.profilePictureUrl = e.target.result;
+        uploading.value = false;
+      };
+      reader.onerror = (err) => {
+        console.error("Failed to read file", err);
+        uploading.value = false;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const saveProfile = async () => {
+      try {
+        const updated = await api.updateProfile({
+          displayName: editForm.displayName,
+          email: editForm.email,
+          major: editForm.major,
+          academicYear: editForm.academicYear ? Number(editForm.academicYear) : null,
+          profilePictureUrl: editForm.profilePictureUrl
+        });
+        state.user = updated; // Update global state
+        isEditing.value = false;
+      } catch (e) {
+        console.error("Failed to update profile", e);
+      }
+    };
+
+    return { 
+      user, userName, roleLabel, initials, 
+      isEditing, startEdit, editForm, saveProfile, 
+      handleFileUpload, uploading, avatarStyle, editAvatarStyle 
+    };
+  },
+};
+
+const SettingsView = {
+  template: `
+    <section class="animate-fade-in-up">
+      <div class="section-head mb-12">
+        <div>
+          <p class="eyebrow">User Customization</p>
+          <h2>{{ $t("settings.title") }}</h2>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <div class="setting-card shadow-lg animate-fade-in-1">
+           <div class="setting-head">
+              <div class="setting-icon"><i class="fas fa-language"></i></div>
+              <h3>{{ $t("settings.language") }}</h3>
+           </div>
+           <div class="lang-selector">
+              <div 
+                class="lang-opt" 
+                :class="{ active: currentLocale === 'th' }"
+                @click="setLocale('th')"
+              >
+                 <div class="lang-info">
+                   <span class="lang-flag">🇹🇭</span>
+                   <span class="lang-name">ภาษาไทย (Thai)</span>
+                 </div>
+                 <i v-if="currentLocale === 'th'" class="fas fa-check-circle"></i>
+              </div>
+              <div 
+                class="lang-opt" 
+                :class="{ active: currentLocale === 'en' }"
+                @click="setLocale('en')"
+              >
+                 <div class="lang-info">
+                   <span class="lang-flag">🇺🇸</span>
+                   <span class="lang-name">English (US)</span>
+                 </div>
+                 <i v-if="currentLocale === 'en'" class="fas fa-check-circle"></i>
+              </div>
+               <div 
+                 class="lang-opt" 
+                 :class="{ active: currentLocale === 'zh' }"
+                 @click="setLocale('zh')"
+               >
+                  <div class="lang-info">
+                    <span class="lang-flag">🇨🇳</span>
+                    <span class="lang-name">中文 (Chinese)</span>
+                  </div>
+                  <i v-if="currentLocale === 'zh'" class="fas fa-check-circle"></i>
+               </div>
+            </div>
+        </div>
+        
+        <div class="setting-card shadow-lg animate-fade-in-2 opacity-50">
+           <div class="setting-head">
+              <div class="setting-icon"><i class="fas fa-bell"></i></div>
+              <h3>Preferences</h3>
+           </div>
+           <div class="preference-list">
+              <div class="pref-row">
+                 <div class="pref-label">
+                    <p>Browser Notifications</p>
+                    <p>Real-time trip alerts</p>
+                 </div>
+                 <div class="toggle-stub"></div>
+              </div>
+              <div class="pref-row">
+                 <div class="pref-label">
+                    <p>Dynamic Theme</p>
+                    <p>Switch between light/dark</p>
+                 </div>
+                 <div class="toggle-stub"></div>
+              </div>
+           </div>
+           <p class="mt-6 text-xs text-slate-400 italic">* Advanced customization features coming in Next Cohort update.</p>
+        </div>
+      </div>
+    </section>
+  `,
+  setup() {
+    const currentLocale = computed(() => state.locale);
+    const setLocale = (val) => {
+      state.locale = val;
+      i18n.global.locale.value = val;
+      localStorage.setItem("utcctp_locale", val);
+      document.documentElement.lang = val;
+    };
+    return { currentLocale, setLocale };
+  },
+};
+
 const AnalyticsView = {
   template: `
-    <section>
-      <div class="section-head">
-        <div>
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
           <p class="eyebrow">{{ $t("nav.analytics") }}</p>
-          <h2>{{ $t("analytics.title") }}</h2>
+          <h2 class="modern-section-title">Strategic Insights</h2>
+          <p class="section-subtitle">Comprehensive overview of platform engagement and success metrics</p>
+        </div>
+        <div class="filters-modern">
+          <div class="date-picker-modern">
+             <i class="far fa-calendar-alt"></i>
+             <span>Last 30 Days</span>
+          </div>
         </div>
       </div>
-      <div class="analytics-kpi-grid" v-if="data">
-        <div class="analytics-kpi-card">
-          <div class="kpi-icon trips-icon">📋</div>
-          <h3>{{ data.trips }}</h3>
-          <p>{{ $t("analytics.totalTrips") }}</p>
+
+      <!-- KPI Key Metrics -->
+      <div class="stats-grid animate-fade-in-delayed" v-if="data">
+        <div class="stat-card shadow-soft">
+          <div class="stat-icon-box bg-blue-tint"><i class="fas fa-users"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">{{ $t("analytics.totalApplications") }}</p>
+            <h3 class="stat-number">{{ data.applications }}</h3>
+            <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 12% vs last month</span>
+          </div>
         </div>
-        <div class="analytics-kpi-card">
-          <div class="kpi-icon positions-icon">🏢</div>
-          <h3>{{ data.internships }}</h3>
-          <p>{{ $t("analytics.totalPositions") }}</p>
+        <div class="stat-card shadow-soft">
+          <div class="stat-icon-box bg-orange-tint"><i class="fas fa-bus-alt"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">{{ $t("analytics.totalTrips") }}</p>
+            <h3 class="stat-number">{{ data.trips }}</h3>
+            <span class="stat-trend up"><i class="fas fa-tasks"></i> {{ trips.filter(t => t.status === 'PUBLISHED').length }} current</span>
+          </div>
         </div>
-        <div class="analytics-kpi-card">
-          <div class="kpi-icon apps-icon">📝</div>
-          <h3>{{ data.applications }}</h3>
-          <p>{{ $t("analytics.totalApplications") }}</p>
-        </div>
-        <div class="analytics-kpi-card">
-          <div class="kpi-icon reports-icon">📊</div>
-          <h3>{{ data.reports }}</h3>
-          <p>{{ $t("analytics.totalReports") }}</p>
+        <div class="stat-card shadow-soft">
+          <div class="stat-icon-box bg-green-tint"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">{{ $t("analytics.totalReports") }}</p>
+            <h3 class="stat-number">{{ data.reports }}</h3>
+            <span class="stat-trend neutral">Stable baseline</span>
+          </div>
         </div>
       </div>
-      <div class="grid" v-if="trips.length || applications.length">
-        <div class="card">
-          <h3>{{ $t("analytics.tripsByStatus") }}</h3>
+
+      <div class="modern-split-grid mt-10">
+        <div class="card modern-chart-card shadow-soft">
+          <div class="chart-header">
+            <h3>{{ $t("analytics.tripsByStatus") }}</h3>
+            <span class="muted-small">Distribution Summary</span>
+          </div>
           <div class="analytics-bar-chart">
             <div class="bar-row" v-for="item in tripStatusData" :key="item.label">
               <span class="bar-label">{{ $t(statusKey(item.label)) }}</span>
@@ -2115,8 +2922,12 @@ const AnalyticsView = {
             </div>
           </div>
         </div>
-        <div class="card">
-          <h3>{{ $t("analytics.applicationsByStatus") }}</h3>
+
+        <div class="card modern-chart-card shadow-soft">
+          <div class="chart-header">
+            <h3>{{ $t("analytics.applicationsByStatus") }}</h3>
+            <span class="muted-small">Approval Efficiency</span>
+          </div>
           <div class="analytics-bar-chart">
             <div class="bar-row" v-for="item in appStatusData" :key="item.label">
               <span class="bar-label">{{ $t(statusKey(item.label)) }}</span>
@@ -2128,23 +2939,27 @@ const AnalyticsView = {
           </div>
         </div>
       </div>
-      <div class="card" v-if="applications.length">
-        <h3>{{ $t("analytics.recentActivity") }}</h3>
-        <div class="table">
-          <div class="table-row header">
-            <span>{{ $t("applications.student") }}</span>
-            <span>{{ $t("applications.type") }}</span>
-            <span>{{ $t("labels.status") }}</span>
-            <span>{{ $t("labels.startDate") }}</span>
-            <span></span>
-          </div>
-          <div class="table-row" v-for="app in recentApps" :key="app.id">
-            <span>{{ app.studentName }}</span>
-            <span>{{ app.type }}</span>
-            <span :class="statusClass(app.status)">{{ $t(statusKey(app.status)) }}</span>
-            <span>{{ formatDate(app.createdAt) }}</span>
-            <span></span>
-          </div>
+
+      <!-- Recent Activity as a Clean List -->
+      <div class="card modern-list-card shadow-soft mt-10" v-if="recentApps.length">
+        <div class="card-title-header">
+           <h3 style="margin: 0; font-size: 1.125rem;">{{ $t("analytics.recentActivity") }}</h3>
+           <button class="btn-text-only">{{ $t("dashboard.viewAll") }} <i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="modern-list-body">
+           <div class="list-item" v-for="app in recentApps" :key="app.id">
+              <div class="list-item-left">
+                 <div class="avatar-sm">{{ app.studentName.charAt(0) }}</div>
+                 <div class="item-text">
+                    <span class="item-title">{{ app.studentName }}</span>
+                    <span class="item-meta">{{ app.type }} - {{ app.tripTitle || app.internshipTitle || 'Application' }}</span>
+                 </div>
+              </div>
+              <div class="list-item-right">
+                 <span :class="['status-pill-minimal', statusClass(app.status)]">{{ $t(statusKey(app.status)) }}</span>
+                 <span class="item-time">{{ formatDate(app.createdAt) }}</span>
+              </div>
+           </div>
         </div>
       </div>
     </section>
@@ -2237,6 +3052,8 @@ const routes = [
       { path: "analytics", component: AnalyticsView, meta: { roles: ["ADVISOR", "STAFF", "ADMIN"] } },
       { path: "ai", component: AiView, meta: { roles: ["ADVISOR", "STAFF", "ADMIN"] } },
       { path: "admin", component: AdminView, meta: { roles: ["ADMIN"] } },
+      { path: "profile", component: ProfileView },
+      { path: "settings", component: SettingsView },
     ],
   },
   { path: "/:pathMatch(.*)*", redirect: "/" },

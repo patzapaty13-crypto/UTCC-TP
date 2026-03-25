@@ -180,6 +180,7 @@ public class TripService {
         trip.setEndDate(request.endDate());
         trip.setCapacity(request.capacity());
         trip.setBudgetTotal(request.budgetTotal());
+        trip.setMapUrl(request.mapUrl());
     }
 
     private TripResponse mapTrip(Trip trip) {
@@ -192,7 +193,8 @@ public class TripService {
                 trip.getStartDate(),
                 trip.getEndDate(),
                 trip.getCapacity(),
-                trip.getBudgetTotal()
+                trip.getBudgetTotal(),
+                trip.getMapUrl()
         );
     }
 }

@@ -82,7 +82,7 @@ public class DataSeeder implements CommandLineRunner {
         Trip trip1 = new Trip();
         trip1.setTitle("Industry Visit 2026");
         trip1.setObjective("Observe manufacturing processes and link to curriculum.");
-        trip1.setLocation("Bangkok");
+        trip1.setLocation("The Mall Lifestore Tha Phra, Bangkok");
         trip1.setStatus(TripStatus.PENDING);
         trip1.setStartDate(LocalDate.of(2026, 3, 1));
         trip1.setEndDate(LocalDate.of(2026, 3, 2));
@@ -106,7 +106,7 @@ public class DataSeeder implements CommandLineRunner {
         Trip trip2 = new Trip();
         trip2.setTitle("Smart Factory Tour");
         trip2.setObjective("Connect courses with Industry 4.0 practice.");
-        trip2.setLocation("Chonburi");
+        trip2.setLocation("Industrial Estate Authority of Thailand, Chonburi");
         trip2.setStatus(TripStatus.PUBLISHED);
         trip2.setStartDate(LocalDate.of(2026, 4, 10));
         trip2.setEndDate(LocalDate.of(2026, 4, 10));

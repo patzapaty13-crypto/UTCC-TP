@@ -47,6 +47,9 @@ public class User {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "profile_picture_url", columnDefinition = "TEXT")
+    private String profilePictureUrl;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -114,6 +117,14 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public Instant getCreatedAt() {

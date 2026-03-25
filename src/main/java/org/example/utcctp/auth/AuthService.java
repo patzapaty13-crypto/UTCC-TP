@@ -34,6 +34,20 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
+    public UserProfile updateProfile(String username, UserProfileUpdateRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        user.setDisplayName(request.displayName());
+        user.setEmail(request.email());
+        user.setMajor(request.major());
+        user.setAcademicYear(request.academicYear());
+        if (request.profilePictureUrl() != null) {
+            user.setProfilePictureUrl(request.profilePictureUrl());
+        }
+        userRepository.save(user);
+        return UserProfile.from(user);
+    }
+
     public AuthResponse refreshToken(String username) {
         User user = userRepository.findByUsername(username)
                 .filter(User::isActive)

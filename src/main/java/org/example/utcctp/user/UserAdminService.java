@@ -88,6 +88,7 @@ public class UserAdminService {
                 user.getEmail(),
                 user.getMajor(),
                 user.getAcademicYear(),
+                user.getProfilePictureUrl(),
                 roles,
                 user.isActive()
         );

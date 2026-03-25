@@ -12,6 +12,7 @@ public record UserProfile(
         String email,
         String major,
         Integer academicYear,
+        String profilePictureUrl,
         List<String> roles
 ) {
     public static UserProfile from(User user) {
@@ -23,6 +24,7 @@ public record UserProfile(
                 user.getEmail(),
                 user.getMajor(),
                 user.getAcademicYear(),
+                user.getProfilePictureUrl(),
                 roles
         );
     }

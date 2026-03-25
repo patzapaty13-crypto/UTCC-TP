@@ -9,6 +9,7 @@ public record TripRequest(
         LocalDate startDate,
         LocalDate endDate,
         Integer capacity,
-        Integer budgetTotal
+        Integer budgetTotal,
+        String mapUrl
 ) {
 }

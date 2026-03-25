@@ -12,6 +12,7 @@ public record TripResponse(
         LocalDate startDate,
         LocalDate endDate,
         Integer capacity,
-        Integer budgetTotal
+        Integer budgetTotal,
+        String mapUrl
 ) {
 }

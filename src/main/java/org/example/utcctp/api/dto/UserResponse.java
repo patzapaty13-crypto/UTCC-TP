@@ -10,6 +10,7 @@ public record UserResponse(
         String email,
         String major,
         Integer academicYear,
+        String profilePictureUrl,
         List<String> roles,
         boolean active
 ) {

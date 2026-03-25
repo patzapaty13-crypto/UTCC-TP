@@ -51,6 +51,9 @@ public class Trip {
     @Column(name = "budget_total")
     private Integer budgetTotal;
 
+    @Column(name = "map_url", length = 1000)
+    private String mapUrl;
+
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;
@@ -157,5 +160,13 @@ public class Trip {
 
     public List<TripDocument> getDocuments() {
         return documents;
+    }
+
+    public String getMapUrl() {
+        return mapUrl;
+    }
+
+    public void setMapUrl(String mapUrl) {
+        this.mapUrl = mapUrl;
     }
 }
