@@ -59,7 +59,11 @@ public class ApplicationService {
         application.setStatus(ApplicationStatus.PENDING);
         application.setStudent(student);
         application.setReason(request.reason());
-        application.setApplicantName(request.firstName() + " " + request.lastName());
+        
+        String firstName = request.firstName() != null ? request.firstName() : "";
+        String lastName = request.lastName() != null ? request.lastName() : "";
+        application.setApplicantName((firstName + " " + lastName).trim());
+        
         application.setApplicantStudentId(request.studentId());
         application.setApplicantFaculty(request.faculty());
         application.setApplicantMajor(request.major());
@@ -114,10 +118,14 @@ public class ApplicationService {
         String internshipTitle = application.getInternshipPosition() != null
                 ? application.getInternshipPosition().getTitle()
                 : null;
+        
+        String studentName = application.getStudent() != null ? application.getStudent().getDisplayName() : application.getApplicantName();
+        String studentMajor = application.getStudent() != null ? application.getStudent().getMajor() : application.getApplicantMajor();
+
         return new ApplicationResponse(
                 application.getId(),
-                application.getStudent().getDisplayName(),
-                application.getStudent().getMajor(),
+                studentName != null ? studentName : "Unknown Applicant",
+                studentMajor != null ? studentMajor : "-",
                 application.getType().name(),
                 application.getStatus().name(),
                 tripTitle,

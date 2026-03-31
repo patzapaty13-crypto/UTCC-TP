@@ -1661,89 +1661,62 @@ const TripsView = {
           </div>
           <p class="muted-text-sm">Manage details for existing trips</p>
           <div class="form-grid-modern" style="margin-top: 20px;">
-            <div class="input-      <!-- ══ Apply Confirmation Modal ══ -->
-      <div v-if="applyModal.show" class="modal-overlay" @click.self="applyModal.show = false">
-        <div class="modal apply-modal animate-scale-in">
-          <div class="modal-header">
-            <div>
-              <p class="eyebrow">{{ $t("actions.apply") }}</p>
-              <h2>{{ applyModal.trip?.title }}</h2>
+            <div class="input-group full">
+              <label>Select Trip to Modify</label>
+              <select v-model="selectedTripId" class="modern-select">
+                <option value="">-- Choose a Trip --</option>
+                <option v-for="t in trips" :key="t.id" :value="t.id">{{ t.title }} ({{ t.status }})</option>
+              </select>
             </div>
-            <button class="btn-close" @click="applyModal.show = false"><i class="fas fa-times"></i></button>
-          </div>
-          <div class="modal-body">
-            <!-- Trip Summary -->
-            <div class="apply-trip-info">
-              <div class="apply-info-row">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>{{ applyModal.trip?.location || '-' }}</span>
-              </div>
-              <div class="apply-info-row">
-                <i class="fas fa-calendar-alt"></i>
-                <span>{{ formatDate(applyModal.trip?.startDate) }} – {{ formatDate(applyModal.trip?.endDate) }}</span>
-              </div>
-              <div class="apply-info-row">
-                <i class="fas fa-users"></i>
-                <span>รับจำนวน {{ applyModal.trip?.capacity || '-' }} คน</span>
-              </div>
+            <div v-if="selectedTripId" class="utils-tabs">
+               <div class="input-group full mt-4">
+                  <label>Add Activity to Schedule</label>
+                  <input v-model="schedule.activity" placeholder="Morning Briefing" />
+                  <div class="grid-2 mt-2">
+                    <input type="datetime-local" v-model="schedule.startTime" />
+                    <input type="datetime-local" v-model="schedule.endTime" />
+                  </div>
+                  <button class="btn btn-secondary w-full mt-2" @click="addSchedule">Add Schedule</button>
+               </div>
+               <div class="input-group full mt-6">
+                  <label>Add Budget Item</label>
+                  <input v-model="budget.category" placeholder="Transportation" />
+                  <input type="number" v-model="budget.amount" placeholder="5000" class="mt-2" />
+                  <button class="btn btn-secondary w-full mt-2" @click="addBudget">Add Budget</button>
+               </div>
             </div>
-
-            <!-- Student Info Section -->
-            <div class="apply-section-title mt-6">
-              <i class="fas fa-user-graduate"></i> ข้อมูลผู้สมัคร
-            </div>
-
-            <div class="apply-form-grid">
-              <div class="form-group">
-                <label class="form-label">ชื่อ <span class="req">*</span></label>
-                <input v-model="applyModal.firstName" class="form-control" type="text" placeholder="ชื่อ" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">นามสกุล <span class="req">*</span></label>
-                <input v-model="applyModal.lastName" class="form-control" type="text" placeholder="นามสกุล" required />
-              </div>
-            </div>
-
-            <div class="form-group mt-4">
-              <label class="form-label">เลขประจำตัวนักศึกษา <span class="req">*</span></label>
-              <input v-model="applyModal.studentId" class="form-control" type="text" placeholder="เช่น 6501234567" required />
-            </div>
-
-            <div class="apply-form-grid mt-4">
-              <div class="form-group">
-                <label class="form-label">คณะ <span class="req">*</span></label>
-                <input v-model="applyModal.faculty" class="form-control" type="text" placeholder="เช่น บริหารธุรกิจ" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">สาขา <span class="req">*</span></label>
-                <input v-model="applyModal.major" class="form-control" type="text" placeholder="เช่น การตลาด" required />
-              </div>
-            </div>
-
-            <div class="form-group mt-4">
-              <label class="form-label">เหตุผลที่ต้องการสมัคร <span class="text-muted">(ไม่บังคับ)</span></label>
-              <textarea
-                v-model="applyModal.reason"
-                class="form-control"
-                rows="3"
-                placeholder="เช่น ต้องการเพิ่มประสบการณ์ด้านการจัดการทริปนอกสถานที่..."
-              ></textarea>
-            </div>
-
-            <div v-if="applyModal.error" class="alert alert-danger mt-4">
-              <i class="fas fa-exclamation-circle"></i> {{ applyModal.error }}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="applyModal.show = false">ยกเลิก</button>
-            <button class="btn btn-accent" :disabled="applyModal.loading" @click="confirmApply">
-              <span v-if="applyModal.loading"><i class="fas fa-spinner fa-spin"></i> กำลังสมัคร...</span>
-              <span v-else><i class="fas fa-check"></i> ยืนยันการสมัคร</span>
-            </button>
           </div>
         </div>
       </div>
-.stop="openTripDetails(trip)">
+
+      <!-- Trips Display Grid -->
+      <div class="trips-grid animate-fade-in-delayed">
+        <article v-for="trip in filteredTrips" :key="trip.id" class="trip-card-modern shadow-soft h-full" @click="openTripDetails(trip)">
+          <div class="trip-image-placeholder">
+             <div class="trip-status-tag" :class="trip.status.toLowerCase()">{{ trip.status }}</div>
+             <i class="fas fa-mountain-city"></i>
+          </div>
+          <div class="trip-content-modern">
+             <div class="trip-meta-top">
+                <span class="trip-date-pill"><i class="far fa-calendar"></i> {{ formatDate(trip.startDate) }}</span>
+                <span class="trip-location-pill"><i class="fas fa-location-dot"></i> {{ trip.location }}</span>
+             </div>
+             <h3 class="trip-title-modern">{{ trip.title }}</h3>
+             <p class="trip-objective-excerpt">{{ trip.objective || 'No overview available.' }}</p>
+             
+             <div class="trip-footer-stats">
+               <div class="stat">
+                 <span class="val">{{ trip.capacity }}</span>
+                 <span class="lab">Students</span>
+               </div>
+               <div class="stat">
+                 <span class="val">{{ trip.status === 'COMPLETED' ? 'Ended' : 'Open' }}</span>
+                 <span class="lab">Status</span>
+               </div>
+             </div>
+
+             <div class="trip-actions-modern mt-6">
+               <button class="btn btn-secondary h-full" @click.stop="openTripDetails(trip)">
                  <i class="fas fa-circle-info"></i> {{ $t("actions.viewDetails") }}
                </button>
                <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn btn-accent" :class="{ 'btn-disabled': isApplied(trip.id) }" @click.stop="applyTrip(trip)">
@@ -1864,6 +1837,7 @@ const TripsView = {
             <button class="btn-close" @click="applyModal.show = false"><i class="fas fa-times"></i></button>
           </div>
           <div class="modal-body">
+            <!-- Trip Summary -->
             <div class="apply-trip-info">
               <div class="apply-info-row">
                 <i class="fas fa-map-marker-alt"></i>
@@ -1879,7 +1853,39 @@ const TripsView = {
               </div>
             </div>
 
-            <div class="form-group mt-6">
+            <!-- Student Info Section -->
+            <div class="apply-section-title mt-6">
+              <i class="fas fa-user-graduate"></i> ข้อมูลผู้สมัคร
+            </div>
+
+            <div class="apply-form-grid">
+              <div class="form-group">
+                <label class="form-label">ชื่อ <span class="req">*</span></label>
+                <input v-model="applyModal.firstName" class="form-control" type="text" placeholder="ชื่อ" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">นามสกุล <span class="req">*</span></label>
+                <input v-model="applyModal.lastName" class="form-control" type="text" placeholder="นามสกุล" required />
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+              <label class="form-label">เลขประจำตัวนักศึกษา <span class="req">*</span></label>
+              <input v-model="applyModal.studentId" class="form-control" type="text" placeholder="เช่น 6501234567" required />
+            </div>
+
+            <div class="apply-form-grid mt-4">
+              <div class="form-group">
+                <label class="form-label">คณะ <span class="req">*</span></label>
+                <input v-model="applyModal.faculty" class="form-control" type="text" placeholder="เช่น บริหารธุรกิจ" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">สาขา <span class="req">*</span></label>
+                <input v-model="applyModal.major" class="form-control" type="text" placeholder="เช่น การตลาด" required />
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
               <label class="form-label">เหตุผลที่ต้องการสมัคร <span class="text-muted">(ไม่บังคับ)</span></label>
               <textarea
                 v-model="applyModal.reason"
