@@ -8,6 +8,8 @@ public record UserRequest(
         String displayName,
         String email,
         String major,
+        String studentId,
+        String faculty,
         Integer academicYear,
         List<String> roles
 ) {

@@ -20,12 +20,14 @@ import org.example.utcctp.repository.TripRepository;
 import org.example.utcctp.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final TripRepository tripRepository;
@@ -56,6 +58,12 @@ public class ApplicationService {
         application.setType(type);
         application.setStatus(ApplicationStatus.PENDING);
         application.setStudent(student);
+        application.setReason(request.reason());
+        application.setApplicantName(request.firstName() + " " + request.lastName());
+        application.setApplicantStudentId(request.studentId());
+        application.setApplicantFaculty(request.faculty());
+        application.setApplicantMajor(request.major());
+
         if (type == ApplicationType.TRIP) {
             Trip trip = tripRepository.findById(request.tripId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));

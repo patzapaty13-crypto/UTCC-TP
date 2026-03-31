@@ -154,10 +154,11 @@
 
 .modern-section-title {
   font-family: 'Playfair Display', serif;
-  font-size: 40px;
-  font-weight: 500;
+  font-size: 3rem;
+  font-weight: 800;
   color: var(--primary);
   margin-top: 12px;
+  line-height: 1.2;
 }
 
 .features-grid {
@@ -178,9 +179,9 @@
 }
 
 .feature-card-atelier:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--accent-light);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
 }
 
 .f-icon {

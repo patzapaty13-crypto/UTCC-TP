@@ -48,6 +48,22 @@ public class Application {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
+    @Column(columnDefinition = "TEXT")
+    private String reason;
+
+    // Snapshot fields to freeze status at application time
+    @Column(name = "applicant_name")
+    private String applicantName;
+
+    @Column(name = "applicant_student_id")
+    private String applicantStudentId;
+
+    @Column(name = "applicant_faculty")
+    private String applicantFaculty;
+
+    @Column(name = "applicant_major")
+    private String applicantMajor;
+
     @OneToMany(mappedBy = "application")
     private List<ApprovalHistory> approvals = new ArrayList<>();
 
@@ -97,6 +113,46 @@ public class Application {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public String getApplicantStudentId() {
+        return applicantStudentId;
+    }
+
+    public void setApplicantStudentId(String applicantStudentId) {
+        this.applicantStudentId = applicantStudentId;
+    }
+
+    public String getApplicantFaculty() {
+        return applicantFaculty;
+    }
+
+    public void setApplicantFaculty(String applicantFaculty) {
+        this.applicantFaculty = applicantFaculty;
+    }
+
+    public String getApplicantMajor() {
+        return applicantMajor;
+    }
+
+    public void setApplicantMajor(String applicantMajor) {
+        this.applicantMajor = applicantMajor;
     }
 
     public List<ApprovalHistory> getApprovals() {

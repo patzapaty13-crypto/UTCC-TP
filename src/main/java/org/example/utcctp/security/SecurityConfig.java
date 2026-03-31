@@ -38,7 +38,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/", "/index.html", "/styles.css", "/app.js",
-                                "/config.js", "/favicon.ico", "/*.png", "/*.jpg", "/*.svg", "/assets/**"
+                                "/config.js", "/favicon.ico", "/*.png", "/*.jpg", "/*.svg",
+                                "/css/**", "/js/**", "/assets/**", "/webjars/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/health").permitAll()
                         .anyRequest().authenticated()

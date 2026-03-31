@@ -41,6 +41,12 @@ public class User {
     @Column(length = 120)
     private String major;
 
+    @Column(name = "student_id", length = 20)
+    private String studentId;
+
+    @Column(length = 120)
+    private String faculty;
+
     @Column(name = "academic_year")
     private Integer academicYear;
 
@@ -101,6 +107,22 @@ public class User {
 
     public void setMajor(String major) {
         this.major = major;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
     }
 
     public Integer getAcademicYear() {

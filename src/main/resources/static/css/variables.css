@@ -1,50 +1,122 @@
-/* ═════════════════════════════════════════════════════ */
-/*  UTCC Trip & Internship Platform — Global Variables   */
-/* ═════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
+/*  UTCC Trip & Internship Platform                                */
+/*  Design System v3.0 — ELITE PLATINUM                           */
+/* ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&display=swap');
 
 :root {
-  /* UTCC Official Elite Palette - Refined */
-  --bg-main: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f1f5f9;
-  
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-light: #ffffff;
+  /* ── Brand Colors ──────────────────────────────────────── */
+  --primary:        #0a1f44;
+  --primary-hover:  #0d2855;
+  --primary-light:  rgba(10, 31, 68, 0.06);
+  --primary-glow:   rgba(10, 31, 68, 0.12);
 
-  /* UTCC Core Colors */
-  --primary: #0a1f44;
-  --primary-hover: #163263;
-  --primary-light: rgba(10, 31, 68, 0.05);
-  --primary-glow: rgba(10, 31, 68, 0.1);
+  --accent:         #f5a623;
+  --accent-hover:   #e8950f;
+  --accent-light:   rgba(245, 166, 35, 0.10);
+  --accent-soft:    #fff8ed;
 
-  --accent: #f5a623;
-  --accent-hover: #e0941c;
-  --accent-light: rgba(245, 166, 35, 0.1);
-  
-  /* Status Colors */
-  --danger: #ef4444;
-  --danger-light: rgba(239, 68, 68, 0.08);
-  --warning: #f59e0b;
-  --warning-light: rgba(245, 158, 11, 0.08);
-  --success: #10b981;
-  --success-light: rgba(16, 185, 129, 0.08);
+  /* ── Semantic Colors ───────────────────────────────────── */
+  --success:        #059669;
+  --success-light:  #ecfdf5;
+  --success-text:   #065f46;
+  --success-border: rgba(5, 150, 105, 0.2);
 
-  /* Modern Effects & Bento System */
-  --border-light: rgba(15, 23, 42, 0.1);
-  --shadow-sm: 0 1px 2px rgba(10, 31, 68, 0.04);
-  --shadow: 0 8px 16px -4px rgba(10, 31, 68, 0.04), 0 4px 8px -2px rgba(10, 31, 68, 0.02);
-  --shadow-lg: 0 20px 25px -5px rgba(10, 31, 68, 0.06), 0 10px 10px -5px rgba(10, 31, 68, 0.02);
-  --shadow-xl: 0 35px 60px -15px rgba(10, 31, 68, 0.1);
+  --warning:        #d97706;
+  --warning-light:  #fffbeb;
+  --warning-text:   #92400e;
+  --warning-border: rgba(217, 119, 6, 0.2);
 
-  --radius: 24px;
-  --radius-md: 20px;
-  --radius-sm: 12px;
-  --radius-xs: 8px;
+  --danger:         #dc2626;
+  --danger-light:   #fef2f2;
+  --danger-border:  rgba(220, 38, 38, 0.2);
 
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --glass: rgba(255, 255, 255, 0.7);
-  --glass-blur: blur(12px);
+  --info:           #0284c7;
+  --info-light:     #f0f9ff;
+  --info-border:    rgba(2, 132, 199, 0.2);
+
+  /* ── Backgrounds ───────────────────────────────────────── */
+  --bg-main:        #f5f7fa;
+  --bg-surface:     #ffffff;
+  --bg-subtle:      #f8fafc;
+  --bg-hover:       #f1f5f9;
+  --bg-dark:        #0a1f44;
+
+  /* ── Text ──────────────────────────────────────────────── */
+  --text-main:      #0f172a;
+  --text-muted:     #64748b;
+  --text-faint:     #94a3b8;
+  --text-light:     #f8fafc;
+  --text-inverted:  rgba(255, 255, 255, 0.9);
+  --text-dim:       rgba(255, 255, 255, 0.55);
+
+  /* ── Borders ───────────────────────────────────────────── */
+  --border:         rgba(15, 23, 42, 0.10);
+  --border-light:   rgba(15, 23, 42, 0.07);
+  --border-strong:  rgba(15, 23, 42, 0.18);
+  --border-focus:   rgba(10, 31, 68, 0.35);
+
+  /* ── Shadows ───────────────────────────────────────────── */
+  --shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:     0 4px 8px -2px rgba(10,31,68,0.08), 0 2px 4px -1px rgba(10,31,68,0.04);
+  --shadow-md:  0 8px 20px -4px rgba(10,31,68,0.10), 0 4px 8px -2px rgba(10,31,68,0.05);
+  --shadow-lg:  0 20px 40px -8px rgba(10,31,68,0.14), 0 8px 16px -4px rgba(10,31,68,0.06);
+  --shadow-xl:  0 32px 64px -12px rgba(10,31,68,0.20), 0 12px 24px -6px rgba(10,31,68,0.08);
+  --shadow-glow-accent: 0 0 24px rgba(245, 166, 35, 0.20);
+  --shadow-glow-primary: 0 8px 24px rgba(10, 31, 68, 0.18);
+
+  /* ── Gradients ─────────────────────────────────────────── */
+  --grad-primary:   linear-gradient(145deg, #0d2855 0%, #0a1f44 60%, #071530 100%);
+  --grad-accent:    linear-gradient(135deg, #f9b845 0%, #f5a623 50%, #e8950f 100%);
+  --grad-hero:      linear-gradient(135deg, #0a1f44 0%, #1a3c7a 50%, #0d4594 100%);
+  --grad-surface:   linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --grad-mesh:      radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.07) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 20%, rgba(10,31,68,0.05) 0%, transparent 60%);
+
+  /* ── Glassmorphism ─────────────────────────────────────── */
+  --glass:          rgba(255, 255, 255, 0.82);
+  --glass-dark:     rgba(10, 31, 68, 0.88);
+  --glass-border:   rgba(255, 255, 255, 0.50);
+  --glass-blur:     blur(20px) saturate(180%);
+
+  /* ── Border Radius ─────────────────────────────────────── */
+  --radius-xs:  6px;
+  --radius-sm:  10px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-2xl: 36px;
+  --radius-full: 9999px;
+
+  /* ── Transitions ───────────────────────────────────────── */
+  --ease:           cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+  --transition:     0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast:0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow:0.50s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Spacing Scale ─────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Typography Scale ──────────────────────────────────── */
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+  --text-3xl:  36px;
+  --text-4xl:  48px;
 }

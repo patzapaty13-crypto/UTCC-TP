@@ -16,4 +16,5 @@
  */
 window.__APP_CONFIG__ = {
   apiBase: "",
+  googleMapsApiKey: "YOUR_API_KEY_HERE"
 };

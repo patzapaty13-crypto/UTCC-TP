@@ -9,6 +9,8 @@ public record UserResponse(
         String displayName,
         String email,
         String major,
+        String studentId,
+        String faculty,
         Integer academicYear,
         String profilePictureUrl,
         List<String> roles,

@@ -68,6 +68,12 @@ public class UserAdminService {
         if (request.major() != null) {
             user.setMajor(request.major());
         }
+        if (request.studentId() != null) {
+            user.setStudentId(request.studentId());
+        }
+        if (request.faculty() != null) {
+            user.setFaculty(request.faculty());
+        }
         if (request.academicYear() != null) {
             user.setAcademicYear(request.academicYear());
         }
@@ -87,6 +93,8 @@ public class UserAdminService {
                 user.getDisplayName(),
                 user.getEmail(),
                 user.getMajor(),
+                user.getStudentId(),
+                user.getFaculty(),
                 user.getAcademicYear(),
                 user.getProfilePictureUrl(),
                 roles,

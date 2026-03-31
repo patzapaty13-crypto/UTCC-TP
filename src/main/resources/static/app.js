@@ -19,6 +19,8 @@ const messages = {
       admin: "Admin",
       profile: "Profile",
       settings: "Settings",
+      directory: "Directory",
+      notifications: "Notifications",
     },
     actions: {
       notifications: "Notifications",
@@ -250,6 +252,8 @@ const messages = {
       admin: "ผู้ดูแลระบบ",
       profile: "โปรไฟล์",
       settings: "การตั้งค่า",
+      directory: "สมุดรายชื่อ",
+      notifications: "การแจ้งเตือน",
     },
     actions: {
       notifications: "การแจ้งเตือน",
@@ -615,24 +619,6 @@ const messages = {
       completed: "已完成",
       allSectors: "所有行业",
       openSlots: "开放名额",
-      pending: "待定",
-      approved: "已批准",
-      rejected: "已拒绝",
-      awaitingReview: "等待审查",
-      graded: "已评分",
-      uploadTemplate: "上传模板",
-      users: "用户",
-      roles: "角色",
-      auditLogs: "审计日志",
-      action: "操作",
-    },
-    ai: {
-      title: "在监督下起草、总结和推荐。",
-      summary: "报告摘要",
-      recommend: "职位匹配推荐",
-      draft: "审批草稿",
-      chatbot: "聊天机器人",
-      summaryNote: "生成一份草稿摘要供顾问审查。",
       recommendNote: "根据技能和专业推荐匹配项。",
       draftNote: "自动起草出游批准文件。",
       chatbotNote: "回答学生有关流程和步骤的问题。",
@@ -840,13 +826,11 @@ const api = {
 const navItems = [
   { path: "/app/dashboard", label: "nav.dashboard", icon: "fa-solid fa-chart-pie", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
   { path: "/app/trips", label: "nav.trips", icon: "fa-solid fa-route", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/app/internships", label: "nav.internships", icon: "fa-solid fa-briefcase", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/internships", label: "nav.internships", icon: "fa-solid fa-building", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
   { path: "/app/applications", label: "nav.applications", icon: "fa-solid fa-file-signature", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/app/reports", label: "nav.reports", icon: "fa-solid fa-folder-open", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/app/analytics", label: "nav.analytics", icon: "fa-solid fa-chart-line", roles: ["ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/app/ai", label: "nav.ai", icon: "fa-solid fa-wand-magic-sparkles", roles: ["ADVISOR", "STAFF", "ADMIN"] },
-  { path: "/app/admin", label: "nav.admin", icon: "fa-solid fa-user-shield", roles: ["ADMIN"] },
-  { path: "/app/profile", label: "nav.profile", icon: "fa-solid fa-user-circle", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/reports", label: "nav.reports", icon: "fa-solid fa-file-invoice", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/directory", label: "nav.directory", icon: "fa-solid fa-users", roles: ["ADVISOR", "STAFF", "ADMIN"] },
+  { path: "/app/notifications", label: "nav.notifications", icon: "fa-solid fa-bell", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
   { path: "/app/settings", label: "nav.settings", icon: "fa-solid fa-cog", roles: ["STUDENT", "ADVISOR", "STAFF", "ADMIN"] },
 ];
 
@@ -1321,10 +1305,36 @@ const AppLayout = {
           </a>
         </div>
         <div class="top-actions">
-          <button class="btn btn-ghost btn-sm" @click="toggleNotifications">
-            <i class="fas fa-bell"></i>
-            <span v-if="unreadCount" class="badge badge-pulse">{{ unreadCount }}</span>
-          </button>
+          <div class="notif-wrap" style="position:relative;">
+            <button class="btn btn-ghost btn-sm notif-toggle" @click.stop="toggleNotifications" aria-label="Notifications">
+              <i class="fas fa-bell"></i>
+              <span v-if="unreadCount" class="badge badge-pulse">{{ unreadCount }}</span>
+            </button>
+            <div v-if="showNotifications" class="notification-panel modern-dropdown animate-scale-in" @click.stop>
+              <div class="panel-head">
+                <h4 class="panel-title-text">{{ $t("actions.notifications") }}</h4>
+                <div class="panel-actions">
+                  <button class="btn-icon-small" @click="loadNotifications" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                  <button class="btn-icon-small" @click="toggleNotifications" title="Close"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div v-if="!notifications.length" class="empty-state-sm">
+                   <i class="fas fa-bell-slash"></i>
+                   <p>ไม่มีการแจ้งเตือน</p>
+                </div>
+                <div class="notification-item" v-for="item in notifications" :key="item.id">
+                  <div class="notif-icon bg-blue-light"><i class="fas fa-info-circle text-blue"></i></div>
+                  <div class="notif-content">
+                    <strong>{{ item.title }}</strong>
+                    <p class="muted-text">{{ item.message }}</p>
+                  </div>
+                  <button class="btn-icon-small check" @click="markRead(item.id)" title="Mark as read"><i class="fas fa-check"></i></button>
+                </div>
+              </div>
+            </div>
+            <div v-if="showNotifications" style="position:fixed;inset:0;z-index:1490;" @click="showNotifications = false"></div>
+          </div>
           <language-selector />
           
           <div class="avatar-wrap">
@@ -1352,41 +1362,20 @@ const AppLayout = {
         </div>
       </header>
 
-      <div v-if="showNotifications" class="notification-panel modern-dropdown animate-scale-in">
-        <div class="panel-head">
-          <h4 class="panel-title-text">{{ $t("actions.notifications") }}</h4>
-          <div class="panel-actions">
-            <button class="btn-icon-small" @click="loadNotifications" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-            <button class="btn-icon-small" @click="toggleNotifications" title="Close"><i class="fas fa-times"></i></button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div v-if="!notifications.length" class="empty-state-sm">
-             <i class="fas fa-bell-slash"></i>
-             <p>No new notifications</p>
-          </div>
-          <div class="notification-item" v-for="item in notifications" :key="item.id">
-            <div class="notif-icon bg-blue-light"><i class="fas fa-info-circle text-blue"></i></div>
-            <div class="notif-content">
-              <strong>{{ item.title }}</strong>
-              <p class="muted-text">{{ item.message }}</p>
-            </div>
-            <button class="btn-icon-small check" @click="markRead(item.id)" title="Mark as read"><i class="fas fa-check"></i></button>
-          </div>
-        </div>
-      </div>
       <div class="layout">
         <nav class="side-nav" :class="{ open: menuOpen }">
-          <button
-            v-for="item in availableNav"
-            :key="item.path"
-            class="nav-item"
-            :class="{ active: route.path === item.path }"
-            @click="go(item.path); menuOpen = false;"
-          >
-            <i :class="item.icon" class="nav-icon"></i>
-            {{ $t(item.label) }}
-          </button>
+          <div class="nav-links">
+            <button
+              v-for="item in availableNav"
+              :key="item.path"
+              class="nav-item"
+              :class="{ active: route.path === item.path }"
+              @click="go(item.path); menuOpen = false;"
+            >
+              <i :class="[item.icon, 'nav-icon']"></i>
+              <span>{{ $t(item.label) }}</span>
+            </button>
+          </div>
           <div class="nav-foot">
             <div class="user-pill">
                <div class="pill-avatar">{{ initials }}</div>
@@ -1672,64 +1661,100 @@ const TripsView = {
           </div>
           <p class="muted-text-sm">Manage details for existing trips</p>
           <div class="form-grid-modern" style="margin-top: 20px;">
-            <div class="input-group full">
-               <label>Target Trip</label>
-               <select v-model="selectedTripId" class="modern-select">
-                 <option disabled value="">Choose a trip to edit...</option>
-                 <option v-for="trip in trips" :key="trip.id" :value="trip.id">{{ trip.title }}</option>
-               </select>
+            <div class="input-      <!-- ══ Apply Confirmation Modal ══ -->
+      <div v-if="applyModal.show" class="modal-overlay" @click.self="applyModal.show = false">
+        <div class="modal apply-modal animate-scale-in">
+          <div class="modal-header">
+            <div>
+              <p class="eyebrow">{{ $t("actions.apply") }}</p>
+              <h2>{{ applyModal.trip?.title }}</h2>
             </div>
-            <div class="input-group">
-              <label>Service Category</label>
-              <input v-model="budget.category" placeholder="Transportation" />
+            <button class="btn-close" @click="applyModal.show = false"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <!-- Trip Summary -->
+            <div class="apply-trip-info">
+              <div class="apply-info-row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ applyModal.trip?.location || '-' }}</span>
+              </div>
+              <div class="apply-info-row">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ formatDate(applyModal.trip?.startDate) }} – {{ formatDate(applyModal.trip?.endDate) }}</span>
+              </div>
+              <div class="apply-info-row">
+                <i class="fas fa-users"></i>
+                <span>รับจำนวน {{ applyModal.trip?.capacity || '-' }} คน</span>
+              </div>
             </div>
-            <div class="input-group">
-              <label>Cost</label>
-              <input v-model="budget.amount" type="number" placeholder="5000" />
+
+            <!-- Student Info Section -->
+            <div class="apply-section-title mt-6">
+              <i class="fas fa-user-graduate"></i> ข้อมูลผู้สมัคร
+            </div>
+
+            <div class="apply-form-grid">
+              <div class="form-group">
+                <label class="form-label">ชื่อ <span class="req">*</span></label>
+                <input v-model="applyModal.firstName" class="form-control" type="text" placeholder="ชื่อ" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">นามสกุล <span class="req">*</span></label>
+                <input v-model="applyModal.lastName" class="form-control" type="text" placeholder="นามสกุล" required />
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+              <label class="form-label">เลขประจำตัวนักศึกษา <span class="req">*</span></label>
+              <input v-model="applyModal.studentId" class="form-control" type="text" placeholder="เช่น 6501234567" required />
+            </div>
+
+            <div class="apply-form-grid mt-4">
+              <div class="form-group">
+                <label class="form-label">คณะ <span class="req">*</span></label>
+                <input v-model="applyModal.faculty" class="form-control" type="text" placeholder="เช่น บริหารธุรกิจ" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">สาขา <span class="req">*</span></label>
+                <input v-model="applyModal.major" class="form-control" type="text" placeholder="เช่น การตลาด" required />
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+              <label class="form-label">เหตุผลที่ต้องการสมัคร <span class="text-muted">(ไม่บังคับ)</span></label>
+              <textarea
+                v-model="applyModal.reason"
+                class="form-control"
+                rows="3"
+                placeholder="เช่น ต้องการเพิ่มประสบการณ์ด้านการจัดการทริปนอกสถานที่..."
+              ></textarea>
+            </div>
+
+            <div v-if="applyModal.error" class="alert alert-danger mt-4">
+              <i class="fas fa-exclamation-circle"></i> {{ applyModal.error }}
             </div>
           </div>
-          <div class="form-footer">
-             <button class="btn btn-secondary w-full" @click="addBudget">
-               <i class="fas fa-plus"></i> {{ $t("actions.addBudget") }}
-             </button>
-             <button class="btn btn-accent w-full" v-if="selectedTripId" @click="publishTrip(selectedTripId)">
-               <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
-             </button>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="applyModal.show = false">ยกเลิก</button>
+            <button class="btn btn-accent" :disabled="applyModal.loading" @click="confirmApply">
+              <span v-if="applyModal.loading"><i class="fas fa-spinner fa-spin"></i> กำลังสมัคร...</span>
+              <span v-else><i class="fas fa-check"></i> ยืนยันการสมัคร</span>
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Main Trip Grid -->
-      <div class="modern-trip-grid">
-        <article v-for="trip in filteredTrips" :key="trip.id" class="trip-card-bento animate-scale-in" @click="openTripDetails(trip)">
-          <div class="trip-card-content clickable">
-            <div class="trip-type-tag">{{ trip.location }}</div>
-            <h3 class="trip-name">{{ trip.title }}</h3>
-            <div class="trip-details">
-              <div class="detail-item">
-                <i class="far fa-calendar-alt"></i>
-                <span>{{ formatDate(trip.startDate) }} - {{ formatDate(trip.endDate) }}</span>
-              </div>
-              <div class="detail-item">
-                <i class="fas fa-coins"></i>
-                <span>{{ formatCurrency(trip.budgetTotal || 0) }}</span>
-              </div>
-            </div>
-            <div :class="['status-pill-large', statusClass(trip.status)]">
-              {{ $t(statusKey(trip.status)) }}
-            </div>
-          </div>
-          <div class="trip-card-footer">
-             <button class="btn btn-ghost btn-sm w-full" @click="openTripDetails(trip)">
-               <i class="fas fa-eye"></i> {{ $t("actions.viewDetails") }}
-             </button>
-             <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn btn-accent w-full" @click.stop="applyTrip(trip.id)">
-               <i class="fas fa-signature"></i> {{ $t("actions.apply") }}
-             </button>
-             <button v-if="canManage && trip.status === 'DRAFT'" class="btn btn-primary w-full" @click.stop="publishTrip(trip.id)">
-               <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
-             </button>
-             <button v-if="canManage" class="btn btn-ghost btn-sm" title="Edit Trip">
+.stop="openTripDetails(trip)">
+                 <i class="fas fa-circle-info"></i> {{ $t("actions.viewDetails") }}
+               </button>
+               <button v-if="isStudent && trip.status === 'PUBLISHED'" class="btn btn-accent" :class="{ 'btn-disabled': isApplied(trip.id) }" @click.stop="applyTrip(trip)">
+                 <i :class="isApplied(trip.id) ? 'fas fa-check' : 'fas fa-signature'"></i>
+                 {{ isApplied(trip.id) ? 'สมัครแล้ว' : $t("actions.apply") }}
+               </button>
+               <button v-if="canManage && trip.status === 'DRAFT'" class="btn btn-primary" @click.stop="publishTrip(trip.id)">
+                 <i class="fas fa-paper-plane"></i> {{ $t("actions.publish") }}
+               </button>
+             </div>
+             <button v-if="canManage" class="btn btn-ghost btn-sm edit-quick" title="Edit Trip">
                <i class="fas fa-pen-to-square"></i>
              </button>
           </div>
@@ -1768,17 +1793,20 @@ const TripsView = {
 
                 <div class="detail-section">
                   <label><i class="fas fa-location-dot"></i> {{ $t("labels.location") }}</label>
-                  <div class="map-container-mini">
-                    <iframe 
-                      width="100%" 
-                      height="400" 
-                      frameborder="0" 
-                      style="border:0; border-radius: 12px;"
-                      allowfullscreen
-                      loading="lazy"
-                      referrerpolicy="no-referrer-when-downgrade"
-                      :src="'https://www.google.com/maps/embed/v1/place?key=' + (window.__APP_CONFIG__?.googleMapsKey || '') + '&q=' + encodeURIComponent(selectedTripForDetails.location || 'UTCC Thailand')">
-                    </iframe>
+                  <div class="map-placeholder-card">
+                    <div class="map-placeholder-inner">
+                      <i class="fas fa-map-location-dot"></i>
+                      <p class="map-location-name">{{ selectedTripForDetails.location || 'ไม่ระบุสถานที่' }}</p>
+                      <a
+                        v-if="selectedTripForDetails.location"
+                        :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(selectedTripForDetails.location)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-secondary btn-sm"
+                      >
+                        <i class="fas fa-external-link-alt"></i> เปิดใน Google Maps
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1815,14 +1843,74 @@ const TripsView = {
                   </div>
                 </div>
                 
-                <button v-if="isStudent && selectedTripForDetails.status === 'PUBLISHED'" class="btn btn-primary w-full mt-4" @click="applyTrip(selectedTripForDetails.id)">
-                  <i class="fas fa-signature"></i> {{ $t("actions.apply") }}
+                <button v-if="isStudent && selectedTripForDetails.status === 'PUBLISHED'" class="btn btn-primary w-full mt-4" :class="{ 'btn-disabled': isApplied(selectedTripForDetails.id) }" @click="applyTrip(selectedTripForDetails)">
+                  <i :class="isApplied(selectedTripForDetails.id) ? 'fas fa-check' : 'fas fa-signature'"></i>
+                  {{ isApplied(selectedTripForDetails.id) ? 'สมัครแล้ว' : $t("actions.apply") }}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ══ Apply Confirmation Modal ══ -->
+      <div v-if="applyModal.show" class="modal-overlay" @click.self="applyModal.show = false">
+        <div class="modal apply-modal animate-scale-in">
+          <div class="modal-header">
+            <div>
+              <p class="eyebrow">{{ $t("actions.apply") }}</p>
+              <h2>{{ applyModal.trip?.title }}</h2>
+            </div>
+            <button class="btn-close" @click="applyModal.show = false"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="apply-trip-info">
+              <div class="apply-info-row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ applyModal.trip?.location || '-' }}</span>
+              </div>
+              <div class="apply-info-row">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ formatDate(applyModal.trip?.startDate) }} – {{ formatDate(applyModal.trip?.endDate) }}</span>
+              </div>
+              <div class="apply-info-row">
+                <i class="fas fa-users"></i>
+                <span>รับจำนวน {{ applyModal.trip?.capacity || '-' }} คน</span>
+              </div>
+            </div>
+
+            <div class="form-group mt-6">
+              <label class="form-label">เหตุผลที่ต้องการสมัคร <span class="text-muted">(ไม่บังคับ)</span></label>
+              <textarea
+                v-model="applyModal.reason"
+                class="form-control"
+                rows="3"
+                placeholder="เช่น ต้องการเพิ่มประสบการณ์ด้านการจัดการทริปนอกสถานที่..."
+              ></textarea>
+            </div>
+
+            <div v-if="applyModal.error" class="alert alert-danger mt-4">
+              <i class="fas fa-exclamation-circle"></i> {{ applyModal.error }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="applyModal.show = false">ยกเลิก</button>
+            <button class="btn btn-accent" :disabled="applyModal.loading" @click="confirmApply">
+              <span v-if="applyModal.loading"><i class="fas fa-spinner fa-spin"></i> กำลังสมัคร...</span>
+              <span v-else><i class="fas fa-check"></i> ยืนยันการสมัคร</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Toast ══ -->
+      <transition name="toast-slide">
+        <div v-if="toast.show" :class="['apply-toast', toast.type]">
+          <i :class="toast.type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+          {{ toast.message }}
+        </div>
+      </transition>
+
     </section>
   `,
   setup() {
@@ -1843,6 +1931,29 @@ const TripsView = {
     const selectedTripId = ref("");
     const selectedTripForDetails = ref(null);
     const tripDetailsContent = ref(null);
+    const appliedTripIds = ref([]);
+    const isApplied = (id) => appliedTripIds.value.includes(id);
+    const applyModal = reactive({
+      show: false,
+      trip: null,
+      reason: '',
+      loading: false,
+      error: '',
+      firstName: '',
+      lastName: '',
+      studentId: '',
+      faculty: '',
+      major: ''
+    });
+    const toast = reactive({ show: false, message: '', type: 'success' });
+
+    const showToast = (message, type = 'success') => {
+      toast.message = message;
+      toast.type = type;
+      toast.show = true;
+      setTimeout(() => { toast.show = false; }, 3500);
+    };
+
 
     const role = computed(() => state.user?.roles?.[0] || "GUEST");
     const canManage = computed(() => ["ADVISOR", "STAFF", "ADMIN"].includes(role.value));
@@ -1896,8 +2007,59 @@ const TripsView = {
       await loadTrips();
     };
 
-    const applyTrip = async (tripId) => {
-      await api.createApplication({ type: "TRIP", tripId });
+    const applyTrip = (trip) => {
+      if (appliedTripIds.value.includes(trip.id)) {
+        showToast('คุณสมัครทริปนี้ไปแล้ว', 'error');
+        return;
+      }
+      applyModal.trip = trip;
+      applyModal.reason = '';
+      applyModal.error = '';
+      applyModal.loading = false;
+
+      // Pre-fill from current user state
+      if (state.user) {
+        const names = (state.user.displayName || "").split(" ");
+        applyModal.firstName = names[0] || "";
+        applyModal.lastName = names.slice(1).join(" ") || "";
+        applyModal.studentId = state.user.studentId || "";
+        applyModal.faculty = state.user.faculty || "";
+        applyModal.major = state.user.major || "";
+      }
+
+      applyModal.show = true;
+    };
+
+    const confirmApply = async () => {
+      if (!applyModal.trip) return;
+      
+      // Validation
+      if (!applyModal.firstName || !applyModal.lastName || !applyModal.studentId || !applyModal.faculty || !applyModal.major) {
+        applyModal.error = 'กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน';
+        return;
+      }
+
+      applyModal.loading = true;
+      applyModal.error = '';
+      try {
+        await api.createApplication({
+          type: 'TRIP',
+          tripId: applyModal.trip.id,
+          reason: applyModal.reason,
+          firstName: applyModal.firstName,
+          lastName: applyModal.lastName,
+          studentId: applyModal.studentId,
+          faculty: applyModal.faculty,
+          major: applyModal.major
+        });
+        appliedTripIds.value.push(applyModal.trip.id);
+        applyModal.show = false;
+        showToast(`สมัครทริป "${applyModal.trip.title}" สำเร็จ! รอผู้ดูแลอนุมัติ`, 'success');
+      } catch(e) {
+        applyModal.error = e.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
+      } finally {
+        applyModal.loading = false;
+      }
     };
 
     const publishTrip = async (tripId) => {
@@ -1960,7 +2122,12 @@ const TripsView = {
       canManage,
       isStudent,
       submitTrip,
+      applyModal,
+      confirmApply,
       applyTrip,
+      appliedTripIds,
+      isApplied,
+      toast,
       publishTrip,
       addSchedule,
       addBudget,
@@ -1985,6 +2152,7 @@ const TripsView = {
       formatCurrency: (value) => formatCurrency(value, state.locale),
       statusClass,
       statusKey,
+      appConfig,
     };
   },
 };
@@ -2903,6 +3071,65 @@ const ProfileView = {
   },
 };
 
+const NotificationsView = {
+  template: `
+    <section class="animate-fade-in-up">
+      <div class="section-head-modern">
+        <div class="head-left">
+          <p class="eyebrow">{{ $t("nav.notifications") }}</p>
+          <h2 class="modern-section-title">{{ $t("nav.notifications") }}</h2>
+          <p class="section-subtitle">การแจ้งเตือนและข้อความจากระบบ</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" @click="load">
+          <i class="fas fa-sync-alt"></i> รีเฟรช
+        </button>
+      </div>
+
+      <div class="notif-page-list">
+        <div v-if="!items.length" class="notif-page-empty">
+          <i class="fas fa-bell-slash"></i>
+          <p>ไม่มีการแจ้งเตือนในขณะนี้</p>
+        </div>
+        <div v-for="item in items" :key="item.id" class="notif-page-item">
+          <div class="notif-page-icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="notif-page-content">
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.message }}</p>
+            <span class="notif-page-time">{{ item.createdAt ? formatDate(item.createdAt) : '' }}</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" v-if="item.status !== 'READ'" @click="markRead(item.id)">
+            <i class="fas fa-check"></i> อ่านแล้ว
+          </button>
+        </div>
+      </div>
+    </section>
+  `,
+  setup() {
+    const items = ref([]);
+
+    const load = async () => {
+      try {
+        const res = await api("/api/notifications");
+        items.value = res || [];
+      } catch(e) { items.value = []; }
+    };
+
+    const markRead = async (id) => {
+      try {
+        await api("/api/notifications/" + id + "/read", { method: "PUT" });
+        load();
+      } catch(e) {}
+    };
+
+    const fmtDate = (val) => formatDate(val, state.locale);
+
+    onMounted(load);
+    return { items, load, markRead, formatDate: fmtDate };
+  },
+};
+
 const SettingsView = {
   template: `
     <section class="animate-fade-in-up">
@@ -3186,6 +3413,7 @@ const routes = [
       { path: "admin", component: AdminView, meta: { roles: ["ADMIN"] } },
       { path: "profile", component: ProfileView },
       { path: "settings", component: SettingsView },
+      { path: "notifications", component: NotificationsView },
     ],
   },
   { path: "/:pathMatch(.*)*", redirect: "/" },
