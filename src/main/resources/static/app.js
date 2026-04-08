@@ -3077,6 +3077,70 @@ const ProfileView = {
   },
 };
 
+const DirectoryView = {
+  template: `
+    <section class="animate-fade-in-up">
+      <div class="section-head mb-8">
+        <div>
+          <p class="eyebrow">{{ $t("nav.directory") }}</p>
+          <h2 class="modern-section-title">{{ $t("nav.directory") }}</h2>
+          <p class="section-subtitle">Find and connect with students, advisors, and staff across the platform.</p>
+        </div>
+      </div>
+      
+      <div class="modern-form-card shadow-soft">
+        <div class="table-responsive">
+          <table class="modern-data-table w-full text-left">
+            <thead>
+              <tr>
+                <th>{{ $t("labels.user") }}</th>
+                <th>{{ $t("labels.email") }}</th>
+                <th>{{ $t("labels.role") }}</th>
+                <th>{{ $t("labels.major") }}</th>
+                <th>{{ $t("labels.year") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!users.length">
+                <td colspan="5" class="text-center p-6 text-muted">No users found.</td>
+              </tr>
+              <tr v-for="u in users" :key="u.id" class="hover-bg-subtle">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="pill-avatar">{{ u.name ? u.name.charAt(0) : 'U' }}</div>
+                    <span class="font-600">{{ u.name }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ u.email || '-' }}</td>
+                <td>
+                  <span class="status-pill-minimal" :class="'role-' + (u.roles && u.roles[0] ? u.roles[0].toLowerCase() : '')">
+                    {{ u.roles && u.roles[0] ? $t('roles.' + u.roles[0]) : '-' }}
+                  </span>
+                </td>
+                <td class="text-muted">{{ u.major || '-' }}</td>
+                <td class="text-muted">{{ u.year_level || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  `,
+  setup() {
+    const users = ref([]);
+    const load = async () => {
+      try {
+        const res = await api.adminUsers();
+        users.value = res || [];
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    onMounted(load);
+    return { users };
+  }
+};
+
 const NotificationsView = {
   template: `
     <section class="animate-fade-in-up">
@@ -3117,14 +3181,14 @@ const NotificationsView = {
 
     const load = async () => {
       try {
-        const res = await api("/api/notifications");
+        const res = await api.listNotifications();
         items.value = res || [];
       } catch(e) { items.value = []; }
     };
 
     const markRead = async (id) => {
       try {
-        await api("/api/notifications/" + id + "/read", { method: "PUT" });
+        await api.markNotificationRead(id);
         load();
       } catch(e) {}
     };
@@ -3419,6 +3483,7 @@ const routes = [
       { path: "admin", component: AdminView, meta: { roles: ["ADMIN"] } },
       { path: "profile", component: ProfileView },
       { path: "settings", component: SettingsView },
+      { path: "directory", component: DirectoryView, meta: { roles: ["ADVISOR", "STAFF", "ADMIN"] } },
       { path: "notifications", component: NotificationsView },
     ],
   },

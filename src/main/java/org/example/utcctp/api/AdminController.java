@@ -17,7 +17,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final UserAdminService userAdminService;
 
@@ -26,16 +25,19 @@ public class AdminController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasAnyRole('ADVISOR', 'STAFF', 'ADMIN')")
     public List<UserResponse> listUsers() {
         return userAdminService.listUsers();
     }
 
     @PostMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(@RequestBody UserRequest request) {
         return userAdminService.createUser(request);
     }
 
     @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(@PathVariable UUID id, @RequestBody UserRequest request) {
         return userAdminService.updateUser(id, request);
     }
