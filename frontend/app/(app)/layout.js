@@ -132,7 +132,7 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* Page */}
-        <main className={`page-content animate-fade-in ${pathname === '/profile' ? 'full-bleed' : ''}`}>
+        <main className="page-content animate-fade-in">
           {children}
         </main>
       </div>
