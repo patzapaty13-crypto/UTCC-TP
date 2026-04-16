@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   UTCC-TP  ·  Design System v3.0  ·  "Obsidian" Theme
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand Core ──────────────────────────────────────────── */
+  --brand-50:  #EFF6FF;
+  --brand-100: #DBEAFE;
+  --brand-200: #BFDBFE;
+  --brand-400: #60A5FA;
+  --brand-500: #3B82F6;
+  --brand-600: #2563EB;
+  --brand-700: #1D4ED8;
+  --brand-900: #1E3A8A;
+
+  /* ── Semantic Palette ────────────────────────────────────── */
+  --primary:         #2563EB;
+  --primary-hover:   #1D4ED8;
+  --primary-light:   #EFF6FF;
+
+  --success:   #10B981;
+  --warning:   #F59E0B;
+  --danger:    #EF4444;
+  --info:      #6366F1;
+
+  /* ── Neutral Scale ───────────────────────────────────────── */
+  --n-50:  #F8FAFC;
+  --n-100: #F1F5F9;
+  --n-200: #E2E8F0;
+  --n-300: #CBD5E1;
+  --n-400: #94A3B8;
+  --n-500: #64748B;
+  --n-600: #475569;
+  --n-700: #334155;
+  --n-800: #1E293B;
+  --n-900: #0F172A;
+  --n-950: #020617;
+
+  /* ── Sidebar (Dark Shell) ────────────────────────────────── */
+  --sidebar-bg:       #0B0F1A;
+  --sidebar-border:   rgba(255,255,255,0.06);
+  --sidebar-text:     rgba(255,255,255,0.50);
+  --sidebar-hover-bg: rgba(255,255,255,0.06);
+  --sidebar-active-bg:linear-gradient(135deg, rgba(37,99,235,0.25), rgba(99,102,241,0.15));
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-active-icon: #60A5FA;
+  --sidebar-icon:     rgba(255,255,255,0.30);
+
+  /* ── Surface / Content ───────────────────────────────────── */
+  --bg-page:    #F1F5F9;
+  --bg-surface: #FFFFFF;
+  --bg-subtle:  #F8FAFC;
+  --bg-hover:   #F1F5F9;
+
+  --border:       #E2E8F0;
+  --border-focus: #2563EB;
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+  --text-inverse:   #FFFFFF;
+
+  /* ── Shadow System ───────────────────────────────────────── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:  0 12px 36px rgba(0,0,0,0.12);
+  --shadow-xl:  0 24px 64px rgba(0,0,0,0.16);
+  --shadow-brand: 0 8px 24px rgba(37,99,235,0.25);
+
+  /* ── Radius ──────────────────────────────────────────────── */
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-2xl: 36px;
+
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px;  --space-10: 40px; --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --sidebar-w:  256px;
+  --topbar-h:   60px;
+
+  /* ── Transitions ─────────────────────────────────────────── */
+  --ease:       cubic-bezier(0.4, 0, 0.2, 1);
+  --duration:   200ms;
+  --transition: var(--duration) var(--ease);
+}

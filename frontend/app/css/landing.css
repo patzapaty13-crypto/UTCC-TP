@@ -1,0 +1,16 @@
+/* landing.css — Styles kept minimal, landing page now uses inline styles in page.js */
+
+/* Font Awesome override for the landing */
+.landing-page * {
+  box-sizing: border-box;
+}
+
+/* Ensure iframe video fills correctly */
+.hero-iframe-bg {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120vw; height: 120vh;
+  border: none;
+  pointer-events: none;
+}
