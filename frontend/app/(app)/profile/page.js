@@ -41,10 +41,8 @@ export default function ProfilePage() {
 
   return (
     <div style={{ 
-      margin: "-36px", /* Negate Layout padding to span full width */
       position: "relative",
       minHeight: "calc(100vh - 60px)",
-      background: "#0B0F1A",
       overflow: "hidden",
       fontFamily: "'Plus Jakarta Sans', 'Noto Sans Thai', sans-serif",
       color: "white"
