@@ -95,14 +95,14 @@ export default function DashboardLayout({ children }) {
 
         {/* Footer */}
         <div className="sidebar-footer">
-          <button className="user-card">
+          <Link href="/profile" className="user-card" style={{ textDecoration:"none", textAlign:"left", display:"flex", alignItems:"center", gap:12 }}>
             <div className="user-avatar avatar">{initials}</div>
-            <div className="user-info">
+            <div className="user-info" style={{ flex:1 }}>
               <div className="user-name">{user?.displayName || user?.username}</div>
               <div className="user-role">{user?.roles?.[0] || "USER"}</div>
             </div>
             <i className="fas fa-ellipsis" style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}></i>
-          </button>
+          </Link>
           <button className="btn-signout" onClick={handleLogout}>
             <i className="fas fa-arrow-right-from-bracket"></i>
             ออกจากระบบ
@@ -125,7 +125,9 @@ export default function DashboardLayout({ children }) {
             <button className="icon-btn" title="การแจ้งเตือน">
               <i className="fas fa-bell"></i>
             </button>
-            <div className="avatar avatar-sm" style={{ marginLeft: 4 }}>{initials}</div>
+            <Link href="/profile" style={{ textDecoration:"none" }}>
+              <div className="avatar avatar-sm" style={{ marginLeft: 4, cursor:"pointer" }}>{initials}</div>
+            </Link>
           </div>
         </header>
 

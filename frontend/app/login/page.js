@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import Link from "next/link";
 
 const DEMO_USERS = [
   { username:"student1", password:"pass123", role:"STUDENT",  label:"นักศึกษา",          icon:"fa-user-graduate", color:"#2563EB", bg:"#EFF6FF" },
@@ -54,9 +55,20 @@ export default function LoginPage() {
         <div style={{ position:"absolute", top:-120, right:-120, width:360, height:360, borderRadius:"50%", background:"rgba(37,99,235,0.08)", pointerEvents:"none" }}></div>
         <div style={{ position:"absolute", bottom:-80, left:-80, width:240, height:240, borderRadius:"50%", background:"rgba(99,102,241,0.06)", pointerEvents:"none" }}></div>
 
-        {/* Logo */}
-        <div style={{ position:"relative" }}>
+        {/* Logo and Back Button */}
+        <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <img src="/utcc-logo.png" alt="UTCC" style={{ height:32, filter:"brightness(0) invert(1)", opacity:0.9 }} />
+          <Link href="/" style={{
+            fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.5)",
+            textDecoration:"none", display:"flex", alignItems:"center", gap:6,
+            transition:"color 0.2s", padding:"6px 12px", borderRadius:99,
+             background:"rgba(255,255,255,0.05)"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color="white"; e.currentTarget.style.background="rgba(255,255,255,0.1)"; }}
+          onMouseLeave={e => { e.currentTarget.style.color="rgba(255,255,255,0.5)"; e.currentTarget.style.background="rgba(255,255,255,0.05)"; }}
+          >
+            <i className="fas fa-arrow-left"></i> กลับหน้าแรก
+          </Link>
         </div>
 
         {/* Center text */}
