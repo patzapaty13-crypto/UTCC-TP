@@ -75,6 +75,16 @@ export default function LoginPage() {
 
       <div className="login-form-side">
         <div className="form-container">
+          <Link href="/" style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            fontSize: 14, fontWeight: 700, color: "var(--text-sub)",
+            textDecoration: "none", marginBottom: 24, transition: "color 0.2s"
+          }}
+          onMouseEnter={(e) => e.target.style.color = "var(--primary)"}
+          onMouseLeave={(e) => e.target.style.color = "var(--text-sub)"}>
+            <i className="fas fa-arrow-left"></i> กลับไปยังหน้าหลัก
+          </Link>
+
           <div className="form-header">
             <h2 className="form-title">ยินดีต้อนรับ</h2>
             <p className="form-subtitle">เข้าสู่ระบบเพื่อจัดการข้อมูลการฝึกงานของคุณ</p>
