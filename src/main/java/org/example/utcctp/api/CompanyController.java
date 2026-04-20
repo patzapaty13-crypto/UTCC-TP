@@ -29,6 +29,11 @@ public class CompanyController {
         return companyService.listCompanies();
     }
 
+    @GetMapping("/{id}")
+    public CompanyResponse getCompany(@PathVariable UUID id) {
+        return companyService.getCompany(id);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
     public CompanyResponse createCompany(@RequestBody CompanyRequest request) {

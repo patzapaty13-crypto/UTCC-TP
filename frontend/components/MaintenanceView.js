@@ -55,7 +55,7 @@ export default function MaintenanceView() {
         </button>
       </div>
       <p style={{ marginTop: '32px', fontSize: '12px', color: 'rgba(255,255,255,0.2)' }}>
-        UTCC-TP Administrative Lockdown Mode
+        UTCC Administrative Lockdown Mode
       </p>
     </div>
   );

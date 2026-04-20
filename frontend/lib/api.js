@@ -133,18 +133,35 @@ export const api = {
   updateInternship: (id, data) => apiFetch(`/internships/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 
   // -------------------------------------------------------------
+  // Companies
+  // -------------------------------------------------------------
+  getCompanies: () => apiFetch("/companies"),
+  getCompany: (id) => apiFetch(`/companies/${id}`),
+  createCompany: (data) => apiFetch("/companies", { method: "POST", body: JSON.stringify(data) }),
+  updateCompany: (id, data) => apiFetch(`/companies/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteCompany: (id) => apiFetch(`/companies/${id}`, { method: "DELETE" }),
+
+  // -------------------------------------------------------------
   // ATS: APPLICATIONS (FUNNEL & TRACKING)
   // -------------------------------------------------------------
   getApplications: async () => {
     if (USE_MOCK_API) { await delay(); return [...MOCK_APPLICATIONS]; }
     return apiFetch("/applications");
   },
-  applyForInternship: async (data, studentData) => {
-    if (USE_MOCK_API) return createMockApplication(data.internshipId, studentData);
+  applyForInternship: async (data) => {
+    if (USE_MOCK_API) return createMockApplication(data.internshipId, data);
     const payload = {
       type: "INTERNSHIP",
       internshipPositionId: data.internshipId,
-      reason: data.reason || "มีความสนใจในตำแหน่งนี้"
+      // Phase 1 Enhancement Fields
+      phone: data.phone,
+      email: data.email,
+      address: data.address,
+      gpa: data.gpa,
+      major: data.major,
+      year: data.year,
+      coverLetter: data.coverLetter,
+      portfolioUrl: data.portfolioUrl,
     };
     return apiFetch("/applications", { method: "POST", body: JSON.stringify(payload) });
   },
@@ -160,6 +177,17 @@ export const api = {
   getReports: () => apiFetch("/reports"),
   submitReport: (data) => apiFetch("/reports", { method: "POST", body: JSON.stringify(data) }),
   gradeReport: (id, data) => apiFetch(`/reports/${id}/grade`, { method: "PUT", body: JSON.stringify(data) }),
+  
+  // -------------------------------------------------------------
+  // Interviews / Offers
+  // -------------------------------------------------------------
+  getInterviews: (applicationId) => apiFetch(`/interviews${applicationId ? `?applicationId=${applicationId}` : ""}`),
+  createInterview: (data) => apiFetch("/interviews", { method: "POST", body: JSON.stringify(data) }),
+  updateInterview: (id, data) => apiFetch(`/interviews/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  getOffers: (applicationId) => apiFetch(`/offers${applicationId ? `?applicationId=${applicationId}` : ""}`),
+  createOffer: (data) => apiFetch("/offers", { method: "POST", body: JSON.stringify(data) }),
+  updateOffer: (id, data) => apiFetch(`/offers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  respondToOffer: (id, data) => apiFetch(`/offers/${id}/respond`, { method: "PUT", body: JSON.stringify(data) }),
   
   // ATS Decide
   decideForInternship: async (id, payload) => {
@@ -209,4 +237,13 @@ export const api = {
   // Audit logs (admin only)
   // -------------------------------------------------------------
   getAuditLogs: (page = 0, size = 50) => apiFetch(`/admin/audit?page=${page}&size=${size}`),
+  
+  // -------------------------------------------------------------
+  // Admin: Users Management
+  // -------------------------------------------------------------
+  getUsers: () => apiFetch("/admin/users"),
+  getUser: (id) => apiFetch(`/admin/users/${id}`),
+  createUser: (data) => apiFetch("/admin/users", { method: "POST", body: JSON.stringify(data) }),
+  updateUser: (id, data) => apiFetch(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteUser: (id) => apiFetch(`/admin/users/${id}`, { method: "DELETE" }),
 };

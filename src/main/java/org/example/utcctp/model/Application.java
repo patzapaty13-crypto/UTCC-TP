@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,34 @@ public class Application {
 
     @Column(name = "applicant_major")
     private String applicantMajor;
+
+    // Phase 1 Enhancement Fields
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "email", length = 120)
+    private String email;
+
+    @Column(name = "address", length = 500)
+    private String address;
+
+    @Column(name = "gpa", precision = 3, scale = 2)
+    private BigDecimal gpa;
+
+    @Column(name = "student_year")
+    private Integer year;
+
+    @Column(name = "cover_letter", columnDefinition = "TEXT")
+    private String coverLetter;
+
+    @Column(name = "portfolio_url", length = 500)
+    private String portfolioUrl;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @Column(name = "submitted_at")
+    private Instant submittedAt;
 
     @OneToMany(mappedBy = "application")
     private List<ApprovalHistory> approvals = new ArrayList<>();
@@ -157,5 +186,78 @@ public class Application {
 
     public List<ApprovalHistory> getApprovals() {
         return approvals;
+    }
+
+    // Phase 1 Enhancement Getters and Setters
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public BigDecimal getGpa() {
+        return gpa;
+    }
+
+    public void setGpa(BigDecimal gpa) {
+        this.gpa = gpa;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public String getCoverLetter() {
+        return coverLetter;
+    }
+
+    public void setCoverLetter(String coverLetter) {
+        this.coverLetter = coverLetter;
+    }
+
+    public String getPortfolioUrl() {
+        return portfolioUrl;
+    }
+
+    public void setPortfolioUrl(String portfolioUrl) {
+        this.portfolioUrl = portfolioUrl;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Instant getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(Instant submittedAt) {
+        this.submittedAt = submittedAt;
     }
 }

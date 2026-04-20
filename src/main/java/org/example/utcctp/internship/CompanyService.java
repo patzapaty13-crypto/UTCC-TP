@@ -23,8 +23,17 @@ public class CompanyService {
         return companyRepository.findAll().stream().map(this::mapCompany).toList();
     }
 
+    public CompanyResponse getCompany(UUID id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found"));
+        return mapCompany(company);
+    }
+
     public CompanyResponse createCompany(CompanyRequest request) {
         Company company = new Company();
+        if (company.getStatus() == null) {
+            company.setStatus("ACTIVE");
+        }
         applyCompany(company, request);
         companyRepository.save(company);
         return mapCompany(company);
@@ -44,6 +53,9 @@ public class CompanyService {
         company.setLocation(request.location());
         company.setContactName(request.contactName());
         company.setContactEmail(request.contactEmail());
+        if (company.getStatus() == null || company.getStatus().isBlank()) {
+            company.setStatus("ACTIVE");
+        }
     }
 
     private CompanyResponse mapCompany(Company company) {

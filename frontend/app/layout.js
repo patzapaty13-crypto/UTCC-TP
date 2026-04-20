@@ -2,7 +2,7 @@ import "./globals.css";
 import AppWrapper from "@/components/AppWrapper";
 
 export const metadata = {
-  title: "UTCC-TP | ระบบบริหารทริปและฝึกงาน",
+  title: "UTCC | ระบบบริหารทริปและฝึกงาน",
   description: "แพลตฟอร์มบริหารจัดการทริปศึกษาดูงาน การสมัครฝึกงาน และการติดตามรายงานสำหรับมหาวิทยาลัยหอการค้าไทย",
   keywords: "UTCC, ทริป, ฝึกงาน, นักศึกษา, มหาวิทยาลัยหอการค้าไทย",
 };

@@ -1,10 +1,14 @@
 package org.example.utcctp.application;
 
+import org.example.utcctp.api.dto.ApplicationDetailResponse;
 import org.example.utcctp.api.dto.ApplicationRequest;
 import org.example.utcctp.api.dto.ApplicationResponse;
+import org.example.utcctp.api.dto.ApplicationStatusLogResponse;
+import org.example.utcctp.api.dto.ApplicationWorkflowRequest;
 import org.example.utcctp.api.dto.DecisionRequest;
 import org.example.utcctp.model.Application;
 import org.example.utcctp.model.ApplicationStatus;
+import org.example.utcctp.model.ApplicationStatusLog;
 import org.example.utcctp.model.ApplicationType;
 import org.example.utcctp.model.ApprovalHistory;
 import org.example.utcctp.model.DecisionType;
@@ -16,7 +20,6 @@ import org.example.utcctp.audit.AuditService;
 import org.example.utcctp.notification.EmailService;
 import org.example.utcctp.notification.EmailTemplates;
 import org.example.utcctp.notification.NotificationService;
-import org.example.utcctp.model.ApplicationStatusLog;
 import org.example.utcctp.notification.WebhookService;
 import org.example.utcctp.repository.ApplicationRepository;
 import org.example.utcctp.repository.ApplicationStatusLogRepository;
@@ -104,6 +107,30 @@ public class ApplicationService {
         application.setApplicantFaculty(request.faculty());
         application.setApplicantMajor(request.major());
 
+        // Phase 1 Enhancement Fields
+        if (request.phone() != null) {
+            application.setPhone(request.phone());
+        }
+        if (request.email() != null) {
+            application.setEmail(request.email());
+        }
+        if (request.address() != null) {
+            application.setAddress(request.address());
+        }
+        if (request.gpa() != null) {
+            application.setGpa(request.gpa());
+        }
+        if (request.year() != null) {
+            application.setYear(request.year());
+        }
+        if (request.coverLetter() != null) {
+            application.setCoverLetter(request.coverLetter());
+        }
+        if (request.portfolioUrl() != null) {
+            application.setPortfolioUrl(request.portfolioUrl());
+        }
+        application.setSubmittedAt(java.time.Instant.now());
+
         if (type == ApplicationType.TRIP) {
             Trip trip = tripRepository.findById(request.tripId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
@@ -125,44 +152,72 @@ public class ApplicationService {
         return applications.stream().map(this::mapApplication).toList();
     }
 
-    public ApplicationResponse decide(UUID id, DecisionRequest request, User approver) {
+    public ApplicationDetailResponse get(UUID id, User user) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
-        
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.name().equals("ADMIN"));
+        boolean isOwner = application.getStudent().getId().equals(user.getId());
+        boolean isApprover = user.getRoles().stream().anyMatch(r -> r.name().equals("STAFF") || r.name().equals("ADVISOR") || r.name().equals("ADMIN"));
+        if (!isAdmin && !isOwner && !isApprover) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized");
+        }
+        List<ApplicationStatusLogResponse> logs = statusLogRepository.findByApplicationIdOrderByCreatedAtDesc(id).stream()
+                .map(this::mapStatusLog)
+                .toList();
+        return new ApplicationDetailResponse(
+                application.getId(),
+                application.getStudent() != null ? application.getStudent().getId() : null,
+                application.getStudent() != null ? application.getStudent().getDisplayName() : application.getApplicantName(),
+                application.getStudent() != null ? application.getStudent().getMajor() : application.getApplicantMajor(),
+                application.getType().name(),
+                application.getStatus().name(),
+                application.getTrip() != null ? application.getTrip().getTitle() : null,
+                application.getInternshipPosition() != null ? application.getInternshipPosition().getTitle() : null,
+                application.getReason(),
+                application.getApplicantStudentId(),
+                application.getApplicantFaculty(),
+                application.getApplicantMajor(),
+                application.getCreatedAt(),
+                logs
+        );
+    }
+
+    public ApplicationResponse decide(UUID id, DecisionRequest request, User approver) {
+        ApplicationWorkflowRequest workflow = new ApplicationWorkflowRequest(request.decision(), request.note());
+        return transition(id, workflow, approver);
+    }
+
+    public ApplicationResponse transition(UUID id, ApplicationWorkflowRequest workflow, User actor) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
         ApplicationStatus oldStatus = application.getStatus();
-        DecisionType decision = DecisionType.valueOf(request.decision());
-        ApplicationStatus newStatus = decision == DecisionType.APPROVE
-                ? ApplicationStatus.ACCEPTED // Updated to use new ATS status
-                : ApplicationStatus.REJECTED;
-        
+        ApplicationStatus newStatus = ApplicationStatus.valueOf(workflow.status());
         application.setStatus(newStatus);
         applicationRepository.save(application);
 
-        // 1. Log Status Change History
         ApplicationStatusLog log = new ApplicationStatusLog();
         log.setApplication(application);
         log.setOldStatus(oldStatus);
         log.setNewStatus(newStatus);
-        log.setChangedBy(approver);
-        log.setNote(request.note());
+        log.setChangedBy(actor);
+        log.setNote(workflow.note());
         statusLogRepository.save(log);
 
-        // 2. n8n Flow 1: Hook Status Changed
         webhookService.sendStatusChange(Map.of(
-            "applicationId", application.getId().toString(),
-            "studentName", application.getStudent().getDisplayName(),
-            "oldStatus", oldStatus.name(),
-            "newStatus", newStatus.name(),
-            "positionTitle", application.getInternshipPosition() != null ? application.getInternshipPosition().getTitle() : "Trip",
-            "changedBy", approver.getDisplayName()
+                "applicationId", application.getId().toString(),
+                "studentName", application.getStudent().getDisplayName(),
+                "oldStatus", oldStatus.name(),
+                "newStatus", newStatus.name(),
+                "positionTitle", application.getInternshipPosition() != null ? application.getInternshipPosition().getTitle() : "Trip",
+                "changedBy", actor.getDisplayName()
         ));
 
-        // 3. Keep existing Approval History and Notification
         ApprovalHistory history = new ApprovalHistory();
         history.setApplication(application);
-        history.setApprover(approver);
-        history.setDecision(decision);
-        history.setNote(request.note());
+        history.setApprover(actor);
+        history.setDecision(newStatus == ApplicationStatus.ACCEPTED ? DecisionType.APPROVE : DecisionType.REJECT);
+        history.setNote(workflow.note());
         approvalHistoryRepository.save(history);
 
         User student = application.getStudent();
@@ -170,7 +225,6 @@ public class ApplicationService {
         String message = "Your application status has been changed to " + newStatus.name().toLowerCase() + ".";
         notificationService.notifyUser(student, title, message, NotificationType.APPLICATION);
 
-        // 4. Email notification via Resend
         String positionTitle = application.getInternshipPosition() != null
                 ? application.getInternshipPosition().getTitle()
                 : (application.getTrip() != null ? application.getTrip().getTitle() : "Application");
@@ -183,21 +237,19 @@ public class ApplicationService {
                             oldStatus.name(),
                             newStatus.name(),
                             positionTitle,
-                            request.note()
+                            workflow.note()
                     )
             );
         }
 
-        // 5. Audit trail
         auditService.record(
-                approver,
-                "APPLICATION_DECIDE",
+                actor,
+                "APPLICATION_TRANSITION",
                 "Application",
                 application.getId().toString(),
                 Map.of(
                         "oldStatus", oldStatus.name(),
                         "newStatus", newStatus.name(),
-                        "decision", decision.name(),
                         "studentId", student.getId().toString()
                 )
         );
@@ -230,6 +282,18 @@ public class ApplicationService {
                 tripTitle,
                 internshipTitle,
                 application.getCreatedAt()
+        );
+    }
+
+    private ApplicationStatusLogResponse mapStatusLog(ApplicationStatusLog log) {
+        return new ApplicationStatusLogResponse(
+                log.getId(),
+                log.getApplication().getId(),
+                log.getOldStatus() != null ? log.getOldStatus().name() : null,
+                log.getNewStatus() != null ? log.getNewStatus().name() : null,
+                log.getChangedBy() != null ? log.getChangedBy().getDisplayName() : null,
+                log.getNote(),
+                log.getCreatedAt()
         );
     }
 }

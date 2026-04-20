@@ -1,7 +1,9 @@
 package org.example.utcctp.api;
 
+import org.example.utcctp.api.dto.ApplicationDetailResponse;
 import org.example.utcctp.api.dto.ApplicationRequest;
 import org.example.utcctp.api.dto.ApplicationResponse;
+import org.example.utcctp.api.dto.ApplicationWorkflowRequest;
 import org.example.utcctp.api.dto.DecisionRequest;
 import org.example.utcctp.application.ApplicationService;
 import org.example.utcctp.user.CurrentUserService;
@@ -33,6 +35,11 @@ public class ApplicationController {
         return applicationService.list(currentUserService.requireUser());
     }
 
+    @GetMapping("/{id}")
+    public ApplicationDetailResponse getApplication(@PathVariable UUID id) {
+        return applicationService.get(id, currentUserService.requireUser());
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
     public ApplicationResponse createApplication(@RequestBody ApplicationRequest request) {
@@ -43,6 +50,12 @@ public class ApplicationController {
     @PreAuthorize("hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN')")
     public ApplicationResponse decide(@PathVariable UUID id, @RequestBody DecisionRequest request) {
         return applicationService.decide(id, request, currentUserService.requireUser());
+    }
+
+    @PutMapping("/{id}/transition")
+    @PreAuthorize("hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
+    public ApplicationResponse transition(@PathVariable UUID id, @RequestBody ApplicationWorkflowRequest request) {
+        return applicationService.transition(id, request, currentUserService.requireUser());
     }
 
     @PutMapping("/bulk-decision")

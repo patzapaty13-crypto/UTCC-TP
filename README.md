@@ -114,12 +114,25 @@ Set `N8N_WEBHOOK_URL` to post status-change events to your n8n workflow. Payload
 ## Features
 
 - **ATS pipeline** — application funnel with status logs, AI match scoring.
+- **Enhanced Application Form** (Phase 1) — multi-step form with personal info, academic info, cover letter, and portfolio.
+- **Enhanced Job Details** (Phase 1) — salary range, duration, deadline, benefits, contact info, and Google Maps.
 - **OTP signup** — `POST /api/v1/auth/signup/request-otp` → `POST /api/v1/auth/signup/verify`.
 - **Audit trail** — every sensitive mutation logged with actor/IP/UA. Admin view: `GET /api/v1/admin/audit`.
 - **Analytics dashboard** — `GET /api/v1/analytics/dashboard` returns applications by status / major / month + placement rate. Rendered on `/analytics` page.
 - **File storage** — pluggable provider (`LOCAL` / `CLOUDINARY`) selected per request.
 - **Email notifications** — transactional mail on status changes via Resend.
 - **Role-based access** — `STUDENT`, `ADVISOR`, `STAFF`, `ADMIN` with method-level `@PreAuthorize`.
+
+---
+
+## 📚 Documentation
+
+- **[Phase 1 Enhancements](./docs/PHASE1_ENHANCEMENTS.md)** - Technical documentation for Phase 1 features
+- **[Phase 1 Quick Start](./docs/PHASE1_QUICK_START.md)** - User guide for students and companies
+- **[Phase 1 Complete](./PHASE1_COMPLETE.md)** - Summary of Phase 1 completion
+- **[Workflows & Roles](./docs/01-workflows-roles.md)** - System workflows and user roles
+- **[ERD & API](./docs/02-erd-api.md)** - Database schema and API documentation
+- **[Wireframes](./docs/03-wireframes.md)** - UI/UX design mockups
 
 ---
 
@@ -151,6 +164,13 @@ Flyway SQL files in `src/main/resources/db/migration/`:
 | V3      | File storage provider columns               |
 | V4      | Signup / OTP table + user fields            |
 | V5      | Audit logs                                  |
+| V8      | **Phase 1 Enhancements** (application form fields, job details) |
+
+**Phase 1 Enhancement** (V8):
+- Applications: +9 fields (phone, email, address, gpa, student_year, cover_letter, portfolio_url, updated_at, submitted_at)
+- Internship Positions: +10 fields (salary_min, salary_max, start_date, end_date, application_deadline, benefits, internship_type, contact_email, contact_phone, contact_line)
+
+See [docs/PHASE1_ENHANCEMENTS.md](./docs/PHASE1_ENHANCEMENTS.md) for details.
 
 ---
 

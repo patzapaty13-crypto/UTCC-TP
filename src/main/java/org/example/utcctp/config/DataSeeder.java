@@ -21,6 +21,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -70,6 +71,21 @@ public class DataSeeder implements CommandLineRunner {
         userRepository.save(staff);
         userRepository.save(admin);
 
+        // --- COMPANIES ---
+        Company company1 = new Company();
+        company1.setName("Global Tech Solutions");
+        company1.setIndustry("Software Development");
+        company1.setLocation("Wireless Road, Bangkok");
+        company1.setStatus("ACTIVE");
+        company1.setContactName("Sarah Connor");
+        company1.setContactEmail("hr@globaltech.local");
+        companyRepository.save(company1);
+
+        // Create company user and link to company
+        User companyUser = buildUser("company1", "Global Tech HR", "company@globaltech.local", Set.of(RoleType.COMPANY));
+        companyUser.setCompanyId(company1.getId());
+        userRepository.save(companyUser);
+
         // --- TRIPS ---
         Trip trip1 = new Trip();
         trip1.setTitle("Industry Visit 2026: EEC Zone");
@@ -108,14 +124,6 @@ public class DataSeeder implements CommandLineRunner {
         tripRepository.save(trip3);
 
         // --- COMPANIES & POSITIONS ---
-        Company company1 = new Company();
-        company1.setName("Global Tech Solutions");
-        company1.setIndustry("Software Development");
-        company1.setLocation("Wireless Road, Bangkok");
-        company1.setStatus("ACTIVE");
-        company1.setContactName("Sarah Connor");
-        company1.setContactEmail("hr@globaltech.local");
-        companyRepository.save(company1);
 
         InternshipPosition pos1 = new InternshipPosition();
         pos1.setCompany(company1);
@@ -125,6 +133,17 @@ public class DataSeeder implements CommandLineRunner {
         pos1.setLocation("Bangkok (Hybrid)");
         pos1.setMode("HYBRID");
         pos1.setSlots(5);
+        // Phase 1 Enhancement Fields
+        pos1.setSalaryMin(new BigDecimal("15000"));
+        pos1.setSalaryMax(new BigDecimal("20000"));
+        pos1.setStartDate(LocalDate.now().plusDays(30));
+        pos1.setEndDate(LocalDate.now().plusDays(150));
+        pos1.setApplicationDeadline(LocalDate.now().plusDays(20));
+        pos1.setBenefits("ค่าเดินทาง, ประกันอุบัติเหตุ, อาหารกลางวัน");
+        pos1.setInternshipType("FULL_TIME");
+        pos1.setContactEmail("hr@globaltech.local");
+        pos1.setContactPhone("02-123-4567");
+        pos1.setContactLine("@globaltech");
         internshipRepository.save(pos1);
 
         InternshipPosition pos2 = new InternshipPosition();
@@ -135,6 +154,16 @@ public class DataSeeder implements CommandLineRunner {
         pos2.setLocation("Bangkok");
         pos2.setMode("ONSITE");
         pos2.setSlots(2);
+        // Phase 1 Enhancement Fields
+        pos2.setSalaryMin(new BigDecimal("12000"));
+        pos2.setSalaryMax(new BigDecimal("18000"));
+        pos2.setStartDate(LocalDate.now().plusDays(45));
+        pos2.setEndDate(LocalDate.now().plusDays(165));
+        pos2.setApplicationDeadline(LocalDate.now().plusDays(30));
+        pos2.setBenefits("ค่าเดินทาง, ประกันอุบัติเหตุ");
+        pos2.setInternshipType("FULL_TIME");
+        pos2.setContactEmail("design@globaltech.local");
+        pos2.setContactPhone("02-123-4568");
         internshipRepository.save(pos2);
 
         // --- APPLICATIONS ---

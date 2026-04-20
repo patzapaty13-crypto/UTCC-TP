@@ -50,6 +50,12 @@ public class User {
     @Column(name = "academic_year")
     private Integer academicYear;
 
+    @Column(name = "company_id")
+    private UUID companyId;
+
+    @Column(name = "advisor_id")
+    private UUID advisorId;
+
     @Column(nullable = false)
     private boolean active = true;
 
@@ -134,6 +140,22 @@ public class User {
 
     public void setAcademicYear(Integer academicYear) {
         this.academicYear = academicYear;
+    }
+
+    public UUID getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(UUID companyId) {
+        this.companyId = companyId;
+    }
+
+    public UUID getAdvisorId() {
+        return advisorId;
+    }
+
+    public void setAdvisorId(UUID advisorId) {
+        this.advisorId = advisorId;
     }
 
     public boolean isActive() {

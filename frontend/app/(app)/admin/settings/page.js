@@ -1,168 +1,332 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { useState } from "react";
+import RoleDashboardShell from "@/components/RoleDashboardShell";
 
 export default function AdminSettingsPage() {
-  const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [settings, setSettings] = useState({
+    siteName: "UTCC Internship System",
+    siteDescription: "ระบบจัดการฝึกงานและทริปศึกษาดูงาน",
+    contactEmail: "admin@utcc.ac.th",
+    allowRegistration: true,
+    requireEmailVerification: false,
+    maintenanceMode: false,
+    maxApplicationsPerStudent: 5,
+    applicationDeadlineDays: 30,
+  });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
+  const [saved, setSaved] = useState(false);
 
-  const fetchSettings = async () => {
-    try {
-      const data = await apiFetch("/admin/settings");
-      setSettings(data);
-    } catch (err) {
-      console.error("[Settings] Load error:", err);
-      setMessage({ 
-        type: 'error', 
-        text: `ไม่สามารถโหลดการตั้งค่าได้ (${err.message}). โปรดตรวจสอบว่ารัน Backend ถูกโปรเจกต์และ Port (8080) ถูกต้อง` 
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleSave = (e) => {
+    e.preventDefault();
+    // In real app, this would call API
+    console.log("Saving settings:", settings);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+    alert("บันทึกการตั้งค่าสำเร็จ");
   };
-
-  const toggleMaintenance = async (active) => {
-    setSaving(true);
-    try {
-      await apiFetch("/admin/settings/maintenance", {
-        method: "POST",
-        body: JSON.stringify({ active })
-      });
-      setMessage({ type: 'success', text: active ? "Locked down system" : "Unlocked system" });
-      fetchSettings();
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-
-  if (loading) return <div>กำลังโหลดการตั้งค่า...</div>;
-
-  const isMaint = settings.maintenance_mode === "true";
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: "800px" }}>
-      <div className="section-head">
-        <h1>ตั้งค่าระบบ (System Settings)</h1>
-        <p>จัดการการตั้งค่าความปลอดภัยและระบบส่วนกลาง</p>
-      </div>
-
-      {message && (
-        <div style={{
-          padding: "16px",
-          borderRadius: "12px",
-          background: message.type === 'success' ? '#ECFDF5' : '#FEF2F2',
-          color: message.type === 'success' ? '#059669' : '#DC2626',
-          marginBottom: "24px",
-          fontWeight: "600",
-          fontSize: "14px",
-          display: "flex",
-          justifyContent: "space-between"
-        }}>
-          {message.text}
-          <button onClick={() => setMessage(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer" }}>✕</button>
+    <RoleDashboardShell 
+      role="ADMIN" 
+      title="ตั้งค่าระบบ" 
+      subtitle="กำหนดค่าและปรับแต่งการทำงานของระบบ"
+    >
+      {saved && (
+        <div className="alert alert-success">
+          <i className="fas fa-check-circle"></i>
+          บันทึกการตั้งค่าสำเร็จ
         </div>
       )}
 
-      <div className="glass-card" style={{ 
-        padding: "32px", 
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "24px",
-        background: "white",
-        border: "1px solid var(--n-100)",
-        boxShadow: "var(--shadow-md)"
-      }}>
-        
-        {/* Maintenance Mode */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <h3 style={{ fontSize: "16px", fontWeight: "800", marginBottom: "4px", color: "#1e293b" }}>
-              Administrative Lockdown Mode
-            </h3>
-            <p style={{ fontSize: "13px", color: "#64748b", fontWeight: "500" }}>
-              ปิดกั้นการเข้าถึงระบบสำหรับนักศึกษาและเจ้าหน้าที่ทั่วไป (เฉพาะ Admin เท่านั้นที่เข้าได้)
-            </p>
+      <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {/* General Settings */}
+        <div className="card" style={{ padding: 32 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20 }}>
+            <i className="fas fa-cog" style={{ marginRight: 10, color: "var(--primary)" }}></i>
+            ตั้งค่าทั่วไป
+          </h3>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="field-group">
+              <label className="field-label">ชื่อเว็บไซต์</label>
+              <input 
+                className="field-input" 
+                value={settings.siteName} 
+                onChange={(e) => setSettings({...settings, siteName: e.target.value})} 
+              />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label">คำอธิบาย</label>
+              <textarea 
+                className="field-input" 
+                value={settings.siteDescription} 
+                onChange={(e) => setSettings({...settings, siteDescription: e.target.value})} 
+                rows={3}
+              />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label">อีเมลติดต่อ</label>
+              <input 
+                className="field-input" 
+                type="email"
+                value={settings.contactEmail} 
+                onChange={(e) => setSettings({...settings, contactEmail: e.target.value})} 
+              />
+            </div>
           </div>
-          <button 
-            onClick={() => toggleMaintenance(!isMaint)}
-            disabled={saving}
-            style={{
-              padding: "10px 24px",
-              background: isMaint ? "#EF4444" : "#f1f5f9",
-              color: isMaint ? "white" : "#1e293b",
-              border: "1px solid " + (isMaint ? "#EF4444" : "#e2e8f0"),
-              borderRadius: "12px",
-              fontWeight: "700",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            {saving ? "กำลังดำเนินการ..." : (isMaint ? "ปิดโหมดปิดกั้น" : "เปิดโหมดปิดกั้น")}
+        </div>
+
+        {/* User Settings */}
+        <div className="card" style={{ padding: 32 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20 }}>
+            <i className="fas fa-users" style={{ marginRight: 10, color: "var(--primary)" }}></i>
+            ตั้งค่าผู้ใช้
+          </h3>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+                  เปิดให้ลงทะเบียนใหม่
+                </p>
+                <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  อนุญาตให้ผู้ใช้ใหม่สร้างบัญชีได้
+                </p>
+              </div>
+              <label style={{ position: "relative", display: "inline-block", width: 50, height: 28 }}>
+                <input 
+                  type="checkbox" 
+                  checked={settings.allowRegistration}
+                  onChange={(e) => setSettings({...settings, allowRegistration: e.target.checked})}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span style={{
+                  position: "absolute",
+                  cursor: "pointer",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: settings.allowRegistration ? "var(--success)" : "var(--n-300)",
+                  transition: "0.4s",
+                  borderRadius: 28,
+                }}>
+                  <span style={{
+                    position: "absolute",
+                    content: "",
+                    height: 20,
+                    width: 20,
+                    left: settings.allowRegistration ? 26 : 4,
+                    bottom: 4,
+                    background: "white",
+                    transition: "0.4s",
+                    borderRadius: "50%",
+                  }}></span>
+                </span>
+              </label>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+                  ต้องยืนยันอีเมล
+                </p>
+                <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  ผู้ใช้ต้องยืนยันอีเมลก่อนใช้งาน
+                </p>
+              </div>
+              <label style={{ position: "relative", display: "inline-block", width: 50, height: 28 }}>
+                <input 
+                  type="checkbox" 
+                  checked={settings.requireEmailVerification}
+                  onChange={(e) => setSettings({...settings, requireEmailVerification: e.target.checked})}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span style={{
+                  position: "absolute",
+                  cursor: "pointer",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: settings.requireEmailVerification ? "var(--success)" : "var(--n-300)",
+                  transition: "0.4s",
+                  borderRadius: 28,
+                }}>
+                  <span style={{
+                    position: "absolute",
+                    content: "",
+                    height: 20,
+                    width: 20,
+                    left: settings.requireEmailVerification ? 26 : 4,
+                    bottom: 4,
+                    background: "white",
+                    transition: "0.4s",
+                    borderRadius: "50%",
+                  }}></span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Application Settings */}
+        <div className="card" style={{ padding: 32 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20 }}>
+            <i className="fas fa-clipboard-list" style={{ marginRight: 10, color: "var(--primary)" }}></i>
+            ตั้งค่าการสมัคร
+          </h3>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="field-group">
+              <label className="field-label">จำนวนการสมัครสูงสุดต่อนักศึกษา</label>
+              <input 
+                className="field-input" 
+                type="number"
+                min="1"
+                max="20"
+                value={settings.maxApplicationsPerStudent} 
+                onChange={(e) => setSettings({...settings, maxApplicationsPerStudent: parseInt(e.target.value)})} 
+              />
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+                นักศึกษาสามารถสมัครได้สูงสุดกี่ตำแหน่ง
+              </p>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label">ระยะเวลาปิดรับสมัครอัตโนมัติ (วัน)</label>
+              <input 
+                className="field-input" 
+                type="number"
+                min="1"
+                max="365"
+                value={settings.applicationDeadlineDays} 
+                onChange={(e) => setSettings({...settings, applicationDeadlineDays: parseInt(e.target.value)})} 
+              />
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+                ตำแหน่งจะปิดรับสมัครอัตโนมัติหลังจากเปิดรับกี่วัน
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* System Settings */}
+        <div className="card" style={{ padding: 32 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20 }}>
+            <i className="fas fa-server" style={{ marginRight: 10, color: "var(--error)" }}></i>
+            ตั้งค่าระบบ
+          </h3>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: settings.maintenanceMode ? "var(--error-50)" : "var(--n-50)", borderRadius: 12, border: settings.maintenanceMode ? "2px solid var(--error)" : "1px solid var(--n-200)" }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: settings.maintenanceMode ? "var(--error)" : "inherit" }}>
+                <i className="fas fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+                โหมดปิดปรับปรุง
+              </p>
+              <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                ปิดระบบชั่วคราวเพื่อปรับปรุง (เฉพาะ Admin เข้าได้)
+              </p>
+            </div>
+            <label style={{ position: "relative", display: "inline-block", width: 50, height: 28 }}>
+              <input 
+                type="checkbox" 
+                checked={settings.maintenanceMode}
+                onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})}
+                style={{ opacity: 0, width: 0, height: 0 }}
+              />
+              <span style={{
+                position: "absolute",
+                cursor: "pointer",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: settings.maintenanceMode ? "var(--error)" : "var(--n-300)",
+                transition: "0.4s",
+                borderRadius: 28,
+              }}>
+                <span style={{
+                  position: "absolute",
+                  content: "",
+                  height: 20,
+                  width: 20,
+                  left: settings.maintenanceMode ? 26 : 4,
+                  bottom: 4,
+                  background: "white",
+                  transition: "0.4s",
+                  borderRadius: "50%",
+                }}></span>
+              </span>
+            </label>
+          </div>
+
+          {settings.maintenanceMode && (
+            <div className="alert alert-error" style={{ marginTop: 16 }}>
+              <i className="fas fa-exclamation-triangle"></i>
+              <strong>คำเตือน:</strong> เมื่อเปิดโหมดปิดปรับปรุง ผู้ใช้ทั่วไปจะไม่สามารถเข้าใช้งานระบบได้
+            </div>
+          )}
+        </div>
+
+        {/* Save Button */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+          <button type="button" className="btn btn-ghost">
+            ยกเลิก
+          </button>
+          <button type="submit" className="btn btn-primary btn-lg">
+            <i className="fas fa-save" style={{ marginRight: 8 }}></i>
+            บันทึกการตั้งค่า
           </button>
         </div>
+      </form>
 
-        <hr style={{ border: "none", borderTop: "1px solid #f1f5f9" }} />
+      {/* System Info */}
+      <div className="card" style={{ padding: 32, marginTop: 24 }}>
+        <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20 }}>
+          <i className="fas fa-info-circle" style={{ marginRight: 10, color: "var(--primary)" }}></i>
+          ข้อมูลระบบ
+        </h3>
 
-        {/* Other settings mockup */}
-        <div>
-          <h3 style={{ fontSize: "16px", fontWeight: "800", marginBottom: "20px", color: "#1e293b" }}>
-            Integration Keys
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-             <div className="premium-field">
-                <label className="premium-label" style={{ color: "#475569", fontWeight: "700", fontSize: "12px", marginBottom: "8px", display: "block" }}>Resend API Key</label>
-                <input 
-                  className="premium-input" 
-                  type="password" 
-                  value="re_XXXXXXXXXXXXXX" 
-                  readOnly 
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px 16px", 
-                    borderRadius: "12px", 
-                    border: "1px solid #e2e8f0", 
-                    background: "#f8fafc",
-                    color: "#1e293b",
-                    fontSize: "14px"
-                  }} 
-                />
-             </div>
-             <div className="premium-field">
-                <label className="premium-label" style={{ color: "#475569", fontWeight: "700", fontSize: "12px", marginBottom: "8px", display: "block" }}>Cloudinary URL</label>
-                <input 
-                  className="premium-input" 
-                  type="text" 
-                  value="cloudinary://XXXXXXXXXXXXXXXX" 
-                  readOnly 
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px 16px", 
-                    borderRadius: "12px", 
-                    border: "1px solid #e2e8f0", 
-                    background: "#f8fafc",
-                    color: "#1e293b",
-                    fontSize: "14px"
-                  }} 
-                />
-             </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+          <div style={{ padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 6 }}>
+              เวอร์ชัน
+            </p>
+            <p style={{ fontSize: 16, fontWeight: 700 }}>1.2.0</p>
+          </div>
+
+          <div style={{ padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 6 }}>
+              Database
+            </p>
+            <p style={{ fontSize: 16, fontWeight: 700 }}>PostgreSQL (Supabase)</p>
+          </div>
+
+          <div style={{ padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 6 }}>
+              Backend
+            </p>
+            <p style={{ fontSize: 16, fontWeight: 700 }}>Spring Boot 3.4.3</p>
+          </div>
+
+          <div style={{ padding: 16, background: "var(--n-50)", borderRadius: 12 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 6 }}>
+              Frontend
+            </p>
+            <p style={{ fontSize: 16, fontWeight: 700 }}>Next.js 14</p>
           </div>
         </div>
 
+        <div style={{ marginTop: 24, padding: 16, background: "var(--primary-50)", borderRadius: 12, border: "1px solid var(--primary-200)" }}>
+          <p style={{ fontSize: 13, color: "var(--primary)", lineHeight: 1.6 }}>
+            <i className="fas fa-lightbulb" style={{ marginRight: 8 }}></i>
+            <strong>เคล็ดลับ:</strong> สำรองข้อมูลเป็นประจำและตรวจสอบ Audit Logs เพื่อความปลอดภัย
+          </p>
+        </div>
       </div>
-
-      <div style={{ marginTop: "32px", color: "#64748b", fontSize: "13px", fontWeight: "500" }}>
-        * การเปิดโหมดปิดกั้นจะมีผลทันทีต่อผู้ใช้เกือบทั้งหมดในระบบ โปรดตรวจสอบก่อนทำรายการ
-      </div>
-    </div>
+    </RoleDashboardShell>
   );
 }

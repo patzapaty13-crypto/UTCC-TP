@@ -74,10 +74,8 @@ export default function LandingPage() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/utcc-logo.png" alt="UTCC"
-              style={{ height: 28, filter: "brightness(0) invert(1)", opacity: 0.9 }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "-0.2px" }}>
-              UTCC-TP
+            <span style={{ fontSize: 20, fontWeight: 900, color: "white", letterSpacing: "-0.5px" }}>
+              UTCC
             </span>
           </Link>
 
@@ -324,7 +322,7 @@ export default function LandingPage() {
               ในฐานะมหาวิทยาลัยแห่งผู้ประกอบการ เราเชื่อมโยงความรู้ในห้องเรียนกับประสบการณ์จริงในโลกธุรกิจผ่านแพลตฟอร์มนี้
             </p>
             <p style={{ fontSize: 15, color: "#64748B", lineHeight: 1.8, marginBottom: 36, fontWeight: 500 }}>
-              ระบบ UTCC-TP ช่วยให้อาจารย์ เจ้าหน้าที่ และนักศึกษาบริหารจัดการกิจกรรมเสริมหลักสูตรได้อย่างมีประสิทธิภาพและสะดวกสบาย
+              ระบบ UTCC ช่วยให้อาจารย์ เจ้าหน้าที่ และนักศึกษาบริหารจัดการกิจกรรมเสริมหลักสูตรได้อย่างมีประสิทธิภาพและสะดวกสบาย
             </p>
             <Link href="/login" style={{
               display: "inline-flex", alignItems: "center", gap: 10,

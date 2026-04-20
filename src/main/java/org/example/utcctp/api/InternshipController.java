@@ -35,13 +35,13 @@ public class InternshipController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
     public InternshipResponse createInternship(@RequestBody InternshipRequest request) {
         return internshipService.createPosition(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
     public InternshipResponse updateInternship(@PathVariable UUID id, @RequestBody InternshipRequest request) {
         return internshipService.updatePosition(id, request);
     }

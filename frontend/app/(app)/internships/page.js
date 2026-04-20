@@ -16,6 +16,8 @@ export default function InternshipsPage() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
   const [search,  setSearch]  = useState("");
+  const [modeFilter, setModeFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("newest");
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -61,11 +63,19 @@ export default function InternshipsPage() {
     }
   };
 
-  const shown = items.filter(i =>
-    !search ||
-    i.title?.toLowerCase().includes(search.toLowerCase()) ||
-    i.company?.toLowerCase().includes(search.toLowerCase())
-  );
+  const shown = items
+    .filter(i => {
+      const matchesSearch = !search ||
+        i.title?.toLowerCase().includes(search.toLowerCase()) ||
+        i.company?.toLowerCase().includes(search.toLowerCase());
+      const matchesMode = modeFilter === "ALL" || i.mode === modeFilter;
+      return matchesSearch && matchesMode;
+    })
+    .sort((a, b) => {
+      if (sortBy === "newest") return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      if (sortBy === "slots") return (b.slots || 0) - (a.slots || 0);
+      return 0;
+    });
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
@@ -90,19 +100,43 @@ export default function InternshipsPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div style={{ position:"relative", maxWidth:400 }}>
-        <i className="fas fa-search" style={{
-          position:"absolute", left:14, top:"50%", transform:"translateY(-50%)",
-          color:"var(--n-400)", fontSize:13, pointerEvents:"none",
-        }}></i>
-        <input
-          className="field-input"
-          style={{ paddingLeft:40 }}
-          placeholder="ค้นหาตำแหน่งหรือบริษัท..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+      {/* Search & Filters */}
+      <div className="card" style={{ padding: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12 }}>
+          <div style={{ position:"relative" }}>
+            <i className="fas fa-search" style={{
+              position:"absolute", left:14, top:"50%", transform:"translateY(-50%)",
+              color:"var(--n-400)", fontSize:13, pointerEvents:"none",
+            }}></i>
+            <input
+              className="field-input"
+              style={{ paddingLeft:40, width: "100%" }}
+              placeholder="ค้นหาตำแหน่งหรือบริษัท..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          <select 
+            value={modeFilter} 
+            onChange={(e) => setModeFilter(e.target.value)}
+            style={{ padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8 }}
+          >
+            <option value="ALL">ทุกรูปแบบ</option>
+            <option value="ON_SITE">On-site</option>
+            <option value="REMOTE">Remote</option>
+            <option value="HYBRID">Hybrid</option>
+          </select>
+
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            style={{ padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8 }}
+          >
+            <option value="newest">ใหม่ล่าสุด</option>
+            <option value="slots">ที่ว่างมากสุด</option>
+          </select>
+        </div>
       </div>
 
       {/* Error */}
@@ -148,6 +182,9 @@ export default function InternshipsPage() {
 
           {shown.map((pos, idx) => {
             const mode = MODE[pos.mode] || { label: pos.mode || "—", cls: "badge-gray" };
+            const isDeadlinePassed = pos.applicationDeadline && new Date(pos.applicationDeadline) < new Date();
+            const canApply = pos.slots > 0 && !isDeadlinePassed;
+            
             return (
               <div
                 key={pos.id}
@@ -172,24 +209,50 @@ export default function InternshipsPage() {
 
                 {/* Info */}
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", marginBottom:6 }}>
                     <h3 style={{ fontSize:14, fontWeight:800, color:"var(--text-primary)" }}>{pos.title}</h3>
                     <span className={`badge ${mode.cls}`}>{mode.label}</span>
+                    {pos.internshipType && (
+                      <span className="badge badge-purple" style={{ fontSize:11 }}>
+                        {pos.internshipType === 'FULL_TIME' ? 'Full-time' : 'Part-time'}
+                      </span>
+                    )}
                   </div>
-                  <p style={{ fontSize:13, color:"var(--text-muted)", marginTop:3, display:"flex", gap:12, flexWrap:"wrap" }}>
+                  <p style={{ fontSize:13, color:"var(--text-muted)", display:"flex", gap:12, flexWrap:"wrap", alignItems:"center" }}>
                     <span><i className="fas fa-building" style={{ marginRight:5, color:"var(--n-300)" }}></i>{pos.company}</span>
                     {pos.location && <span><i className="fas fa-location-dot" style={{ marginRight:5, color:"var(--n-300)" }}></i>{pos.location}</span>}
+                    {(pos.salaryMin || pos.salaryMax) && (
+                      <span style={{ color:"var(--success)", fontWeight:600 }}>
+                        <i className="fas fa-money-bill-wave" style={{ marginRight:5 }}></i>
+                        {pos.salaryMin && pos.salaryMax 
+                          ? `${pos.salaryMin.toLocaleString()}-${pos.salaryMax.toLocaleString()}`
+                          : pos.salaryMin 
+                            ? `${pos.salaryMin.toLocaleString()}+`
+                            : `${pos.salaryMax.toLocaleString()}`
+                        } ฿
+                      </span>
+                    )}
+                    {pos.applicationDeadline && (
+                      <span style={{ color: isDeadlinePassed ? "var(--error)" : "var(--warning)", fontWeight:600 }}>
+                        <i className="fas fa-clock" style={{ marginRight:5 }}></i>
+                        ปิดรับ: {new Date(pos.applicationDeadline).toLocaleDateString("th-TH", { day:"numeric", month:"short" })}
+                      </span>
+                    )}
                   </p>
                 </div>
 
                 {/* Slots */}
                 <div style={{ textAlign:"right", flexShrink:0 }}>
                   <p style={{ fontSize:11, fontWeight:700, color:"var(--text-muted)", letterSpacing:"0.05em", textTransform:"uppercase", marginBottom:3 }}>ที่ว่าง</p>
-                  <p style={{ fontSize:20, fontWeight:900, color:"var(--success)", lineHeight:1 }}>{pos.slots}</p>
+                  <p style={{ fontSize:20, fontWeight:900, color: pos.slots > 0 ? "var(--success)" : "var(--error)", lineHeight:1 }}>{pos.slots}</p>
                 </div>
 
-                <Link href={`/internships/${pos.id}`} className="btn btn-primary btn-sm" style={{ flexShrink:0 }}>
-                  สมัคร →
+                <Link 
+                  href={`/internships/${pos.id}`} 
+                  className={`btn ${canApply ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                  style={{ flexShrink:0 }}
+                >
+                  {canApply ? "สมัคร →" : "ดูรายละเอียด"}
                 </Link>
               </div>
             );
