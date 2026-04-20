@@ -1,0 +1,230 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   UTCC-TP · Premium Visual Layer v1.0
+   Modern effects: glass, mesh gradients, animated grids, glow accents
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Animated Gradient Mesh (dark premium hero) ──────────────────────── */
+.mesh-dark {
+  position: relative;
+  background: #05070D;
+  overflow: hidden;
+  isolation: isolate;
+}
+.mesh-dark::before {
+  content: "";
+  position: absolute; inset: -20%;
+  background:
+    radial-gradient(at 20% 20%, rgba(37,99,235,0.35) 0, transparent 45%),
+    radial-gradient(at 80% 10%, rgba(124,58,237,0.28) 0, transparent 50%),
+    radial-gradient(at 70% 85%, rgba(14,165,233,0.25) 0, transparent 50%),
+    radial-gradient(at 15% 90%, rgba(99,102,241,0.22) 0, transparent 55%);
+  filter: blur(40px);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
+  z-index: -1;
+}
+.mesh-dark::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes mesh-drift {
+  0%   { transform: translate(0,0)     rotate(0deg); }
+  50%  { transform: translate(2%, -2%) rotate(1deg); }
+  100% { transform: translate(-2%,2%)  rotate(-1deg); }
+}
+
+/* ── Gradient mesh (light, subtle for dashboards) ────────────────────── */
+.mesh-light {
+  background:
+    radial-gradient(at 15% 10%, rgba(37,99,235,0.06) 0, transparent 40%),
+    radial-gradient(at 85% 5%,  rgba(124,58,237,0.05) 0, transparent 45%),
+    radial-gradient(at 90% 90%, rgba(16,185,129,0.05) 0, transparent 45%),
+    #F8FAFC;
+}
+
+/* ── Glass Card ──────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 20px 60px -20px rgba(15,23,42,0.15),
+    0 2px 6px rgba(15,23,42,0.04);
+}
+.glass-dark {
+  background: rgba(15,23,42,0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Premium Card (subtle gradient border) ───────────────────────────── */
+.premium-card {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 8px 24px -12px rgba(15,23,42,0.08);
+  transition: transform 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms;
+  overflow: hidden;
+}
+.premium-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(124,58,237,0.08) 40%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(15,23,42,0.06),
+    0 20px 40px -16px rgba(15,23,42,0.15);
+}
+
+/* ── Gradient Text ───────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 50%, #DB2777 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+}
+.gradient-text-blue {
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Glow Accents ────────────────────────────────────────────────────── */
+.glow-blue   { box-shadow: 0 0 0 1px rgba(37,99,235,0.2), 0 8px 32px -8px rgba(37,99,235,0.4); }
+.glow-violet { box-shadow: 0 0 0 1px rgba(124,58,237,0.2), 0 8px 32px -8px rgba(124,58,237,0.4); }
+.glow-green  { box-shadow: 0 0 0 1px rgba(16,185,129,0.2), 0 8px 32px -8px rgba(16,185,129,0.4); }
+
+/* ── Premium Button (gradient + shine) ───────────────────────────────── */
+.btn-premium {
+  position: relative;
+  background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%);
+  color: #fff;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.2) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 8px 24px -8px rgba(37,99,235,0.5);
+  transition: transform 180ms, box-shadow 260ms;
+}
+.btn-premium::after {
+  content: "";
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 600ms;
+}
+.btn-premium:hover { transform: translateY(-1px); box-shadow: 0 12px 32px -8px rgba(37,99,235,0.6); }
+.btn-premium:hover::after { left: 100%; }
+.btn-premium:active { transform: translateY(0); }
+
+/* ── Feature Pill (premium) ──────────────────────────────────────────── */
+.pill-premium {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 99px;
+  font-size: 11.5px; font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+}
+.pill-premium-light {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #EFF6FF, #F5F3FF);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 99px;
+  font-size: 11px; font-weight: 700;
+  color: #1D4ED8;
+  letter-spacing: 0.02em;
+}
+
+/* ── Premium Stat Card ───────────────────────────────────────────────── */
+.stat-premium {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(15,23,42,0.06);
+  transition: transform 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+}
+.stat-premium::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent, #2563EB), transparent);
+  opacity: 0.8;
+}
+.stat-premium:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 48px -24px rgba(15,23,42,0.18);
+}
+.stat-premium .stat-trend {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 700;
+  padding: 3px 8px; border-radius: 99px;
+}
+.stat-premium .stat-trend.up   { background: #ECFDF5; color: #047857; }
+.stat-premium .stat-trend.down { background: #FEF2F2; color: #B91C1C; }
+
+/* ── Noise texture overlay (optional subtle grain) ───────────────────── */
+.noise {
+  position: relative;
+}
+.noise::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+}
+
+/* ── Section Header (premium) ────────────────────────────────────────── */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.section-head h2 {
+  font-size: 16px; font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-head h2::before {
+  content: "";
+  width: 4px; height: 18px; border-radius: 4px;
+  background: linear-gradient(180deg, #2563EB, #7C3AED);
+}

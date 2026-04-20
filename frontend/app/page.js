@@ -81,11 +81,11 @@ export default function LandingPage() {
             </span>
           </Link>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <a href="#features" style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,0.6)", padding: "8px 16px", borderRadius: 10, transition: "color 0.2s" }}
+          <div className="landing-nav-links" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <a href="#features" className="nav-item" style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,0.6)", padding: "8px 16px", borderRadius: 10, transition: "color 0.2s" }}
               onMouseEnter={e => e.target.style.color = "white"}
               onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}>ฟีเจอร์</a>
-            <a href="#about" style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,0.6)", padding: "8px 16px", borderRadius: 10, transition: "color 0.2s" }}
+            <a href="#about" className="nav-item" style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,0.6)", padding: "8px 16px", borderRadius: 10, transition: "color 0.2s" }}
               onMouseEnter={e => e.target.style.color = "white"}
               onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}>เกี่ยวกับ</a>
             <Link href="/login" style={{
@@ -419,23 +419,6 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <style jsx global>{`
-        @keyframes bounce {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(8px); }
-        }
-        @media (max-width: 768px) {
-          section > div[style*="grid-template-columns: repeat(4"] {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-          section > div[style*="grid-template-columns: repeat(2, 1fr)"],
-          section > div[style*="grid-template-columns: 1fr 1fr"],
-          footer > div > div[style*="grid-template-columns: 2fr"] {
-            grid-template-columns: 1fr !important;
-            gap: 32px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

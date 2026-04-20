@@ -12,12 +12,19 @@ import org.example.utcctp.model.InternshipPosition;
 import org.example.utcctp.model.NotificationType;
 import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.User;
+import org.example.utcctp.audit.AuditService;
+import org.example.utcctp.notification.EmailService;
+import org.example.utcctp.notification.EmailTemplates;
 import org.example.utcctp.notification.NotificationService;
+import org.example.utcctp.model.ApplicationStatusLog;
+import org.example.utcctp.notification.WebhookService;
 import org.example.utcctp.repository.ApplicationRepository;
+import org.example.utcctp.repository.ApplicationStatusLogRepository;
 import org.example.utcctp.repository.ApprovalHistoryRepository;
 import org.example.utcctp.repository.InternshipPositionRepository;
 import org.example.utcctp.repository.TripRepository;
 import org.example.utcctp.repository.UserRepository;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +42,11 @@ public class ApplicationService {
     private final ApprovalHistoryRepository approvalHistoryRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final WebhookService webhookService;
+    private final ApplicationStatusLogRepository statusLogRepository;
+    private final EmailService emailService;
+    private final AuditService auditService;
+    private final org.example.utcctp.report.PdfService pdfService;
 
     public ApplicationService(
             ApplicationRepository applicationRepository,
@@ -42,7 +54,12 @@ public class ApplicationService {
             InternshipPositionRepository internshipRepository,
             ApprovalHistoryRepository approvalHistoryRepository,
             NotificationService notificationService,
-            UserRepository userRepository
+            UserRepository userRepository,
+            WebhookService webhookService,
+            ApplicationStatusLogRepository statusLogRepository,
+            EmailService emailService,
+            AuditService auditService,
+            org.example.utcctp.report.PdfService pdfService
     ) {
         this.applicationRepository = applicationRepository;
         this.tripRepository = tripRepository;
@@ -50,6 +67,25 @@ public class ApplicationService {
         this.approvalHistoryRepository = approvalHistoryRepository;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
+        this.webhookService = webhookService;
+        this.statusLogRepository = statusLogRepository;
+        this.emailService = emailService;
+        this.auditService = auditService;
+        this.pdfService = pdfService;
+    }
+
+    public byte[] generateLetter(UUID id, User user) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Application not found"));
+        
+        // Permission check
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.name().equals("ADMIN"));
+        boolean isOwner = application.getStudent().getId().equals(user.getId());
+        if (!isAdmin && !isOwner) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Not authorized");
+        }
+
+        return pdfService.generateInternshipLetter(application);
     }
 
     public ApplicationResponse create(ApplicationRequest request, User student) {
@@ -92,13 +128,36 @@ public class ApplicationService {
     public ApplicationResponse decide(UUID id, DecisionRequest request, User approver) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+        
+        ApplicationStatus oldStatus = application.getStatus();
         DecisionType decision = DecisionType.valueOf(request.decision());
         ApplicationStatus newStatus = decision == DecisionType.APPROVE
-                ? ApplicationStatus.APPROVED
+                ? ApplicationStatus.ACCEPTED // Updated to use new ATS status
                 : ApplicationStatus.REJECTED;
+        
         application.setStatus(newStatus);
         applicationRepository.save(application);
 
+        // 1. Log Status Change History
+        ApplicationStatusLog log = new ApplicationStatusLog();
+        log.setApplication(application);
+        log.setOldStatus(oldStatus);
+        log.setNewStatus(newStatus);
+        log.setChangedBy(approver);
+        log.setNote(request.note());
+        statusLogRepository.save(log);
+
+        // 2. n8n Flow 1: Hook Status Changed
+        webhookService.sendStatusChange(Map.of(
+            "applicationId", application.getId().toString(),
+            "studentName", application.getStudent().getDisplayName(),
+            "oldStatus", oldStatus.name(),
+            "newStatus", newStatus.name(),
+            "positionTitle", application.getInternshipPosition() != null ? application.getInternshipPosition().getTitle() : "Trip",
+            "changedBy", approver.getDisplayName()
+        ));
+
+        // 3. Keep existing Approval History and Notification
         ApprovalHistory history = new ApprovalHistory();
         history.setApplication(application);
         history.setApprover(approver);
@@ -107,10 +166,49 @@ public class ApplicationService {
         approvalHistoryRepository.save(history);
 
         User student = application.getStudent();
-        String title = "Application " + newStatus.name().toLowerCase();
-        String message = "Your application has been " + newStatus.name().toLowerCase() + ".";
+        String title = "Application Updated: " + newStatus.name().toLowerCase();
+        String message = "Your application status has been changed to " + newStatus.name().toLowerCase() + ".";
         notificationService.notifyUser(student, title, message, NotificationType.APPLICATION);
+
+        // 4. Email notification via Resend
+        String positionTitle = application.getInternshipPosition() != null
+                ? application.getInternshipPosition().getTitle()
+                : (application.getTrip() != null ? application.getTrip().getTitle() : "Application");
+        if (student.getEmail() != null && !student.getEmail().isBlank()) {
+            emailService.sendAsync(
+                    student.getEmail(),
+                    "[UTCC-TP] อัปเดตสถานะใบสมัคร: " + newStatus.name(),
+                    EmailTemplates.statusChange(
+                            student.getDisplayName(),
+                            oldStatus.name(),
+                            newStatus.name(),
+                            positionTitle,
+                            request.note()
+                    )
+            );
+        }
+
+        // 5. Audit trail
+        auditService.record(
+                approver,
+                "APPLICATION_DECIDE",
+                "Application",
+                application.getId().toString(),
+                Map.of(
+                        "oldStatus", oldStatus.name(),
+                        "newStatus", newStatus.name(),
+                        "decision", decision.name(),
+                        "studentId", student.getId().toString()
+                )
+        );
+
         return mapApplication(application);
+    }
+
+    public List<ApplicationResponse> bulkDecide(List<UUID> ids, DecisionRequest request, User approver) {
+        return ids.stream()
+                .map(id -> decide(id, request, approver))
+                .toList();
     }
 
     private ApplicationResponse mapApplication(Application application) {

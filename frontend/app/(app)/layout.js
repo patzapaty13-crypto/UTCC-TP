@@ -7,11 +7,14 @@ import Link from "next/link";
 import Image from "next/image";
 
 const NAV = [
-  { path: "/dashboard",   label: "ภาพรวม",     icon: "fa-house",        section: "main" },
-  { path: "/trips",       label: "ทริปศึกษาดูงาน",  icon: "fa-route",    section: "main" },
-  { path: "/internships", label: "ฝึกงาน",      icon: "fa-briefcase",    section: "main" },
-  { path: "/reports",     label: "รายงาน",      icon: "fa-file-lines",   section: "main" },
-  { path: "/analytics",   label: "วิเคราะห์",   icon: "fa-chart-line",   section: "data" },
+  { path: "/dashboard",   label: "ภาพรวม",           icon: "fa-chart-pie",       section: "main" },
+  { path: "/internships", label: "ค้นหาตำแหน่งงาน",   icon: "fa-briefcase",       section: "main", forStudent: true },
+  { path: "/applications",label: "ติดตามสถานะสมัคร",   icon: "fa-clipboard-list",  section: "main", forStudent: true },
+  { path: "/recruitment", label: "จัดการผู้สมัคร (ATS)", icon: "fa-users-gear",      section: "main", forStaff: true },
+  { path: "/reports",     label: "รายงาน",             icon: "fa-file-lines",      section: "data" },
+  { path: "/analytics",   label: "วิเคราะห์ข้อมูล",     icon: "fa-chart-line",      section: "data" },
+  { path: "/notifications", label: "การแจ้งเตือน",     icon: "fa-bell",            section: "data" },
+  { path: "/admin/settings", label: "ตั้งค่าระบบ",      icon: "fa-gears",           section: "admin", forAdmin: true },
 ];
 
 export default function DashboardLayout({ children }) {
@@ -46,8 +49,20 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 
-  const mainNav  = NAV.filter(n => n.section === "main");
-  const dataNav  = NAV.filter(n => n.section === "data");
+  const primaryRole = user?.roles?.[0] || "USER";
+  const isStaff = primaryRole === "STAFF" || primaryRole === "ADMIN" || primaryRole === "ADVISOR" || primaryRole === "EMPLOYER";
+  const isAdmin = primaryRole === "ADMIN";
+  
+  const accessibleNav = NAV.filter(n => {
+    if (n.forStudent && isStaff) return false;
+    if (n.forStaff && !isStaff) return false;
+    if (n.forAdmin && !isAdmin) return false;
+    return true;
+  });
+
+  const mainNav  = accessibleNav.filter(n => n.section === "main");
+  const dataNav  = accessibleNav.filter(n => n.section === "data");
+  const adminNav = accessibleNav.filter(n => n.section === "admin");
 
   return (
     <div className="app-shell">
@@ -91,6 +106,19 @@ export default function DashboardLayout({ children }) {
               {item.label}
             </Link>
           ))}
+
+          {adminNav.length > 0 && <span className="nav-section-label" style={{ marginTop: 8 }}>ผู้ดูแลระบบ</span>}
+          {adminNav.map(item => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`nav-link ${pathname === item.path ? "active" : ""}`}
+              onClick={() => setOpen(false)}
+            >
+              <i className={`fas ${item.icon} nav-link-icon`}></i>
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Footer */}
@@ -122,9 +150,9 @@ export default function DashboardLayout({ children }) {
           </button>
           <span className="topbar-title">{pageLabel}</span>
           <div className="topbar-actions">
-            <button className="icon-btn" title="การแจ้งเตือน">
+            <Link href="/notifications" className="icon-btn" title="การแจ้งเตือน" style={{ textDecoration: "none" }}>
               <i className="fas fa-bell"></i>
-            </button>
+            </Link>
             <Link href="/profile" style={{ textDecoration:"none" }}>
               <div className="avatar avatar-sm" style={{ marginLeft: 4, cursor:"pointer" }}>{initials}</div>
             </Link>

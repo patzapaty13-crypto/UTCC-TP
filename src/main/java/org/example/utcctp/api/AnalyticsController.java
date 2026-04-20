@@ -1,7 +1,9 @@
 package org.example.utcctp.api;
 
 import org.example.utcctp.analytics.AnalyticsService;
+import org.example.utcctp.api.dto.AnalyticsDashboardResponse;
 import org.example.utcctp.api.dto.AnalyticsOverviewResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,5 +20,11 @@ public class AnalyticsController {
     @GetMapping("/overview")
     public AnalyticsOverviewResponse overview() {
         return analyticsService.overview();
+    }
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN', 'ADVISOR')")
+    public AnalyticsDashboardResponse dashboard() {
+        return analyticsService.dashboard();
     }
 }

@@ -6,6 +6,10 @@ public record DashboardResponse(
         int reportsDue,
         int internshipSlots,
         int unmatchedSlots,
-        String role
+        String role,
+        int totalApplications,
+        int pendingInterviews,
+        int activeJobs,
+        int offersAccepted
 ) {
 }

@@ -2,7 +2,10 @@ package org.example.utcctp.model;
 
 public enum ApplicationStatus {
     PENDING,
-    APPROVED,
+    REVIEWING,
+    INTERVIEW_SCHEDULED,
+    OFFER_EXTENDED,
+    ACCEPTED,
     REJECTED,
     DRAFT
 }

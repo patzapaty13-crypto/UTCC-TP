@@ -55,6 +55,15 @@ public class ReportService {
         Report report = new Report();
         report.setStudent(student);
         report.setStatus(ReportStatus.AWAITING_REVIEW);
+
+        // Set title and content from the request
+        if (request.title() != null && !request.title().isBlank()) {
+            report.setTitle(request.title());
+        }
+        if (request.content() != null) {
+            report.setContent(request.content());
+        }
+
         if (request.tripId() != null) {
             Trip trip = tripRepository.findById(request.tripId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
@@ -97,14 +106,19 @@ public class ReportService {
     }
 
     private ReportResponse mapReport(Report report) {
-        String title = report.getTrip() != null
-                ? report.getTrip().getTitle()
-                : report.getInternshipPosition() != null
-                ? report.getInternshipPosition().getTitle()
-                : "Report";
+        // Title priority: explicit title > trip title > position title > fallback
+        String title = report.getTitle();
+        if (title == null || title.isBlank()) {
+            title = report.getTrip() != null
+                    ? report.getTrip().getTitle()
+                    : report.getInternshipPosition() != null
+                    ? report.getInternshipPosition().getTitle()
+                    : "Report";
+        }
         return new ReportResponse(
                 report.getId(),
                 title,
+                report.getContent(),
                 report.getStatus().name(),
                 report.getSubmittedAt(),
                 report.getFile() == null ? null : report.getFile().getId()

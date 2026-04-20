@@ -1,4 +1,5 @@
 import "./globals.css";
+import AppWrapper from "@/components/AppWrapper";
 
 export const metadata = {
   title: "UTCC-TP | ระบบบริหารทริปและฝึกงาน",
@@ -21,12 +22,14 @@ export default function RootLayout({ children }) {
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossOrigin="anonymous"
         />
-        {/* Preconnect for Google Fonts (already in globals.css import) */}
+        {/* Preconnect for Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        {children}
+        <AppWrapper>
+          {children}
+        </AppWrapper>
       </body>
     </html>
   );

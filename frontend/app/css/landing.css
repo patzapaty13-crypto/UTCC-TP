@@ -14,3 +14,31 @@
   border: none;
   pointer-events: none;
 }
+
+
+/* Animations and Responsive Styles for Landing Page */
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+@media (max-width: 768px) {
+  section > div[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  section > div[style*="grid-template-columns: repeat(2, 1fr)"],
+  section > div[style*="grid-template-columns: 1fr 1fr"],
+  footer > div > div[style*="grid-template-columns: 2fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .landing-nav-links .nav-item {
+    display: none !important;
+  }
+  .login-left-panel {
+    display: none !important;
+  }
+  .login-right-panel {
+    padding: 32px 20px !important;
+  }
+}

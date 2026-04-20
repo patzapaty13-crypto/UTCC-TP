@@ -44,4 +44,25 @@ public class ApplicationController {
     public ApplicationResponse decide(@PathVariable UUID id, @RequestBody DecisionRequest request) {
         return applicationService.decide(id, request, currentUserService.requireUser());
     }
+
+    @PutMapping("/bulk-decision")
+    @PreAuthorize("hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN')")
+    public List<ApplicationResponse> bulkDecide(@RequestBody java.util.Map<String, Object> payload) {
+        List<String> idStrings = (List<String>) payload.get("ids");
+        List<UUID> ids = idStrings.stream().map(UUID::fromString).toList();
+        DecisionRequest request = new DecisionRequest(
+                (String) payload.get("decision"),
+                (String) payload.get("note")
+        );
+        return applicationService.bulkDecide(ids, request, currentUserService.requireUser());
+    }
+
+    @GetMapping("/{id}/download-letter")
+    public org.springframework.http.ResponseEntity<byte[]> downloadLetter(@PathVariable UUID id) {
+        byte[] pdf = applicationService.generateLetter(id, currentUserService.requireUser());
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "internship-letter-" + id + ".pdf");
+        return new org.springframework.http.ResponseEntity<>(pdf, headers, org.springframework.http.HttpStatus.OK);
+    }
 }

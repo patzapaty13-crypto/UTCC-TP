@@ -85,7 +85,7 @@ export default function ProfilePage() {
               {displayRole}
             </div>
             <div style={{ padding: "6px 14px", background: "var(--n-50)", color: "var(--n-500)", fontSize: 12, fontWeight: 600, borderRadius: 99, border: "1px solid var(--n-200)" }}>
-              ID: {user.id ? user.id.slice(0, 8).toUpperCase() : "UTCC-2026"}
+              ID: {user.id ? String(user.id).slice(0, 8).toUpperCase() : "UTCC-2026"}
             </div>
           </div>
           

@@ -5,9 +5,13 @@ import { api } from "@/lib/api";
 import Link from "next/link";
 
 const STATUS_CFG = {
-  PENDING:  { label: "รออนุมัติ",   cls: "badge-yellow" },
-  APPROVED: { label: "อนุมัติแล้ว", cls: "badge-green" },
-  REJECTED: { label: "ไม่อนุมัติ",  cls: "badge-red" },
+  PENDING:             { label: "รอตรวจสอบ",   cls: "badge-yellow" },
+  REVIEWING:           { label: "กำลังคัดกรอง",   cls: "badge-blue" },
+  INTERVIEW_SCHEDULED: { label: "นัดสัมภาษณ์",   cls: "badge-purple" },
+  OFFER_EXTENDED:      { label: "เสนอสัญญา",   cls: "badge-indigo" },
+  ACCEPTED:            { label: "สำเร็จแล้ว",   cls: "badge-green" },
+  APPROVED:            { label: "อนุมัติแล้ว",   cls: "badge-green" },
+  REJECTED:            { label: "ไม่อนุมัติ",    cls: "badge-red" },
 };
 
 export default function ApplicationsPage() {
@@ -66,22 +70,26 @@ export default function ApplicationsPage() {
             <tbody>
               {apps.map(a => {
                 const cfg = STATUS_CFG[a.status] || { label: a.status, cls: "badge-gray" };
-                const isTrip = a.type === "TRIP";
+                const title = a.positionTitle || a.internshipTitle || a.tripTitle || "Unknown Activity";
+                const appliedDate = a.appliedAt || a.createdAt;
                 return (
                   <tr key={a.id}>
                     <td>
-                      <span className={`badge ${isTrip ? 'badge-blue' : 'badge-purple'}`}>
-                        <i className={`fas ${isTrip ? 'fa-route' : 'fa-briefcase'}`} style={{ marginRight:5 }}></i>
-                        {isTrip ? "ทริปศึกษาดูงาน" : "ตำแหน่งฝึกงาน"}
+                      <span className={`badge ${a.tripTitle ? 'badge-blue' : 'badge-purple'}`}>
+                        <i className={`fas ${a.tripTitle ? 'fa-route' : 'fa-briefcase'}`} style={{ marginRight:5 }}></i>
+                        {a.tripTitle ? "ทริปศึกษาดูงาน" : "ตำแหน่งฝึกงาน"}
                       </span>
                     </td>
                     <td>
-                      <p className="fw" style={{ fontSize:14 }}>{isTrip ? a.tripTitle : a.internshipTitle}</p>
-                      <p style={{ fontSize:11.5, color:"var(--text-muted)", marginTop:4 }}>ผู้สมัคร: {a.studentName} ({a.studentMajor})</p>
+                      <p className="fw" style={{ fontSize:14 }}>{title}</p>
+                      <p style={{ fontSize:11.5, color:"var(--text-muted)", marginTop:4 }}>
+                        {a.company && <span><i className="fas fa-building" style={{marginRight:5}}></i>{a.company}</span>}
+                        {!a.company && `โดย ${a.studentName || '—'}`}
+                      </p>
                     </td>
                     <td>
-                      {a.createdAt 
-                        ? new Date(a.createdAt).toLocaleDateString("th-TH", { day:"numeric", month:"short", year:"numeric" })
+                      {appliedDate 
+                        ? new Date(appliedDate).toLocaleDateString("th-TH", { day:"numeric", month:"short", year:"numeric" })
                         : "—"
                       }
                     </td>

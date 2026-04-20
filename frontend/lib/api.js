@@ -1,4 +1,7 @@
+import { MOCK_INTERNSHIPS, MOCK_APPLICATIONS, delay, updateMockApplicationStatus, createMockApplication } from "./mockData";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+const USE_MOCK_API = false; // Feature flag for ATS mock
 
 export async function apiFetch(path, options = {}) {
   const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
@@ -28,6 +31,16 @@ export async function apiFetch(path, options = {}) {
     throw new Error("Session expired. Please log in again.");
   }
 
+  if (response.status === 503) {
+    const errorData = await response.json().catch(() => ({}));
+    if (errorData.code === "MAINTENANCE") {
+       if (typeof window !== "undefined") {
+         window.dispatchEvent(new CustomEvent('maintenance_mode'));
+       }
+       throw new Error("MAINTENANCE_ACTIVE");
+    }
+  }
+
   if (!response.ok) {
     let message = "Request failed";
     try {
@@ -48,22 +61,55 @@ export async function apiFetch(path, options = {}) {
 }
 
 export const api = {
-  // Auth
-  login: (credentials) => apiFetch("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(credentials),
-  }),
-  getMe: () => apiFetch("/auth/me"),
+  // Auth (Always Real API if backend is running, otherwise use mocks below later if needed)
+  login: async (credentials) => {
+    if (USE_MOCK_API) {
+      await delay(800);
+      if (credentials.password === "pass123") {
+        return { token: "mock-jwt-token", username: credentials.username };
+      }
+      throw new Error("Invalid credentials");
+    }
+    return apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+  },
+  getMe: async () => {
+    if (USE_MOCK_API) {
+      await delay(300);
+      return { 
+        id: 2, 
+        username: "student1", 
+        displayName: "Demo Student", 
+        roles: ["STUDENT"], 
+        major: "Information Technology",
+        academicYear: 3 
+      };
+    }
+    return apiFetch("/auth/me");
+  },
   updateProfile: (data) => apiFetch("/auth/me", {
     method: "PUT",
     body: JSON.stringify(data),
   }),
-  logout: () => apiFetch("/auth/logout", { method: "POST" }),
+  logout: async () => {
+    if (USE_MOCK_API) return await delay(200);
+    return apiFetch("/auth/logout", { method: "POST" });
+  },
 
-  // Dashboard
-  getDashboard: () => apiFetch("/dashboard/summary"),
+  // Dashboard Target Metrics
+  getDashboard: async () => {
+    if (USE_MOCK_API) {
+      await delay(400);
+      return { totalApplications: MOCK_APPLICATIONS.length, pendingInterviews: MOCK_APPLICATIONS.filter(a => a.status === "INTERVIEW_SCHEDULED").length, activeJobs: MOCK_INTERNSHIPS.length };
+    }
+    return apiFetch("/dashboard/summary");
+  },
 
-  // Trips — correct field names from TripResponse DTO
+  // -------------------------------------------------------------
+  // DEPRECATED: TRIPS
+  // -------------------------------------------------------------
   getTrips: () => apiFetch("/trips"),
   getTrip: (id) => apiFetch(`/trips/${id}`),
   createTrip: (data) => apiFetch("/trips", { method: "POST", body: JSON.stringify(data) }),
@@ -71,18 +117,72 @@ export const api = {
   publishTrip: (id) => apiFetch(`/trips/${id}/publish`, { method: "POST" }),
   addTripSchedule: (id, data) => apiFetch(`/trips/${id}/schedule`, { method: "POST", body: JSON.stringify(data) }),
 
-  // Internships — correct field names: company (not companyName), slots (not availableSlots)
-  getInternships: () => apiFetch("/internships"),
+  // -------------------------------------------------------------
+  // ATS: INTERNSHIPS & JOB POSTINGS
+  // -------------------------------------------------------------
+  getInternships: async () => {
+    if (USE_MOCK_API) { await delay(); return MOCK_INTERNSHIPS; }
+    return apiFetch("/internships");
+  },
   createInternship: (data) => apiFetch("/internships", { method: "POST", body: JSON.stringify(data) }),
   updateInternship: (id, data) => apiFetch(`/internships/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 
-  // Reports — correct fields: submittedAt (not createdAt), no grade field
+  // -------------------------------------------------------------
+  // ATS: APPLICATIONS (FUNNEL & TRACKING)
+  // -------------------------------------------------------------
+  getApplications: async () => {
+    if (USE_MOCK_API) { await delay(); return [...MOCK_APPLICATIONS]; }
+    return apiFetch("/applications");
+  },
+  applyForInternship: async (data, studentData) => {
+    if (USE_MOCK_API) return createMockApplication(data.internshipId, studentData);
+    return apiFetch("/applications", { method: "POST", body: JSON.stringify(data) });
+  },
+  updateApplicationStatus: async (id, payload) => {
+    // payload: { status: "INTERVIEW_SCHEDULED", interviewScheduledAt: "ISO_STR" }
+    if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.status, payload.interviewScheduledAt);
+    return apiFetch(`/applications/${id}/status`, { method: "PUT", body: JSON.stringify(payload) });
+  },
+
+  // -------------------------------------------------------------
+  // Reports
+  // -------------------------------------------------------------
   getReports: () => apiFetch("/reports"),
   submitReport: (data) => apiFetch("/reports", { method: "POST", body: JSON.stringify(data) }),
   gradeReport: (id, data) => apiFetch(`/reports/${id}/grade`, { method: "PUT", body: JSON.stringify(data) }),
+  
+  // ATS Decide
+  decideForInternship: async (id, payload) => {
+    if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.decision === "APPROVE" ? "REVIEWING" : "REJECTED");
+    return apiFetch(`/applications/${id}/decide`, { method: "POST", body: JSON.stringify(payload) });
+  },
 
-  // Applications
-  getApplications: () => apiFetch("/applications"),
-  applyForTrip: (data) => apiFetch("/applications", { method: "POST", body: JSON.stringify(data) }),
-  applyForInternship: (data) => apiFetch("/applications", { method: "POST", body: JSON.stringify(data) }),
+  // -------------------------------------------------------------
+  // Analytics
+  // -------------------------------------------------------------
+  getAnalyticsOverview: () => apiFetch("/analytics/overview"),
+  getAnalyticsDashboard: () => apiFetch("/analytics/dashboard"),
+
+  // -------------------------------------------------------------
+  // Notifications
+  // -------------------------------------------------------------
+  getNotifications: () => apiFetch("/notifications"),
+  markNotificationRead: (id) => apiFetch(`/notifications/${id}/read`, { method: "PUT" }),
+
+  // -------------------------------------------------------------
+  // Signup (OTP flow)
+  // -------------------------------------------------------------
+  signupRequestOtp: (data) => apiFetch("/auth/signup/request-otp", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }),
+  signupVerifyOtp: (data) => apiFetch("/auth/signup/verify", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }),
+
+  // -------------------------------------------------------------
+  // Audit logs (admin only)
+  // -------------------------------------------------------------
+  getAuditLogs: (page = 0, size = 50) => apiFetch(`/admin/audit?page=${page}&size=${size}`),
 };

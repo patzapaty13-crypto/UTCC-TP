@@ -27,7 +27,7 @@ export default function InternshipDetailsPage({ params }) {
     // I will fetch all and find the one matching id, or standard getInternships logic
     api.getInternships()
       .then(items => {
-        const found = items.find(i => i.id === id);
+        const found = items.find(i => Number(i.id) === Number(id));
         if (found) setPos(found);
         else setError("ไม่พบตำแหน่งนี้ในระบบ");
       })

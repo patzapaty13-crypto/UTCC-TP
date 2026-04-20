@@ -53,6 +53,9 @@ public class User {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
+
     @Column(name = "profile_picture_url", columnDefinition = "TEXT")
     private String profilePictureUrl;
 
@@ -139,6 +142,14 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public String getProfilePictureUrl() {

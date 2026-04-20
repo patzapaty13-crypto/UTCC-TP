@@ -6,6 +6,7 @@ import org.example.utcctp.storage.FileService;
 import org.example.utcctp.user.CurrentUserService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -39,6 +41,12 @@ public class FileController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Resource> download(@PathVariable UUID id) {
+        FileAsset asset = fileService.getAsset(id);
+        if ("CLOUDINARY".equalsIgnoreCase(asset.getProvider()) && asset.getPublicUrl() != null) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(asset.getPublicUrl()))
+                    .build();
+        }
         Resource resource = fileService.load(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")

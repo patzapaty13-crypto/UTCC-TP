@@ -32,8 +32,17 @@ public class FileAsset {
     @Column(name = "size_bytes", nullable = false)
     private long sizeBytes;
 
-    @Column(name = "storage_path", nullable = false)
+    @Column(name = "storage_path")
     private String storagePath;
+
+    @Column(name = "provider", nullable = false, length = 30)
+    private String provider = "LOCAL";
+
+    @Column(name = "public_url", length = 1000)
+    private String publicUrl;
+
+    @Column(name = "external_id", length = 500)
+    private String externalId;
 
     @ManyToOne
     @JoinColumn(name = "uploaded_by")
@@ -96,5 +105,29 @@ public class FileAsset {
 
     public Instant getUploadedAt() {
         return uploadedAt;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getPublicUrl() {
+        return publicUrl;
+    }
+
+    public void setPublicUrl(String publicUrl) {
+        this.publicUrl = publicUrl;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 }

@@ -49,9 +49,18 @@ public class DashboardService {
                 .sum();
         long approvedInternshipApps = applicationRepository.findAll().stream()
                 .filter(app -> app.getType() == ApplicationType.INTERNSHIP)
-                .filter(app -> app.getStatus() == ApplicationStatus.APPROVED)
+                .filter(app -> app.getStatus() == ApplicationStatus.ACCEPTED)
                 .count();
         int unmatchedSlots = Math.max(0, internshipSlots - (int) approvedInternshipApps);
+
+        // New fields for frontend dashboard
+        long totalApplications = applicationRepository.count();
+        long pendingInterviews = applicationRepository.findAll().stream()
+                .filter(app -> app.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED)
+                .count();
+        long activeJobs = internshipRepository.count();
+        long offersAccepted = approvedInternshipApps;
+
         String role = user.getRoles().stream().findFirst().map(RoleType::name).orElse("GUEST");
         return new DashboardResponse(
                 Math.toIntExact(activeTrips),
@@ -59,7 +68,11 @@ public class DashboardService {
                 Math.toIntExact(reportsDue),
                 internshipSlots,
                 unmatchedSlots,
-                role
+                role,
+                Math.toIntExact(totalApplications),
+                Math.toIntExact(pendingInterviews),
+                Math.toIntExact(activeJobs),
+                Math.toIntExact(offersAccepted)
         );
     }
 }

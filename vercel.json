@@ -1,19 +1,11 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/main/resources/static/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/src/main/resources/static/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/src/main/resources/static/$1"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd frontend && npm ci",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "devCommand": "cd frontend && npm run dev",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
 }

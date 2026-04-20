@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 const STATUS_CFG = {
-  AWAITING_REVIEW: { label:"รอตรวจ",    cls:"badge-yellow" },
-  UNDER_REVIEW:    { label:"กำลังตรวจ", cls:"badge-blue" },
-  APPROVED:        { label:"ผ่านแล้ว",  cls:"badge-green" },
-  REJECTED:        { label:"ไม่ผ่าน",   cls:"badge-red" },
+  SUBMITTED:       { label:"ส่งแล้ว",     cls:"badge-blue" },
+  AWAITING_REVIEW: { label:"รอตรวจ",      cls:"badge-yellow" },
+  UNDER_REVIEW:    { label:"กำลังตรวจ",   cls:"badge-blue" },
+  GRADED:          { label:"ตรวจแล้ว",    cls:"badge-green" },
+  APPROVED:        { label:"ผ่านแล้ว",    cls:"badge-green" },
+  REJECTED:        { label:"ไม่ผ่าน",     cls:"badge-red" },
 };
 
 export default function ReportsPage() {
@@ -80,7 +82,7 @@ export default function ReportsPage() {
             <span style={{ width:3, height:18, background:"var(--primary)", borderRadius:2, display:"inline-block" }}></span>
             ส่งรายงานใหม่
           </h3>
-          {formError && <div className="alert alert-error" style={{ marginBottom:16 }}><i className="fas fa-circle-exclamation"></i>{formError}</div>}
+          {formError && <div className="alert alert-error" style={{ marginBottom:16 }}><i className="fas fa-circle-exclamation"></i> {formError}</div>}
           <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:16 }}>
             <div className="field-group">
               <label className="field-label">ชื่อรายงาน *</label>
@@ -98,6 +100,7 @@ export default function ReportsPage() {
               <textarea
                 className="field-input field-textarea"
                 placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)..."
+                rows={5}
                 value={form.content}
                 onChange={e => setForm({...form, content:e.target.value})}
                 disabled={submitting}
@@ -119,7 +122,17 @@ export default function ReportsPage() {
       )}
 
       {/* Error */}
-      {error && <div className="alert alert-error"><i className="fas fa-circle-exclamation"></i>{error}</div>}
+      {error && <div className="alert alert-error"><i className="fas fa-circle-exclamation"></i> {error}</div>}
+
+      {/* Stats summary */}
+      {!loading && reports.length > 0 && (
+        <div className="grid-4 stagger" style={{ gap: 12 }}>
+          <MiniStat icon="fa-file-signature" color="#2563EB" bg="#EFF6FF" label="ทั้งหมด" value={reports.length} />
+          <MiniStat icon="fa-clock" color="#D97706" bg="#FFFBEB" label="รอตรวจ" value={reports.filter(r => r.status === "AWAITING_REVIEW" || r.status === "SUBMITTED").length} />
+          <MiniStat icon="fa-check-double" color="#059669" bg="#ECFDF5" label="ตรวจแล้ว" value={reports.filter(r => r.status === "GRADED" || r.status === "APPROVED").length} />
+          <MiniStat icon="fa-xmark" color="#DC2626" bg="#FEF2F2" label="ไม่ผ่าน" value={reports.filter(r => r.status === "REJECTED").length} />
+        </div>
+      )}
 
       {/* Table */}
       <div className="data-table-wrap">
@@ -141,9 +154,9 @@ export default function ReportsPage() {
             <thead>
               <tr>
                 <th>รายงาน</th>
+                <th>เนื้อหา</th>
                 <th>วันที่ส่ง</th>
                 <th>สถานะ</th>
-                <th style={{ textAlign:"right" }}>ไฟล์</th>
               </tr>
             </thead>
             <tbody>
@@ -154,7 +167,12 @@ export default function ReportsPage() {
                     <td>
                       <p className="fw">{r.title}</p>
                       <p style={{ fontSize:11, fontFamily:"monospace", color:"var(--n-300)", marginTop:2 }}>
-                        {r.id.slice(0,8).toUpperCase()}
+                        {String(r.id).slice(0,8).toUpperCase()}
+                      </p>
+                    </td>
+                    <td>
+                      <p style={{ fontSize: 12.5, color: "var(--text-muted)", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {r.content || "—"}
                       </p>
                     </td>
                     <td>
@@ -164,20 +182,26 @@ export default function ReportsPage() {
                       }
                     </td>
                     <td><span className={`badge ${cfg.cls}`}>{cfg.label}</span></td>
-                    <td style={{ textAlign:"right" }}>
-                      {r.fileId
-                        ? <button className="btn btn-ghost btn-sm" style={{ color:"var(--primary)" }}>
-                            <i className="fas fa-file-arrow-down"></i> ดาวน์โหลด
-                          </button>
-                        : <span style={{ color:"var(--n-300)", fontSize:12 }}>—</span>
-                      }
-                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         )}
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ icon, color, bg, label, value }) {
+  return (
+    <div className="stat-premium" style={{ "--accent": color, display: "flex", alignItems: "center", gap: 14, padding: "16px 20px" }}>
+      <div style={{ width: 38, height: 38, borderRadius: 10, background: bg, display: "flex", alignItems: "center", justifyContent: "center", color, fontSize: 15 }}>
+        <i className={`fas ${icon}`}></i>
+      </div>
+      <div>
+        <p className="stat-card-label" style={{ fontSize: 11 }}>{label}</p>
+        <p className="stat-card-value" style={{ fontSize: 22 }}>{value}</p>
       </div>
     </div>
   );
