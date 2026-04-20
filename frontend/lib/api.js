@@ -1,6 +1,7 @@
 import { MOCK_INTERNSHIPS, MOCK_APPLICATIONS, delay, updateMockApplicationStatus, createMockApplication } from "./mockData";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+console.log(`[API Config] Base URL set to: ${API_BASE}`);
 const USE_MOCK_API = false; // Feature flag for ATS mock
 
 export async function apiFetch(path, options = {}) {
@@ -17,7 +18,10 @@ export async function apiFetch(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  const url = `${API_BASE}${path}`;
+  console.log(`[API] Fetching: ${url}`);
+  
+  const response = await fetch(url, {
     ...options,
     headers,
   });
@@ -124,6 +128,7 @@ export const api = {
     if (USE_MOCK_API) { await delay(); return MOCK_INTERNSHIPS; }
     return apiFetch("/internships");
   },
+  getInternship: (id) => apiFetch(`/internships/${id}`),
   createInternship: (data) => apiFetch("/internships", { method: "POST", body: JSON.stringify(data) }),
   updateInternship: (id, data) => apiFetch(`/internships/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 
@@ -156,6 +161,10 @@ export const api = {
     if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.decision === "APPROVE" ? "REVIEWING" : "REJECTED");
     return apiFetch(`/applications/${id}/decide`, { method: "POST", body: JSON.stringify(payload) });
   },
+  bulkDecideForInternships: async (payload) => {
+    return apiFetch("/applications/bulk-decision", { method: "PUT", body: JSON.stringify(payload) });
+  },
+  downloadLetterUrl: (id) => `${API_BASE}/applications/${id}/download-letter`,
 
   // -------------------------------------------------------------
   // Analytics

@@ -29,6 +29,11 @@ public class InternshipController {
         return internshipService.listPositions();
     }
 
+    @GetMapping("/{id}")
+    public InternshipResponse getInternship(@PathVariable UUID id) {
+        return internshipService.getPosition(id);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
     public InternshipResponse createInternship(@RequestBody InternshipRequest request) {

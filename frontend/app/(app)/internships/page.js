@@ -12,6 +12,7 @@ const MODE = {
 
 export default function InternshipsPage() {
   const [items,   setItems]   = useState([]);
+  const [user,    setUser]    = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
   const [search,  setSearch]  = useState("");
@@ -22,16 +23,23 @@ export default function InternshipsPage() {
   const [form, setForm] = useState({ title: "", company: "", location: "", mode: "ON_SITE", slots: 1 });
   const [formError, setFormError] = useState("");
 
-  const loadInternships = () => {
+  const load = async () => {
     setLoading(true);
-    // Use getInternships but if API doesn't exist, we just catch and show empty
-    api.getInternships()
-      .then(setItems)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    try {
+      const [u, its] = await Promise.all([api.getMe(), api.getInternships()]);
+      setUser(u);
+      setItems(its);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(loadInternships, []);
+  useEffect(() => { load(); }, []);
+
+  const isAdmin = user?.roles?.some(r => ["ADMIN", "STAFF"].includes(r));
+  const isStudent = user?.roles?.includes("STUDENT");
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -45,7 +53,7 @@ export default function InternshipsPage() {
       await api.createInternship(form);
       setShowModal(false);
       setForm({ title: "", company: "", location: "", mode: "ON_SITE", slots: 1 });
-      loadInternships();
+      load();
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -69,12 +77,16 @@ export default function InternshipsPage() {
           <p className="page-subtitle">โอกาสในการฝึกงานระดับมืออาชีพกับองค์กรชั้นนำทั้งในและต่างประเทศ</p>
         </div>
         <div style={{ display:"flex", gap:10 }}>
-          <Link href="/applications" className="btn btn-secondary">
-            <i className="fas fa-list-check"></i> ใบสมัครของฉัน
-          </Link>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            <i className="fas fa-plus"></i> เพิ่มตำแหน่ง
-          </button>
+          {isStudent && (
+            <Link href="/applications" className="btn btn-secondary">
+              <i className="fas fa-list-check"></i> ใบสมัครของฉัน
+            </Link>
+          )}
+          {isAdmin && (
+            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+              <i className="fas fa-plus"></i> เพิ่มตำแหน่ง
+            </button>
+          )}
         </div>
       </div>
 

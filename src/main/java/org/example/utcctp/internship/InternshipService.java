@@ -30,6 +30,12 @@ public class InternshipService {
         return internshipRepository.findAll().stream().map(this::mapPosition).toList();
     }
 
+    public InternshipResponse getPosition(UUID id) {
+        InternshipPosition position = internshipRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
+        return mapPosition(position);
+    }
+
     public InternshipResponse createPosition(InternshipRequest request) {
         Company company = companyRepository.findById(request.companyId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found"));

@@ -23,14 +23,8 @@ export default function InternshipDetailsPage({ params }) {
   const [applySuccess, setApplySuccess] = useState(false);
 
   useEffect(() => {
-    // There is no specific getInternship(id) by default in our api.js
-    // I will fetch all and find the one matching id, or standard getInternships logic
-    api.getInternships()
-      .then(items => {
-        const found = items.find(i => Number(i.id) === Number(id));
-        if (found) setPos(found);
-        else setError("ไม่พบตำแหน่งนี้ในระบบ");
-      })
+    api.getInternship(id)
+      .then(setPos)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);

@@ -39,14 +39,7 @@ export default function RecruitmentPage() {
   const handleBulkAction = async (decision) => {
     setLoading(true);
     try {
-      // Manual fetch call for now since api.js might not have bulkDecide yet
-      const token = localStorage.getItem("utcctp_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api/v1"}/applications/bulk-decision`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ ids: selected, decision, note: "Bulk processed by staff" })
-      });
-      if (!res.ok) throw new Error("Bulk update failed");
+      await api.bulkDecideForInternships({ ids: selected, decision, note: "Bulk processed by staff" });
       setSelected([]);
       await loadData();
     } catch (e) {
@@ -67,7 +60,7 @@ export default function RecruitmentPage() {
       </div>
 
       {selected.length > 0 && (
-        <div className="glass-card animate-slide-up" style={{
+        <div className="card animate-slide-up" style={{
           position: "fixed", bottom: "32px", left: "50%", transform: "translateX(-50%)",
           padding: "16px 32px", background: "#0F172A", border: "1px solid rgba(255,255,255,0.1)",
           borderRadius: "20px", display: "flex", alignItems: "center", gap: "24px", zIndex: 100,
@@ -92,7 +85,6 @@ export default function RecruitmentPage() {
               <th>ชื่อนักศึกษา</th>
               <th>ตำแหน่งที่สมัคร</th>
               <th>AI Screening</th>
-              <th>สถานะปัจจุบัน</th>
               <th>จัดการ</th>
             </tr>
           </thead>
@@ -114,19 +106,17 @@ export default function RecruitmentPage() {
                 <td>{a.positionTitle || a.internshipTitle}</td>
                 <td>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div className="progress-bar-small" style={{ width: 60, height: 6, background: "var(--n-200)", borderRadius: 3, overflow: "hidden" }}>
+                    <div className="progress-bar-small" style={{ width: 60, height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
                         <div style={{ width: `${a.matchScore || 85}%`, height: "100%", background: "var(--success)" }}></div>
                     </div>
                     <span className="text-success fw-700">{a.matchScore || 85}%</span>
                   </div>
                 </td>
                 <td>
-                  <span className={`badge badge-gray`}>{a.status}</span>
-                </td>
-                <td>
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems:"center" }}>
                     <select 
-                      className="select-sm"
+                      className="field-input sm"
+                      style={{ padding: "4px 8px", width: "auto" }}
                       value={a.status}
                       disabled={updating === a.id}
                       onChange={(e) => handleStatusChange(a.id, e.target.value)}
@@ -134,10 +124,10 @@ export default function RecruitmentPage() {
                       {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
                     <a 
-                      href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api/v1"}/applications/${a.id}/download-letter`}
-                      className="icon-btn-sm"
+                      href={api.downloadLetterUrl(a.id)}
+                      className="btn btn-ghost btn-sm"
                       title="Download PDF Letter"
-                      style={{ background: "#EFF6FF", color: "#2563EB", padding: "4px 8px", borderRadius: "6px" }}
+                      style={{ color: "var(--primary)" }}
                       target="_blank"
                     >
                       <i className="fas fa-file-pdf"></i>

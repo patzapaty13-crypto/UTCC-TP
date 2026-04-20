@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({});
@@ -15,10 +15,14 @@ export default function AdminSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const data = await apiFetch("/admin/settings"); // Custom fetch since not in 'api' yet
+      const data = await apiFetch("/admin/settings");
       setSettings(data);
     } catch (err) {
-      console.error(err);
+      console.error("[Settings] Load error:", err);
+      setMessage({ 
+        type: 'error', 
+        text: `ไม่สามารถโหลดการตั้งค่าได้ (${err.message}). โปรดตรวจสอบว่ารัน Backend ถูกโปรเจกต์และ Port (8080) ถูกต้อง` 
+      });
     } finally {
       setLoading(false);
     }
@@ -40,21 +44,6 @@ export default function AdminSettingsPage() {
     }
   };
 
-  // Temporary fetch wrapper if not updated in lib/api
-  async function apiFetch(path, options = {}) {
-    const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api/v1"}${path}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        ...(options.headers || {})
-      }
-    });
-    if (!res.ok) throw new Error("Request failed");
-    if (res.status === 204) return null;
-    return res.json();
-  }
 
   if (loading) return <div>กำลังโหลดการตั้งค่า...</div>;
 
