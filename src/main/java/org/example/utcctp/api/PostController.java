@@ -2,8 +2,7 @@ package org.example.utcctp.api;
 
 import org.example.utcctp.api.dto.PostResponse;
 import org.example.utcctp.feed.PostService;
-import org.example.utcctp.security.AuthUser;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.example.utcctp.user.CurrentUserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,9 +13,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/posts")
 public class PostController {
     private final PostService postService;
+    private final CurrentUserService currentUserService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, CurrentUserService currentUserService) {
         this.postService = postService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
@@ -25,12 +26,12 @@ public class PostController {
     }
 
     @PostMapping
-    public PostResponse create(@AuthenticationPrincipal AuthUser user, @RequestBody Map<String, String> data) {
-        return postService.create(user.getUser(), data);
+    public PostResponse create(@RequestBody Map<String, String> data) {
+        return postService.create(currentUserService.requireUser(), data);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@AuthenticationPrincipal AuthUser user, @PathVariable UUID id) {
-        postService.delete(id, user.getUser());
+    public void delete(@PathVariable UUID id) {
+        postService.delete(id, currentUserService.requireUser());
     }
 }
