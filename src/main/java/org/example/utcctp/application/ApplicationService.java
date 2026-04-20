@@ -222,6 +222,7 @@ public class ApplicationService {
 
         return new ApplicationResponse(
                 application.getId(),
+                application.getStudent() != null ? application.getStudent().getId() : null,
                 studentName != null ? studentName : "Unknown Applicant",
                 studentMajor != null ? studentMajor : "-",
                 application.getType().name(),

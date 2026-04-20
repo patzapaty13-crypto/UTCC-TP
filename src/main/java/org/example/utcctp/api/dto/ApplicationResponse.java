@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record ApplicationResponse(
         UUID id,
+        UUID studentId,
         String studentName,
         String studentMajor,
         String type,

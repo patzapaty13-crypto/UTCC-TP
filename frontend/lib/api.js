@@ -141,7 +141,12 @@ export const api = {
   },
   applyForInternship: async (data, studentData) => {
     if (USE_MOCK_API) return createMockApplication(data.internshipId, studentData);
-    return apiFetch("/applications", { method: "POST", body: JSON.stringify(data) });
+    const payload = {
+      type: "INTERNSHIP",
+      internshipPositionId: data.internshipId,
+      reason: data.reason || "มีความสนใจในตำแหน่งนี้"
+    };
+    return apiFetch("/applications", { method: "POST", body: JSON.stringify(payload) });
   },
   updateApplicationStatus: async (id, payload) => {
     // payload: { status: "INTERVIEW_SCHEDULED", interviewScheduledAt: "ISO_STR" }
@@ -159,12 +164,22 @@ export const api = {
   // ATS Decide
   decideForInternship: async (id, payload) => {
     if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.decision === "APPROVE" ? "REVIEWING" : "REJECTED");
-    return apiFetch(`/applications/${id}/decide`, { method: "POST", body: JSON.stringify(payload) });
+    return apiFetch(`/applications/${id}/decision`, { method: "PUT", body: JSON.stringify(payload) });
   },
   bulkDecideForInternships: async (payload) => {
     return apiFetch("/applications/bulk-decision", { method: "PUT", body: JSON.stringify(payload) });
   },
   downloadLetterUrl: (id) => `${API_BASE}/applications/${id}/download-letter`,
+
+  // Resumes
+  getMyResume: () => apiFetch("/resumes/mine"),
+  updateMyResume: (data) => apiFetch("/resumes/mine", { method: "PUT", body: JSON.stringify(data) }),
+  getUserResume: (userId) => apiFetch(`/resumes/user/${userId}`),
+
+  // Social Feed
+  listPosts: () => apiFetch("/posts"),
+  createPost: (data) => apiFetch("/posts", { method: "POST", body: JSON.stringify(data) }),
+  deletePost: (id) => apiFetch(`/posts/${id}`, { method: "DELETE" }),
 
   // -------------------------------------------------------------
   // Analytics
