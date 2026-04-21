@@ -49,7 +49,7 @@ export async function POST(request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", // Use 1.5-flash as default for max compatibility
+      model: "gemini-2.5-flash", // Using the exact name shown in your quota screen
       systemInstruction: SYSTEM_PROMPT + (userRole ? `\n\nCurrent user role: ${userRole}` : ""),
     });
 
