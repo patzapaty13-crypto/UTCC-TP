@@ -44,6 +44,12 @@ public class FileAsset {
     @Column(name = "external_id", length = 500)
     private String externalId;
 
+    @Column(name = "category", length = 50)
+    private String category;
+
+    @Column(name = "doc_type", length = 50)
+    private String docType;
+
     @ManyToOne
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;
@@ -93,6 +99,22 @@ public class FileAsset {
 
     public void setStoragePath(String storagePath) {
         this.storagePath = storagePath;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getDocType() {
+        return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType;
     }
 
     public User getUploadedBy() {

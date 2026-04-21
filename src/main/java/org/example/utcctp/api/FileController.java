@@ -33,10 +33,21 @@ public class FileController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('STUDENT') or hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN')")
-    public FileResponse upload(@RequestParam("file") MultipartFile file) {
-        FileAsset asset = fileService.store(file, currentUserService.requireUser());
-        return new FileResponse(asset.getId(), asset.getOriginalName(), asset.getContentType(), asset.getSizeBytes());
+    @PreAuthorize("hasRole('STUDENT') or hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
+    public FileResponse upload(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "docType", required = false) String docType) {
+        FileAsset asset = fileService.store(file, currentUserService.requireUser(), category, docType);
+        return new FileResponse(asset.getId(), asset.getOriginalName(), asset.getContentType(), asset.getSizeBytes(), asset.getPublicUrl());
+    }
+
+    @GetMapping
+    public java.util.List<FileResponse> listFiles(@RequestParam(value = "category", required = false) String category) {
+        java.util.List<FileAsset> assets = fileService.listUserFiles(currentUserService.requireUser().getId(), category);
+        return assets.stream()
+                .map(asset -> new FileResponse(asset.getId(), asset.getOriginalName(), asset.getContentType(), asset.getSizeBytes(), asset.getPublicUrl()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @GetMapping("/{id}")

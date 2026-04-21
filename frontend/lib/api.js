@@ -222,6 +222,31 @@ export const api = {
   markNotificationRead: (id) => apiFetch(`/notifications/${id}/read`, { method: "PUT" }),
 
   // -------------------------------------------------------------
+  // Files & Documents
+  // -------------------------------------------------------------
+  upload: async (path, formData) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Upload failed" }));
+      throw new Error(error.message || "Upload failed");
+    }
+    return response.json();
+  },
+  get: async (path) => apiFetch(path),
+  put: async (path, data) => apiFetch(path, { method: "PUT", body: JSON.stringify(data) }),
+  delete: async (path) => apiFetch(path, { method: "DELETE" }),
+
+  // -------------------------------------------------------------
   // Signup (OTP flow)
   // -------------------------------------------------------------
   signupRequestOtp: (data) => apiFetch("/auth/signup/request-otp", {

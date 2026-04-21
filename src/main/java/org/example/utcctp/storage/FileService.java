@@ -44,7 +44,7 @@ public class FileService {
         return cloudinaryProvider.isConfigured() ? cloudinaryProvider : localProvider;
     }
 
-    public FileAsset store(MultipartFile file, User user) {
+    public FileAsset store(MultipartFile file, User user, String category, String docType) {
         String originalName = StringUtils.cleanPath(
                 file.getOriginalFilename() == null ? "upload" : file.getOriginalFilename());
         String storedName = UUID.randomUUID() + "-" + originalName;
@@ -61,8 +61,17 @@ public class FileService {
         asset.setProvider(stored.provider());
         asset.setPublicUrl(stored.publicUrl());
         asset.setExternalId(stored.externalId());
+        asset.setCategory(category);
+        asset.setDocType(docType);
         asset.setUploadedBy(user);
         return fileAssetRepository.save(asset);
+    }
+
+    public java.util.List<FileAsset> listUserFiles(UUID userId, String category) {
+        if (category != null) {
+            return fileAssetRepository.findByUploadedByIdAndCategoryOrderByUploadedAtDesc(userId, category);
+        }
+        return fileAssetRepository.findByUploadedByIdOrderByUploadedAtDesc(userId);
     }
 
     public FileAsset getAsset(UUID id) {
