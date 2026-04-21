@@ -53,7 +53,8 @@ public class OfferService {
             offer.setStatus(request.status());
         }
         Offer saved = offerRepository.save(offer);
-        notificationService.notifyUser(application.getStudent(), "Offer received", "You have received a new internship offer.", NotificationType.APPLICATION);
+        // TODO: Implement notification system
+        // notificationService.notifyUser(application.getStudent(), "Offer received", "You have received a new internship offer.", NotificationType.APPLICATION);
         return map(saved);
     }
 
@@ -77,7 +78,8 @@ public class OfferService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
         offer.setStatus(status);
         offer.setRespondedAt(Instant.now());
-        notificationService.notifyUser(offer.getApplication().getStudent(), "Offer updated", "Your offer status has been updated.", NotificationType.APPLICATION);
+        // TODO: Implement notification system
+        // notificationService.notifyUser(offer.getApplication().getStudent(), "Offer updated", "Your offer status has been updated.", NotificationType.APPLICATION);
         return map(offerRepository.save(offer));
     }
 

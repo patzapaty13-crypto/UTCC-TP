@@ -6,7 +6,6 @@ import org.example.utcctp.model.ApplicationType;
 import org.example.utcctp.model.Company;
 import org.example.utcctp.model.InternshipPosition;
 import org.example.utcctp.model.Notification;
-import org.example.utcctp.model.NotificationType;
 import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.TripStatus;
@@ -179,7 +178,7 @@ public class DataSeeder implements CommandLineRunner {
         n.setUser(student);
         n.setTitle("Welcome to UTCC-TP");
         n.setMessage("Your student profile has been successfully integrated into the platform.");
-        n.setType(NotificationType.SYSTEM);
+        n.setType(Notification.NotificationType.SYSTEM_ANNOUNCEMENT);
         notificationRepository.save(n);
     }
 

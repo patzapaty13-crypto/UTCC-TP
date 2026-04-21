@@ -51,7 +51,8 @@ public class InterviewService {
         }
         interview.setNote(request.note());
         Interview saved = interviewRepository.save(interview);
-        notificationService.notifyUser(application.getStudent(), "Interview scheduled", "Your interview has been scheduled.", NotificationType.APPLICATION);
+        // TODO: Implement notification system
+        // notificationService.notifyUser(application.getStudent(), "Interview scheduled", "Your interview has been scheduled.", NotificationType.APPLICATION);
         return map(saved);
     }
 

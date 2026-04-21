@@ -71,7 +71,7 @@ public class AiService {
     public AiResponse summarize(AiSummaryRequest request, User user) {
         Report report = reportRepository.findById(request.reportId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found"));
-        String title = report.getTrip() != null ? report.getTrip().getTitle() : "Internship report";
+        String title = report.getInternship() != null ? report.getInternship().getTitle() : "Internship report";
         String prompt = "Summarize the report for: " + title + ". Language: " + request.language();
         return respond(AiRequestType.REPORT_SUMMARY, prompt, user, Map.of("reportId", report.getId()));
     }

@@ -3,7 +3,6 @@ package org.example.utcctp.dashboard;
 import org.example.utcctp.api.dto.DashboardResponse;
 import org.example.utcctp.model.ApplicationStatus;
 import org.example.utcctp.model.ApplicationType;
-import org.example.utcctp.model.ReportStatus;
 import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.TripStatus;
 import org.example.utcctp.model.User;
@@ -42,7 +41,7 @@ public class DashboardService {
                 .filter(app -> app.getStatus() == ApplicationStatus.PENDING)
                 .count();
         long reportsDue = reportRepository.findAll().stream()
-                .filter(report -> report.getStatus() == ReportStatus.AWAITING_REVIEW)
+                .filter(report -> report.getStatus() == org.example.utcctp.model.Report.ReportStatus.SUBMITTED)
                 .count();
         int internshipSlots = internshipRepository.findAll().stream()
                 .mapToInt(position -> position.getSlots())

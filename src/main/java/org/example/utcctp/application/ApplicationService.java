@@ -223,7 +223,8 @@ public class ApplicationService {
         User student = application.getStudent();
         String title = "Application Updated: " + newStatus.name().toLowerCase();
         String message = "Your application status has been changed to " + newStatus.name().toLowerCase() + ".";
-        notificationService.notifyUser(student, title, message, NotificationType.APPLICATION);
+        // TODO: Implement notification system
+        // notificationService.notifyUser(student, title, message, NotificationType.APPLICATION);
 
         String positionTitle = application.getInternshipPosition() != null
                 ? application.getInternshipPosition().getTitle()
