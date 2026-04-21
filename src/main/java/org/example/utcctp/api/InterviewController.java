@@ -1,8 +1,10 @@
 package org.example.utcctp.api;
 
+import org.example.utcctp.auth.JwtPrincipal;
+import org.example.utcctp.auth.JwtService;
 import org.example.utcctp.interview.InterviewService;
 import org.example.utcctp.model.Interview;
-import org.example.utcctp.security.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +16,21 @@ import java.util.UUID;
 @RequestMapping("/api/v1/interviews")
 public class InterviewController {
     private final InterviewService interviewService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
-    public InterviewController(InterviewService interviewService, JwtUtil jwtUtil) {
+    public InterviewController(InterviewService interviewService, JwtService jwtService) {
         this.interviewService = interviewService;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
     public ResponseEntity<List<Interview>> getMyInterviews(@RequestHeader("Authorization") String token) {
         String jwt = token.substring(7);
-        UUID userId = jwtUtil.extractUserId(jwt);
-        List<Interview> interviews = interviewService.getStudentInterviews(userId);
+        JwtPrincipal principal = jwtService.parseToken(jwt);
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Interview> interviews = interviewService.getStudentInterviews(principal.userId());
         return ResponseEntity.ok(interviews);
     }
 
@@ -59,8 +64,11 @@ public class InterviewController {
             @RequestHeader("Authorization") String token
     ) {
         String jwt = token.substring(7);
-        List<String> roles = jwtUtil.extractRoles(jwt);
-        boolean isStudent = roles.contains("STUDENT");
+        JwtPrincipal principal = jwtService.parseToken(jwt);
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        boolean isStudent = principal.roles().contains("STUDENT");
         
         Interview confirmed = interviewService.confirmInterview(id, isStudent);
         return ResponseEntity.ok(confirmed);
