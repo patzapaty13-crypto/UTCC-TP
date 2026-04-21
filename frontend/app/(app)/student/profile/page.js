@@ -77,7 +77,7 @@ export default function StudentProfilePage() {
     setLoading(true);
     setMessage("");
     try {
-      await api.put("/users/me", formData);
+      await api.put("/auth/me", formData);
       setMessage("บันทึกข้อมูลสำเร็จ");
       setEditing(false);
       loadProfile();
@@ -173,7 +173,7 @@ export default function StudentProfilePage() {
   const handleSaveSkills = async () => {
     setLoading(true);
     try {
-      await api.put("/users/me", { skills });
+      await api.put("/auth/me", { skills });
       setMessage("บันทึกทักษะสำเร็จ");
       setEditingSkills(false);
       loadProfile();
@@ -200,7 +200,7 @@ export default function StudentProfilePage() {
   const handleSaveExperiences = async () => {
     setLoading(true);
     try {
-      await api.put("/users/me", { experiences });
+      await api.put("/auth/me", { experiences });
       setMessage("บันทึกประสบการณ์สำเร็จ");
       setEditingExperience(false);
       loadProfile();
@@ -215,7 +215,7 @@ export default function StudentProfilePage() {
   const handleSaveSocialLinks = async () => {
     setLoading(true);
     try {
-      await api.put("/users/me", socialLinks);
+      await api.put("/auth/me", socialLinks);
       setMessage("บันทึก Social Links สำเร็จ");
       setEditingSocial(false);
       loadProfile();

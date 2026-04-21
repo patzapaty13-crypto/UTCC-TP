@@ -86,10 +86,17 @@ export default function InternshipDetailsPage({ params }) {
                 <span className={`badge ${modeInfo.cls}`} style={{ fontSize:12, padding:"4px 10px" }}>
                   {modeInfo.label}
                 </span>
-                <span className="badge badge-gray" style={{ fontSize:12, padding:"4px 10px" }}>
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pos.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="badge badge-gray" 
+                  style={{ fontSize:12, padding:"4px 10px", cursor:"pointer", textDecoration:"none", border:"1px solid var(--n-700)" }}
+                  title="เปิดใน Google Maps"
+                >
                   <i className="fas fa-location-dot" style={{marginRight:5}}></i>
                   {pos.location || "ไม่ได้ระบุสถานที่"}
-                </span>
+                </a>
                 {pos.internshipType && (
                   <span className="badge badge-purple" style={{ fontSize:12, padding:"4px 10px" }}>
                     {pos.internshipType === 'FULL_TIME' ? 'Full-time' : 'Part-time'}
@@ -198,38 +205,61 @@ export default function InternshipDetailsPage({ params }) {
                 <i className="fas fa-map-location-dot" style={{marginRight:10, color:"var(--primary)"}}></i>
                 ที่ตั้งบริษัท
               </h3>
-              <div style={{ 
-                padding:24, 
-                borderRadius:16, 
-                background:"var(--n-50)",
-                border:"1px solid var(--n-200)",
-                display:"flex",
-                alignItems:"flex-start",
-                gap:16
-              }}>
-                <div style={{ 
-                  width:48, 
-                  height:48, 
-                  borderRadius:12, 
-                  background:"var(--primary-50)", 
-                  display:"flex", 
-                  alignItems:"center", 
-                  justifyContent:"center",
-                  color:"var(--primary)",
-                  fontSize:20,
-                  flexShrink:0
-                }}>
-                  <i className="fas fa-location-dot"></i>
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pos.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration:"none" }}
+              >
+                <div 
+                  className="location-card-hover"
+                  style={{ 
+                    padding:24, 
+                    borderRadius:16, 
+                    background:"var(--n-50)",
+                    border:"1px solid var(--n-200)",
+                    display:"flex",
+                    alignItems:"flex-start",
+                    gap:16,
+                    cursor:"pointer",
+                    transition:"all 0.2s"
+                  }}
+                >
+                  <div style={{ 
+                    width:48, 
+                    height:48, 
+                    borderRadius:12, 
+                    background:"var(--primary-50)", 
+                    display:"flex", 
+                    alignItems:"center", 
+                    justifyContent:"center",
+                    color:"var(--primary)",
+                    fontSize:20,
+                    flexShrink:0
+                  }}>
+                    <i className="fas fa-location-dot"></i>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ fontSize:12, fontWeight:700, color:"var(--text-muted)", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:8 }}>
+                      ที่อยู่ (คลิกเพื่อเปิดแผนที่)
+                    </p>
+                    <p style={{ fontSize:15, fontWeight:600, color:"var(--text-primary)", lineHeight:1.6 }}>
+                      {pos.location}
+                    </p>
+                  </div>
+                  <div style={{ color:"var(--primary)", opacity:0.5 }}>
+                    <i className="fas fa-up-right-from-square"></i>
+                  </div>
                 </div>
-                <div style={{ flex:1 }}>
-                  <p style={{ fontSize:12, fontWeight:700, color:"var(--text-muted)", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:8 }}>
-                    ที่อยู่
-                  </p>
-                  <p style={{ fontSize:15, fontWeight:600, color:"var(--text-primary)", lineHeight:1.6 }}>
-                    {pos.location}
-                  </p>
-                </div>
-              </div>
+              </a>
+              <style jsx>{`
+                .location-card-hover:hover {
+                  background: white !important;
+                  border-color: var(--primary) !important;
+                  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+                  transform: translateY(-2px);
+                }
+              `}</style>
             </div>
           )}
 

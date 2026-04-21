@@ -5,6 +5,12 @@ public record UserProfileUpdateRequest(
         String email,
         String major,
         Integer academicYear,
-        String profilePictureUrl
+        String profilePictureUrl,
+        Object skills,
+        Object experiences,
+        String linkedin,
+        String github,
+        String portfolio,
+        String website
 ) {
 }

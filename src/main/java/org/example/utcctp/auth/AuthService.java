@@ -12,11 +12,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
+        this.objectMapper = objectMapper;
     }
 
     public AuthResponse login(AuthRequest request) {
@@ -37,13 +39,31 @@ public class AuthService {
     public UserProfile updateProfile(String username, UserProfileUpdateRequest request) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        user.setDisplayName(request.displayName());
-        user.setEmail(request.email());
-        user.setMajor(request.major());
-        user.setAcademicYear(request.academicYear());
+        
+        if (request.displayName() != null) user.setDisplayName(request.displayName());
+        if (request.email() != null) user.setEmail(request.email());
+        if (request.major() != null) user.setMajor(request.major());
+        if (request.academicYear() != null) user.setAcademicYear(request.academicYear());
         if (request.profilePictureUrl() != null) {
             user.setProfilePictureUrl(request.profilePictureUrl());
         }
+        
+        try {
+            if (request.skills() != null) {
+                user.setSkills(objectMapper.writeValueAsString(request.skills()));
+            }
+            if (request.experiences() != null) {
+                user.setExperiences(objectMapper.writeValueAsString(request.experiences()));
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid format for skills or experiences");
+        }
+        
+        if (request.linkedin() != null) user.setLinkedin(request.linkedin());
+        if (request.github() != null) user.setGithub(request.github());
+        if (request.portfolio() != null) user.setPortfolio(request.portfolio());
+        if (request.website() != null) user.setWebsite(request.website());
+
         userRepository.save(user);
         return UserProfile.from(user);
     }
