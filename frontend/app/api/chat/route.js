@@ -1,30 +1,77 @@
-// Server-side proxy to n8n webhook — bypasses CORS completely
-const N8N_WEBHOOK_URL =
-  "https://thanathorn123.app.n8n.cloud/webhook/61c66b6e-3f07-4ce5-a283-259ce9c5f610/chat";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// Direct Gemini integration — no n8n dependency, no CORS, no webhook ID changes
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// In-memory conversation history per session (resets on server restart)
+const sessions = new Map();
+
+const SYSTEM_PROMPT = `You are Nexus AI, the Advanced Executive Assistant for the UTCC-TP Internship & Trip Platform.
+
+Your expertise:
+- Internship search and application guidance (guide to /internships)
+- Application tracking (guide to /applications)
+- Resume and profile management (guide to /profile)
+- Trip scheduling and management
+- Report submission (guide to /reports)
+- Platform navigation
+
+Role-based guidelines (respond based on context clues from the user):
+- STUDENT: Focus on job search, applications, resume tips. Guide to /internships and /applications.
+- ADVISOR/STAFF: Help with student tracking (/advisor/students), report review (/advisor/reports), trip management.
+- ADMIN: System configuration (/admin/settings), user management, analytics (/analytics).
+
+Rules:
+1. Always respond in the same language as the user
+2. Be professional, concise, and supportive
+3. Never reveal admin features to students
+4. Provide actionable guidance with specific platform menu directions
+5. If asked about resume, give practical tips: clear contact info, strong summary, highlight skills, quantify achievements, clean layout
+6. Keep responses under 200 words unless the user asks for detail`;
 
 export async function POST(request) {
+  console.log("[Nexus AI] Incoming request...");
+  
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    console.error("[Nexus AI] API Key is missing or default placeholder.");
+    return Response.json(
+      { output: "⚙️ กรุณาใส่ API Key จริงใน .env.local ครับ" },
+      { status: 200 }
+    );
+  }
+
   try {
     const body = await request.json();
+    const { chatInput, sessionId, userRole } = body;
+    console.log("[Nexus AI] Input:", chatInput, "| Role:", userRole);
 
-    const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+    if (!chatInput) return Response.json({ output: "Input missing" });
+
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash", // Use 1.5-flash as default for max compatibility
+      systemInstruction: SYSTEM_PROMPT + (userRole ? `\n\nCurrent user role: ${userRole}` : ""),
     });
 
-    if (!n8nResponse.ok) {
-      const errText = await n8nResponse.text();
-      console.error("[chat proxy] n8n error:", n8nResponse.status, errText);
-      return Response.json(
-        { error: "n8n returned " + n8nResponse.status },
-        { status: n8nResponse.statusCode || 502 }
-      );
-    }
+    const sid = sessionId || "default";
+    if (!sessions.has(sid)) sessions.set(sid, []);
+    const history = sessions.get(sid);
 
-    const data = await n8nResponse.json();
-    return Response.json(data);
+    const chat = model.startChat({ history: history.slice(-10) });
+    
+    console.log("[Nexus AI] Sending to Gemini...");
+    const result = await chat.sendMessage(chatInput);
+    const responseText = result.response.text();
+    console.log("[Nexus AI] Gemini Response received.");
+
+    history.push({ role: "user", parts: [{ text: chatInput }] });
+    history.push({ role: "model", parts: [{ text: responseText }] });
+
+    return Response.json({ output: responseText });
   } catch (err) {
-    console.error("[chat proxy] Fetch failed:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+    console.error("[Nexus AI] SDK Error:", err.message);
+    return Response.json({
+      output: `⚠️ เกิดข้อผิดพลาด: ${err.message}`
+    });
   }
 }

@@ -101,7 +101,7 @@ export default function NexusChat() {
       setMessages(prev => [...prev, { role: "assistant", content: aiResponse, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ ขออภัยครับ ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบว่า n8n workflow ของคุณเปิดอยู่ครับ", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ ขออภัยครับ ระบบ AI ขัดข้องชั่วคราว (Gemini API อาจจะยังติด Rate Limit) กรุณาลองใหม่อีกครั้งใน 10 วินาทีครับ", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
     } finally {
       setIsTyping(false);
     }
