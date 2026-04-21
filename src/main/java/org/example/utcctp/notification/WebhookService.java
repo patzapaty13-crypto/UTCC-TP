@@ -22,12 +22,32 @@ public class WebhookService {
             return;
         }
 
-        // Send asynchronously to not block the main transaction
         executorService.submit(() -> {
             try {
                 restTemplate.postForEntity(n8nWebhookUrl, payload, String.class);
             } catch (Exception e) {
                 System.err.println("Failed to send webhook to n8n: " + e.getMessage());
+            }
+        });
+    }
+
+    public void sendOtp(String email, String code) {
+        if (n8nWebhookUrl == null || n8nWebhookUrl.isEmpty()) {
+            System.out.println("Webhook URL not configured, skipping OTP event.");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                Map<String, Object> payload = Map.of(
+                    "type", "OTP_REQUEST",
+                    "email", email,
+                    "code", code,
+                    "timestamp", System.currentTimeMillis()
+                );
+                restTemplate.postForEntity(n8nWebhookUrl, payload, String.class);
+            } catch (Exception e) {
+                System.err.println("Failed to send OTP webhook to n8n: " + e.getMessage());
             }
         });
     }

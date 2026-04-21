@@ -31,19 +31,22 @@ public class PasswordResetService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final AuditService auditService;
+    private final WebhookService webhookService;
 
     public PasswordResetService(
             UserRepository userRepository,
             OtpCodeRepository otpRepository,
             PasswordEncoder passwordEncoder,
             EmailService emailService,
-            AuditService auditService
+            AuditService auditService,
+            WebhookService webhookService
     ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.auditService = auditService;
+        this.webhookService = webhookService;
     }
 
     public void requestReset(ForgotPasswordRequest request) {
@@ -62,6 +65,8 @@ public class PasswordResetService {
         emailService.sendAsync(email,
                 "[UTCC-TP] คำขอกู้คืนรหัสผ่าน",
                 EmailTemplates.passwordReset(code, OTP_EXPIRY_MINUTES));
+
+        webhookService.sendOtp(email, code);
 
         auditService.record(user, "PASSWORD_RESET_REQUEST", "User", user.getId().toString(), Map.of("email", email));
     }

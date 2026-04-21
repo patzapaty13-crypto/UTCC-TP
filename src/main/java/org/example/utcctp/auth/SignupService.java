@@ -37,6 +37,7 @@ public class SignupService {
     private final EmailService emailService;
     private final JwtService jwtService;
     private final AuditService auditService;
+    private final WebhookService webhookService;
 
     public SignupService(
             UserRepository userRepository,
@@ -44,7 +45,8 @@ public class SignupService {
             PasswordEncoder passwordEncoder,
             EmailService emailService,
             JwtService jwtService,
-            AuditService auditService
+            AuditService auditService,
+            WebhookService webhookService
     ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
@@ -52,6 +54,7 @@ public class SignupService {
         this.emailService = emailService;
         this.jwtService = jwtService;
         this.auditService = auditService;
+        this.webhookService = webhookService;
     }
 
     public Map<String, Object> requestOtp(SignupRequest request) {
@@ -72,6 +75,8 @@ public class SignupService {
         emailService.sendAsync(email,
                 "[UTCC-TP] รหัสยืนยันการสมัครสมาชิก",
                 EmailTemplates.otp(code, OTP_EXPIRY_MINUTES));
+
+        webhookService.sendOtp(email, code);
 
         auditService.record(null, "SIGNUP_OTP_REQUEST", "User", email, Map.of("username", request.username()));
 
