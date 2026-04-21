@@ -9,8 +9,23 @@ export default function NexusChat() {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [userRole, setUserRole] = useState("Student"); // Default
   const scrollRef = useRef(null);
   const sessionIdRef = useRef("nexus-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 5));
+
+  useEffect(() => {
+    // Fetch current user role to personalize AI responses
+    const fetchUser = async () => {
+      try {
+        const { api } = await import("@/lib/api");
+        const u = await api.getMe();
+        if (u && u.role) setUserRole(u.role);
+      } catch (err) {
+        console.warn("Nexus AI: Could not fetch user role, defaulting to Student");
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -30,28 +45,63 @@ export default function NexusChat() {
     setIsTyping(true);
     
     try {
-      // Connect to Nexus AI Brain in n8n (Verified Workflow: BiEg41hprG3e37wX)
-      const response = await fetch("https://thanathorn123.app.n8n.cloud/webhook/ae5a5af1-c2ca-42c7-a3a4-2105adb568bb", {
+      // Ensure we have current role before sending
+      let currentRole = userRole;
+      if (!currentRole) {
+        try {
+          const { api } = await import("@/lib/api");
+          const u = await api.getMe();
+          currentRole = u?.role || "Student";
+          setUserRole(currentRole);
+        } catch(e) { currentRole = "Student"; }
+      }
+
+      // Route through Next.js API proxy to bypass CORS (server-to-server)
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "sendMessage",
           chatInput: userMsg,
-          sessionId: sessionIdRef.current
+          sessionId: sessionIdRef.current,
+          userRole: currentRole // Pass role for personalized training
         })
       });
 
-      if (!response.ok) throw new Error("AI Node Connection Failed");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Chat proxy error:", response.status, errorText);
+        throw new Error(`Connection failed: ${response.status}`);
+      }
       
       const data = await response.json();
       
-      // Senior AI Response handling
-      const aiResponse = data.output || "ขออภัยครับ ระบบประมวลผลขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้ง";
+      // Handle parsing with safety for empty data
+      if (!data) throw new Error("No data received");
+      
+      // Parse AI response (handle various n8n output formats like 'output' or 'text')
+      let aiResponse = "";
+      if (typeof data.output === "string") {
+        aiResponse = data.output;
+      } else if (typeof data.text === "string") {
+        aiResponse = data.text;
+      } else if (data.json?.output) {
+        aiResponse = data.json.output;
+      } else if (data.json?.text) {
+        aiResponse = data.json.text;
+      } else if (Array.isArray(data) && (data[0]?.output || data[0]?.text)) {
+        aiResponse = data[0].output || data[0].text;
+      } else if (Array.isArray(data) && (data[0]?.json?.output || data[0]?.json?.text)) {
+        aiResponse = data[0].json.output || data[0].json.text;
+      } else {
+        aiResponse = "ระบบเชื่อมต่อสำเร็จแล้ว แต่ไม่สามารถอ่านคำตอบได้ กรุณาลองถามอีกครั้งครับ";
+        console.warn("Unexpected response shape:", data);
+      }
 
       setMessages(prev => [...prev, { role: "assistant", content: aiResponse, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
     } catch (error) {
-      console.error("Chat Error:", error);
-      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ ขออภัยครับ ผมไม่สามารถเชื่อมต่อกับสมองกลส่วนกลางได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่อ n8n ของคุณครับ", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+      console.error("Chat error:", error);
+      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ ขออภัยครับ ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบว่า n8n workflow ของคุณเปิดอยู่ครับ", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
     } finally {
       setIsTyping(false);
     }
