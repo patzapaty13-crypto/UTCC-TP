@@ -49,7 +49,7 @@ export async function POST(request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash", // Using the exact name shown in your quota screen
+      model: "gemini-2.5-flash", // Back to original model that works with this API key
       systemInstruction: SYSTEM_PROMPT + (userRole ? `\n\nCurrent user role: ${userRole}` : ""),
     });
 
@@ -70,6 +70,28 @@ export async function POST(request) {
     return Response.json({ output: responseText });
   } catch (err) {
     console.error("[Nexus AI] SDK Error:", err.message);
+    
+    // Better error handling for quota exceeded
+    if (err.message.includes("quota") || err.message.includes("429")) {
+      return Response.json({
+        output: `⏳ **ขออภัยครับ Quota ของ AI หมดแล้ว**\n\n` +
+                `API Key นี้ใช้ได้ 20 requests ต่อวันสำหรับ Free Tier\n\n` +
+                `**วิธีแก้:**\n` +
+                `1. รอให้ quota reset (พรุ่งนี้)\n` +
+                `2. หรือสร้าง API key ใหม่ที่: https://aistudio.google.com/apikey\n\n` +
+                `ขอบคุณที่ใช้งาน Nexus AI ครับ 🙏`
+      });
+    }
+    
+    // Better error handling for model not found
+    if (err.message.includes("404") || err.message.includes("not found")) {
+      return Response.json({
+        output: `⚠️ **Model ไม่รองรับ**\n\n` +
+                `API Key นี้ใช้ได้เฉพาะ model: gemini-2.5-flash\n\n` +
+                `กรุณาตรวจสอบ API Key หรือติดต่อผู้ดูแลระบบครับ`
+      });
+    }
+    
     return Response.json({
       output: `⚠️ เกิดข้อผิดพลาด: ${err.message}`
     });
