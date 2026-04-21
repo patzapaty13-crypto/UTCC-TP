@@ -65,6 +65,24 @@ public class User {
     @Column(name = "profile_picture_url", columnDefinition = "TEXT")
     private String profilePictureUrl;
 
+    @Column(columnDefinition = "JSONB")
+    private String skills;
+
+    @Column(columnDefinition = "JSONB")
+    private String experiences;
+
+    @Column(length = 255)
+    private String linkedin;
+
+    @Column(length = 255)
+    private String github;
+
+    @Column(length = 255)
+    private String portfolio;
+
+    @Column(length = 255)
+    private String website;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -180,6 +198,54 @@ public class User {
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getSkills() {
+        return skills;
+    }
+
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+
+    public String getExperiences() {
+        return experiences;
+    }
+
+    public void setExperiences(String experiences) {
+        this.experiences = experiences;
+    }
+
+    public String getLinkedin() {
+        return linkedin;
+    }
+
+    public void setLinkedin(String linkedin) {
+        this.linkedin = linkedin;
+    }
+
+    public String getGithub() {
+        return github;
+    }
+
+    public void setGithub(String github) {
+        this.github = github;
+    }
+
+    public String getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(String portfolio) {
+        this.portfolio = portfolio;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     public Instant getCreatedAt() {
