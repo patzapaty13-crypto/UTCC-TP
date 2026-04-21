@@ -46,6 +46,8 @@ public class WebhookService {
                     "timestamp", System.currentTimeMillis()
                 );
                 restTemplate.postForEntity(n8nWebhookUrl, payload, String.class);
+                System.out.println("[WebhookService] OTP event sent to n8n for " + email);
+
             } catch (Exception e) {
                 System.err.println("Failed to send OTP webhook to n8n: " + e.getMessage());
             }

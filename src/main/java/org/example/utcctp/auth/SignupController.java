@@ -22,6 +22,12 @@ public class SignupController {
         return signupService.requestOtp(request);
     }
 
+    @PostMapping("/resend-otp")
+    public Map<String, Object> resendOtp(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        return signupService.resendOtp(email);
+    }
+
     @PostMapping("/verify")
     public AuthResponse verify(@Valid @RequestBody OtpVerifyRequest request) {
         return signupService.verifyOtp(request);

@@ -253,6 +253,10 @@ export const api = {
     method: "POST",
     body: JSON.stringify(data),
   }),
+  signupResendOtp: (data) => apiFetch("/auth/signup/resend-otp", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }),
   signupVerifyOtp: (data) => apiFetch("/auth/signup/verify", {
     method: "POST",
     body: JSON.stringify(data),

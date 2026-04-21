@@ -15,6 +15,7 @@ export default function VerifyOtpPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(600); // 10 minutes
+  const [resendTimer, setResendTimer] = useState(60); // 60 seconds cooldown
   const inputRefs = useRef([]);
 
   useEffect(() => {
@@ -30,6 +31,12 @@ export default function VerifyOtpPage() {
     const timer = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [countdown]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const timer = setInterval(() => setResendTimer((c) => c - 1), 1000);
+    return () => clearInterval(timer);
+  }, [resendTimer]);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -74,6 +81,27 @@ export default function VerifyOtpPage() {
       router.push("/dashboard");
     } catch (err) {
       setError(err.message || "รหัส OTP ไม่ถูกต้อง");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      console.log("Resending OTP for:", { email });
+      
+      await api.signupResendOtp({ email });
+      
+      setResendTimer(60);
+      setCountdown(600);
+      setCode(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+      alert("ส่งรหัสใหม่เรียบร้อยแล้ว!");
+    } catch (err) {
+      console.error("Resend failed:", err);
+      setError(err.message || "ไม่สามารถส่งรหัสใหม่ได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
@@ -173,7 +201,32 @@ export default function VerifyOtpPage() {
           </form>
 
           <div style={{ marginTop: "32px", textAlign: "center", fontSize: "14px", color: "var(--text-sub)" }}>
-            ไม่ได้รับรหัส? <Link href="/signup" style={{ color: "var(--primary)", fontWeight: "700", textDecoration: "none" }}>ลองสมัครใหม่</Link>
+            ไม่ได้รับรหัส? {" "}
+            {resendTimer > 0 ? (
+              <span style={{ color: "var(--text-sub)", fontWeight: "600" }}>
+                ส่งอีกครั้งใน {resendTimer}ว.
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={loading}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--primary)",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: "14px",
+                  textDecoration: "none"
+                }}
+              >
+                ส่งรหัสอีกครั้ง
+              </button>
+            )}
+            {" หรือ "}
+            <Link href="/signup" style={{ color: "var(--primary)", fontWeight: "700", textDecoration: "none" }}>ลองสมัครใหม่</Link>
           </div>
         </div>
       </div>

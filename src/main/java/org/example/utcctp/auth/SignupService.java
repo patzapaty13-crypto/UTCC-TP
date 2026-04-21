@@ -87,6 +87,36 @@ public class SignupService {
                 "message", "OTP sent to " + email
         );
     }
+    public Map<String, Object> resendOtp(String email) {
+        String cleanedEmail = email.toLowerCase().trim();
+        
+        // Find the latest SIGNUP OTP to get the original payload
+        OtpCode lastOtp = otpRepository.findFirstByEmailAndPurposeAndConsumedFalseOrderByCreatedAtDesc(cleanedEmail, PURPOSE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No pending signup found for this email"));
+
+        String code = generateCode();
+        OtpCode newOtp = new OtpCode();
+        newOtp.setEmail(cleanedEmail);
+        newOtp.setPurpose(PURPOSE);
+        newOtp.setCodeHash(passwordEncoder.encode(code));
+        newOtp.setPayloadJson(lastOtp.getPayloadJson()); // Reuse the same payload (username, password, etc.)
+        newOtp.setExpiresAt(Instant.now().plus(OTP_EXPIRY_MINUTES, ChronoUnit.MINUTES));
+        otpRepository.save(newOtp);
+
+        emailService.sendAsync(cleanedEmail,
+                "[UTCC-TP] รหัสยืนยันการสมัครสมาชิก (ส่งใหม่)",
+                EmailTemplates.otp(code, OTP_EXPIRY_MINUTES));
+
+        webhookService.sendOtp(cleanedEmail, code);
+
+        auditService.record(null, "SIGNUP_OTP_RESEND", "User", cleanedEmail, Map.of("resend", "true"));
+
+        return Map.of(
+                "status", "sent",
+                "expiresInMinutes", OTP_EXPIRY_MINUTES,
+                "message", "New OTP sent to " + cleanedEmail
+        );
+    }
 
     public AuthResponse verifyOtp(OtpVerifyRequest request) {
         String email = request.email().toLowerCase().trim();
