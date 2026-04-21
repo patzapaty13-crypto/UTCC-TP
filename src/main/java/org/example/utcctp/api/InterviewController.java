@@ -1,46 +1,84 @@
 package org.example.utcctp.api;
 
-import org.example.utcctp.api.dto.InterviewRequest;
-import org.example.utcctp.api.dto.InterviewResponse;
 import org.example.utcctp.interview.InterviewService;
-import org.example.utcctp.user.CurrentUserService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.utcctp.model.Interview;
+import org.example.utcctp.security.JwtUtil;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/interviews")
 public class InterviewController {
     private final InterviewService interviewService;
-    private final CurrentUserService currentUserService;
+    private final JwtUtil jwtUtil;
 
-    public InterviewController(InterviewService interviewService, CurrentUserService currentUserService) {
+    public InterviewController(InterviewService interviewService, JwtUtil jwtUtil) {
         this.interviewService = interviewService;
-        this.currentUserService = currentUserService;
+        this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/application/{applicationId}")
-    public List<InterviewResponse> listByApplication(@PathVariable UUID applicationId) {
-        return interviewService.listByApplication(applicationId);
+    @GetMapping
+    public ResponseEntity<List<Interview>> getMyInterviews(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        UUID userId = jwtUtil.extractUserId(jwt);
+        List<Interview> interviews = interviewService.getStudentInterviews(userId);
+        return ResponseEntity.ok(interviews);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Interview> getInterview(@PathVariable UUID id) {
+        Interview interview = interviewService.getInterview(id);
+        if (interview == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(interview);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('COMPANY') or hasRole('STAFF') or hasRole('ADMIN')")
-    public InterviewResponse create(@RequestBody InterviewRequest request) {
-        return interviewService.create(request, currentUserService.requireUser());
+    public ResponseEntity<Interview> createInterview(@RequestBody Interview interview) {
+        Interview created = interviewService.createInterview(interview);
+        return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('COMPANY') or hasRole('STAFF') or hasRole('ADMIN')")
-    public InterviewResponse update(@PathVariable UUID id, @RequestBody InterviewRequest request) {
-        return interviewService.update(id, request, currentUserService.requireUser());
+    public ResponseEntity<Interview> updateInterview(
+            @PathVariable UUID id,
+            @RequestBody Interview updates
+    ) {
+        Interview updated = interviewService.updateInterview(id, updates);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<Interview> confirmInterview(
+            @PathVariable UUID id,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        List<String> roles = jwtUtil.extractRoles(jwt);
+        boolean isStudent = roles.contains("STUDENT");
+        
+        Interview confirmed = interviewService.confirmInterview(id, isStudent);
+        return ResponseEntity.ok(confirmed);
+    }
+
+    @PutMapping("/{id}/reschedule")
+    public ResponseEntity<Interview> rescheduleInterview(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> body
+    ) {
+        String reason = body.get("reason");
+        Interview rescheduled = interviewService.rescheduleInterview(id, reason);
+        return ResponseEntity.ok(rescheduled);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInterview(@PathVariable UUID id) {
+        interviewService.deleteInterview(id);
+        return ResponseEntity.noContent().build();
     }
 }
