@@ -1,41 +1,62 @@
 package org.example.utcctp.api;
 
-import org.example.utcctp.api.dto.NotificationResponse;
+import lombok.RequiredArgsConstructor;
+import org.example.utcctp.model.Notification;
+import org.example.utcctp.model.User;
 import org.example.utcctp.notification.NotificationService;
-import org.example.utcctp.user.CurrentUserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.example.utcctp.security.CurrentUser;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
+    
     private final NotificationService notificationService;
-    private final CurrentUserService currentUserService;
-
-    public NotificationController(NotificationService notificationService, CurrentUserService currentUserService) {
-        this.notificationService = notificationService;
-        this.currentUserService = currentUserService;
-    }
 
     @GetMapping
-    public List<NotificationResponse> listNotifications() {
-        return notificationService.listForUser(currentUserService.requireUser());
+    public ResponseEntity<List<Notification>> getNotifications(@CurrentUser User user) {
+        List<Notification> notifications = notificationService.getUserNotifications(user.getId());
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/unread")
+    public ResponseEntity<List<Notification>> getUnreadNotifications(@CurrentUser User user) {
+        List<Notification> notifications = notificationService.getUnreadNotifications(user.getId());
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/unread/count")
+    public ResponseEntity<Map<String, Long>> getUnreadCount(@CurrentUser User user) {
+        Long count = notificationService.getUnreadCount(user.getId());
+        return ResponseEntity.ok(Map.of("count", count));
     }
 
     @PutMapping("/{id}/read")
-    public NotificationResponse markRead(@PathVariable UUID id) {
-        return notificationService.markRead(id, currentUserService.requireUser());
+    public ResponseEntity<Notification> markAsRead(@PathVariable Long id, @CurrentUser User user) {
+        Notification notification = notificationService.markAsRead(id);
+        return ResponseEntity.ok(notification);
     }
 
-    @GetMapping("/stream")
-    public SseEmitter stream() {
-        return notificationService.subscribe(currentUserService.requireUser());
+    @PutMapping("/read-all")
+    public ResponseEntity<Void> markAllAsRead(@CurrentUser User user) {
+        notificationService.markAllAsRead(user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id, @CurrentUser User user) {
+        notificationService.deleteNotification(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAllNotifications(@CurrentUser User user) {
+        notificationService.deleteAllUserNotifications(user.getId());
+        return ResponseEntity.noContent().build();
     }
 }

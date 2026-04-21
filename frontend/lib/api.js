@@ -27,7 +27,7 @@ export async function apiFetch(path, options = {}) {
   });
 
   // Handle 401 — token expired or invalid
-  if (response.status === 401) {
+  if (response.status === 401) {  
     if (typeof window !== "undefined") {
       localStorage.removeItem("utcctp_token");
       window.location.href = "/login";
@@ -175,8 +175,14 @@ export const api = {
   // Reports
   // -------------------------------------------------------------
   getReports: () => apiFetch("/reports"),
-  submitReport: (data) => apiFetch("/reports", { method: "POST", body: JSON.stringify(data) }),
-  gradeReport: (id, data) => apiFetch(`/reports/${id}/grade`, { method: "PUT", body: JSON.stringify(data) }),
+  getReport: (id) => apiFetch(`/reports/${id}`),
+  createReport: (data) => apiFetch("/reports", { method: "POST", body: JSON.stringify(data) }),
+  updateReport: (id, data) => apiFetch(`/reports/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  submitReport: (id) => apiFetch(`/reports/${id}/submit`, { method: "POST" }),
+  gradeReport: (id, data) => apiFetch(`/reports/${id}/grade`, { method: "POST", body: JSON.stringify(data) }),
+  getStudentReports: (studentId) => apiFetch(`/reports/student/${studentId}`),
+  getAdvisorPendingReports: () => apiFetch("/reports/advisor/pending"),
+  deleteReport: (id) => apiFetch(`/reports/${id}`, { method: "DELETE" }),
   
   // -------------------------------------------------------------
   // Interviews / Offers
@@ -219,7 +225,21 @@ export const api = {
   // Notifications
   // -------------------------------------------------------------
   getNotifications: () => apiFetch("/notifications"),
+  getUnreadNotifications: () => apiFetch("/notifications/unread"),
+  getUnreadCount: () => apiFetch("/notifications/unread/count"),
   markNotificationRead: (id) => apiFetch(`/notifications/${id}/read`, { method: "PUT" }),
+  markAllNotificationsRead: () => apiFetch("/notifications/read-all", { method: "PUT" }),
+  deleteNotification: (id) => apiFetch(`/notifications/${id}`, { method: "DELETE" }),
+  deleteAllNotifications: () => apiFetch("/notifications/all", { method: "DELETE" }),
+
+  // -------------------------------------------------------------
+  // Bookmarks
+  // -------------------------------------------------------------
+  getBookmarks: () => apiFetch("/bookmarks"),
+  getBookmarkedInternships: () => apiFetch("/bookmarks/internships"),
+  addBookmark: (internshipId) => apiFetch("/bookmarks", { method: "POST", body: JSON.stringify({ internshipId }) }),
+  removeBookmark: (internshipId) => apiFetch(`/bookmarks/${internshipId}`, { method: "DELETE" }),
+  checkBookmark: (internshipId) => apiFetch(`/bookmarks/check/${internshipId}`),
 
   // -------------------------------------------------------------
   // Signup (OTP flow)

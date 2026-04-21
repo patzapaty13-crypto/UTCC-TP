@@ -1,104 +1,60 @@
 package org.example.utcctp.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import org.hibernate.annotations.UuidGenerator;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notifications")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Notification {
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 200)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type;
+
+    @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "text", nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String message;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private NotificationType type = NotificationType.SYSTEM;
+    private String link; // URL to navigate to
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private NotificationStatus status = NotificationStatus.UNREAD;
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead = false;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt = Instant.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "read_at")
-    private Instant readAt;
-
-    public UUID getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (isRead == null) {
+            isRead = false;
+        }
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public NotificationType getType() {
-        return type;
-    }
-
-    public void setType(NotificationType type) {
-        this.type = type;
-    }
-
-    public NotificationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(NotificationStatus status) {
-        this.status = status;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getReadAt() {
-        return readAt;
-    }
-
-    public void setReadAt(Instant readAt) {
-        this.readAt = readAt;
+    public enum NotificationType {
+        APPLICATION_STATUS_CHANGED,
+        INTERVIEW_SCHEDULED,
+        OFFER_RECEIVED,
+        OFFER_RESPONSE,
+        REPORT_GRADED,
+        REPORT_SUBMITTED,
+        NEW_APPLICANT,
+        SYSTEM_ANNOUNCEMENT
     }
 }

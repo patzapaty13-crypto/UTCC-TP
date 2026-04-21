@@ -31,48 +31,17 @@ export default function StudentReportsPage() {
   const loadReports = () => {
     setLoading(true);
     
-    // Mock data - in real app, fetch from API
-    setTimeout(() => {
-      setReports([
-        {
-          id: 1,
-          title: "รายงานการฝึกงานสัปดาห์ที่ 1",
-          type: "WEEKLY",
-          weekNumber: 1,
-          company: "Tech Innovation Co., Ltd.",
-          position: "Frontend Developer Intern",
-          status: "GRADED",
-          score: 85,
-          feedback: "รายงานดีมาก มีรายละเอียดครบถ้วน",
-          submittedAt: "2024-06-07T10:30:00Z",
-          gradedAt: "2024-06-10T14:20:00Z",
-          attachments: ["report-week1.pdf"]
-        },
-        {
-          id: 2,
-          title: "รายงานการฝึกงานสัปดาห์ที่ 2",
-          type: "WEEKLY",
-          weekNumber: 2,
-          company: "Tech Innovation Co., Ltd.",
-          position: "Frontend Developer Intern",
-          status: "UNDER_REVIEW",
-          submittedAt: "2024-06-14T09:15:00Z",
-          attachments: ["report-week2.pdf", "project-screenshot.png"]
-        },
-        {
-          id: 3,
-          title: "รายงานการฝึกงานสัปดาห์ที่ 3",
-          type: "WEEKLY",
-          weekNumber: 3,
-          company: "Tech Innovation Co., Ltd.",
-          position: "Frontend Developer Intern",
-          status: "DRAFT",
-          createdAt: "2024-06-20T16:45:00Z",
-          attachments: []
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    api.getReports()
+      .then(data => {
+        setReports(data || []);
+      })
+      .catch(e => {
+        console.error("Failed to load reports:", e);
+        setError(e.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(loadReports, []);
