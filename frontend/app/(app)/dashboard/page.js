@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { id: "stu", path: "/advisor/students", label: "นักศึกษา", sub: "Manage Students", icon: "fa-user-group", color: "#0ea5e9", forAdvisor: true },
   { id: "rep", path: "/advisor/reports", label: "ตรวจงาน", sub: "Review Reports", icon: "fa-file-pen", color: "#f59e0b", forAdvisor: true },
   { id: "submit", path: "/reports", label: "ส่งรายงาน", sub: "Submit Work", icon: "fa-file-signature", color: "#f59e0b", forStudent: true },
+  { id: "chat", path: "/messages", label: "แชท", sub: "Peer Messages", icon: "fa-comments", color: "#2563EB" },
   { id: "analytics", path: "/analytics", label: "วิเคราะห์", sub: "System Analytics", icon: "fa-chart-mixed", color: "#ec4899" },
   { id: "admin", path: "/admin/settings", label: "ตั้งค่าระบบ", sub: "Control Panel", icon: "fa-shield-halved", color: "#64748b", forAdmin: true },
 ];
@@ -47,14 +48,15 @@ export default function NexusDashboard() {
     router.push("/login");
   };
 
-  const role = user?.roles?.[0] || "STUDENT";
+  const roles = user?.roles || ["STUDENT"];
+  const role = roles[0];
   const initials = (user?.displayName || user?.username || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   const accessibleNav = NAV_ITEMS.filter(n => {
-    if (n.forStudent && role !== "STUDENT") return false;
-    if (n.forAdvisor && role !== "ADVISOR") return false;
-    if (n.forStaff && role !== "STAFF" && role !== "ADMIN") return false;
-    if (n.forAdmin && role !== "ADMIN") return false;
+    if (n.forStudent && !roles.includes("STUDENT")) return false;
+    if (n.forAdvisor && !roles.includes("ADVISOR")) return false;
+    if (n.forStaff && !roles.includes("STAFF") && !roles.includes("ADMIN")) return false;
+    if (n.forAdmin && !roles.includes("ADMIN")) return false;
     return true;
   });
 
@@ -161,6 +163,7 @@ export default function NexusDashboard() {
           
           <div style={{ display: "flex", flexDirection: "column", gap: 4, textAlign: "left" }}>
             <Link href="/dashboard" style={sideNavLink(true)}><i className="fas fa-grid-horizontal" style={{width: 20}}></i> แดชบอร์ด</Link>
+            <Link href="/messages" style={sideNavLink(false)}><i className="fas fa-comments" style={{width: 20}}></i> แชทข้อความ</Link>
             <Link href="/profile" style={sideNavLink(false)}><i className="fas fa-user-gear" style={{width: 20}}></i> โปรไฟล์</Link>
           </div>
         </div>
@@ -249,10 +252,38 @@ export default function NexusDashboard() {
             </div>
         </div>
 
-        <div className="glass-card" style={{ padding: 32, flex: 1, background: "linear-gradient(135deg, #1E293B, #0F172A)", border: "none", color: "white", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-           <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 8 }}>Help Engine</h3>
-           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginBottom: 24 }}>ต้องการความช่วยเหลือ?</p>
-           <button className="btn btn-primary" style={{ width: "100%", height: 44, borderRadius: 12, background: "white", color: "#0F172A", fontWeight: 800, fontSize: 13 }}>Contact Support</button>
+        <div className="glass-card" style={{ 
+          padding: 32, flex: 1, 
+          background: "linear-gradient(135deg, #2563EB, #7C3AED)", 
+          border: "none", color: "white", textAlign: "center", 
+          display: "flex", flexDirection: "column", justifyContent: "center",
+          position: "relative", overflow: "hidden"
+        }}>
+           {/* Decorative Sparkles */}
+           <i className="fas fa-sparkles" style={{ position: "absolute", top: 15, right: 15, opacity: 0.3, fontSize: 24 }}></i>
+           <i className="fas fa-star" style={{ position: "absolute", bottom: 20, left: 20, opacity: 0.2, fontSize: 14 }}></i>
+           
+           <div style={{ width: 56, height: 56, background: "rgba(255,255,255,0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 24 }}>
+             <i className="fas fa-wand-magic-sparkles"></i>
+           </div>
+           
+           <h3 style={{ fontSize: 20, fontWeight: 900, marginBottom: 8, letterSpacing: "-0.5px" }}>Nexus AI</h3>
+           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", marginBottom: 24, lineHeight: 1.5 }}>
+             ให้ผู้ช่วย AI อัจฉริยะช่วยคุณ<br/>ค้นหางานและตอบข้อสงสัย
+           </p>
+           
+           <Link href="/chat" style={{ 
+             width: "100%", height: 44, borderRadius: 12, 
+             background: "white", color: "#2563EB", 
+             fontWeight: 800, fontSize: 13, border: "none",
+             display: "flex", alignItems: "center", justifyContent: "center",
+             textDecoration: "none", boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
+             transition: "transform 0.2s"
+           }}
+           onMouseEnter={(e) => e.target.style.transform = "scale(1.03)"}
+           onMouseLeave={(e) => e.target.style.transform = "scale(1)"}>
+             พูดคุยกับ Nexus AI
+           </Link>
         </div>
       </div>
 

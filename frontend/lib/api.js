@@ -259,6 +259,43 @@ export const api = {
   }),
 
   // -------------------------------------------------------------
+  // Forgot Password
+  // -------------------------------------------------------------
+  forgotPassword: async (data) => {
+    if (USE_MOCK_API) {
+      await delay(1000);
+      return { status: "sent" };
+    }
+    return apiFetch("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+  resetPassword: async (data) => {
+    if (USE_MOCK_API) {
+      await delay(1000);
+      return { status: "success" };
+    }
+    return apiFetch("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+  changePassword: async (data) => {
+    return apiFetch("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  // -------------------------------------------------------------
+  // Chat System
+  // -------------------------------------------------------------
+  sendChatMessage: (data) => apiFetch("/chat/send", { method: "POST", body: JSON.stringify(data) }),
+  getChatConversation: (otherUsername) => apiFetch(`/chat/messages/${otherUsername}`),
+  getChatContacts: () => apiFetch("/chat/contacts"),
+
+  // -------------------------------------------------------------
   // Audit logs (admin only)
   // -------------------------------------------------------------
   getAuditLogs: (page = 0, size = 50) => apiFetch(`/admin/audit?page=${page}&size=${size}`),

@@ -54,6 +54,17 @@ public final class EmailTemplates {
         return wrap("ยืนยันอีเมลของคุณ", body);
     }
 
+    public static String passwordReset(String code, int minutesValid) {
+        String body = """
+            <p>คุณได้รับอีเมลนี้เนื่องจากมีการร้องขอกู้คืนรหัสผ่านสำหรับบัญชีของคุณ</p>
+            <p>รหัสยืนยันเพื่อตั้งรหัสผ่านใหม่คือ:</p>
+            <div style="font-size:32px;font-weight:900;letter-spacing:8px;color:#F59E0B;text-align:center;padding:18px;background:#FFFBEB;border-radius:12px;margin:18px 0;">%s</div>
+            <p>รหัสนี้จะหมดอายุใน <strong>%d นาที</strong></p>
+            <p style="color:#64748B;font-size:12.5px;">หากคุณไม่ได้ขอเปลี่ยนรหัสผ่าน โปรดเพิกเฉยต่ออีเมลนี้ รหัสผ่านเดิมของคุณจะยังคงใช้งานได้ปกติ</p>
+            """.formatted(escape(code), minutesValid);
+        return wrap("กู้คืนรหัสผ่านของคุณ", body);
+    }
+
     private static String escape(String s) {
         if (s == null) return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");

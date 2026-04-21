@@ -15,14 +15,28 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, PasswordResetService passwordResetService) {
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody AuthRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request);
+        return Map.of("status", "sent", "message", "OTP sent to " + request.email());
+    }
+
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        passwordResetService.confirmReset(request);
+        return Map.of("status", "success", "message", "Password has been reset successfully");
     }
 
     @GetMapping("/me")
@@ -44,6 +58,12 @@ public class AuthController {
     public Map<String, String> logout() {
         authService.logout();
         return Map.of("status", "logged_out");
+    }
+
+    @PostMapping("/change-password")
+    public Map<String, String> changePassword(Principal principal, @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.getName(), request);
+        return Map.of("status", "success", "message", "Password changed successfully");
     }
 
     @GetMapping("/health")

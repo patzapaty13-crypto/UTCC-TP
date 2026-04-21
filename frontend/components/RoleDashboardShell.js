@@ -11,6 +11,8 @@ const NAV_ITEMS = {
     { href: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
     { href: "/student/reports", label: "รายงานฝึกงาน", icon: "fa-file-lines" },
     { href: "/student/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
+    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   COMPANY: [
     { href: "/company", label: "ภาพรวม", icon: "fa-house" },
@@ -20,6 +22,8 @@ const NAV_ITEMS = {
     { href: "/company/interviews", label: "สัมภาษณ์", icon: "fa-calendar-check" },
     { href: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-signature" },
     { href: "/company/interns", label: "พนักงานฝึกงาน", icon: "fa-user-tie" },
+    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADVISOR: [
     { href: "/advisor", label: "ภาพรวม", icon: "fa-house" },
@@ -27,6 +31,8 @@ const NAV_ITEMS = {
     { href: "/advisor/reports", label: "ตรวจรายงาน", icon: "fa-file-lines" },
     { href: "/advisor/approvals", label: "อนุมัติเอกสาร", icon: "fa-circle-check" },
     { href: "/advisor/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
+    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   STAFF: [
     { href: "/staff", label: "ภาพรวม", icon: "fa-house" },
@@ -34,7 +40,8 @@ const NAV_ITEMS = {
     { href: "/staff/companies", label: "บริษัท", icon: "fa-building" },
     { href: "/staff/assign-advisor", label: "กำหนดอาจารย์ที่ปรึกษา", icon: "fa-user-plus" },
     { href: "/staff/applications", label: "การสมัคร", icon: "fa-clipboard-list" },
-    { href: "/staff/analytics", label: "สถิติ", icon: "fa-chart-line" },
+    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
     { href: "/admin", label: "ภาพรวมระบบ", icon: "fa-house" },
@@ -42,6 +49,7 @@ const NAV_ITEMS = {
     { href: "/admin/roles", label: "สิทธิ์การใช้งาน", icon: "fa-user-shield" },
     { href: "/admin/audit", label: "Audit Logs", icon: "fa-clipboard-check" },
     { href: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
 };
 
