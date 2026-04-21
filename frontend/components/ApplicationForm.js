@@ -200,14 +200,41 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
 
       <form onSubmit={(e) => { e.preventDefault(); handlePreview(); }}>
         {/* Personal Information */}
-        <div style={{ marginBottom:32 }}>
-          <h3 style={{ fontSize:16, fontWeight:800, color:"var(--text-primary)", marginBottom:20 }}>
-            <i className="fas fa-user-circle" style={{marginRight:8, color:"var(--primary)"}}></i>
+        <div style={{ 
+          marginBottom:40,
+          padding:24,
+          background:"linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)",
+          borderRadius:16,
+          border:"1px solid #BFDBFE"
+        }}>
+          <h3 style={{ 
+            fontSize:18, 
+            fontWeight:800, 
+            color:"#1E40AF", 
+            marginBottom:24,
+            display:"flex",
+            alignItems:"center",
+            gap:12
+          }}>
+            <div style={{
+              width:40,
+              height:40,
+              borderRadius:10,
+              background:"#2563EB",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              color:"white",
+              fontSize:18
+            }}>
+              <i className="fas fa-user-circle"></i>
+            </div>
             ข้อมูลส่วนตัว
           </h3>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
             <FormField
               label="ชื่อ-นามสกุล"
+              icon="user"
               required
               error={errors.fullName}
             >
@@ -217,11 +244,28 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 placeholder="เช่น สมชาย ใจดี"
                 value={formData.fullName}
                 onChange={(e) => handleChange("fullName", e.target.value)}
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
 
             <FormField
               label="เบอร์โทรศัพท์"
+              icon="phone"
               required
               error={errors.phone}
             >
@@ -232,6 +276,22 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 maxLength={10}
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
           </div>
@@ -239,6 +299,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
           <div style={{ marginTop:20 }}>
             <FormField
               label="อีเมล"
+              icon="envelope"
               required
               error={errors.email}
             >
@@ -248,6 +309,22 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 placeholder="example@email.com"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
           </div>
@@ -255,6 +332,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
           <div style={{ marginTop:20 }}>
             <FormField
               label="ที่อยู่"
+              icon="location-dot"
               error={errors.address}
             >
               <textarea
@@ -263,21 +341,65 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 value={formData.address}
                 onChange={(e) => handleChange("address", e.target.value)}
                 rows={3}
-                style={{ resize:"vertical" }}
+                style={{
+                  resize:"vertical",
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                  lineHeight:1.6
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
           </div>
         </div>
 
         {/* Academic Information */}
-        <div style={{ marginBottom:32 }}>
-          <h3 style={{ fontSize:16, fontWeight:800, color:"var(--text-primary)", marginBottom:20 }}>
-            <i className="fas fa-graduation-cap" style={{marginRight:8, color:"var(--primary)"}}></i>
+        <div style={{ 
+          marginBottom:40,
+          padding:24,
+          background:"linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)",
+          borderRadius:16,
+          border:"1px solid #DDD6FE"
+        }}>
+          <h3 style={{ 
+            fontSize:18, 
+            fontWeight:800, 
+            color:"#6D28D9", 
+            marginBottom:24,
+            display:"flex",
+            alignItems:"center",
+            gap:12
+          }}>
+            <div style={{
+              width:40,
+              height:40,
+              borderRadius:10,
+              background:"#7C3AED",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              color:"white",
+              fontSize:18
+            }}>
+              <i className="fas fa-graduation-cap"></i>
+            </div>
             ข้อมูลการศึกษา
           </h3>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:20 }}>
             <FormField
               label="เกรดเฉลี่ย (GPA)"
+              icon="chart-line"
               required
               error={errors.gpa}
             >
@@ -290,11 +412,28 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 step="0.01"
                 min="0"
                 max="4"
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
 
             <FormField
               label="สาขาวิชา"
+              icon="book-open"
               required
               error={errors.major}
             >
@@ -304,11 +443,28 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 placeholder="เช่น วิทยาการคอมพิวเตอร์"
                 value={formData.major}
                 onChange={(e) => handleChange("major", e.target.value)}
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </FormField>
 
             <FormField
               label="ชั้นปี"
+              icon="calendar-days"
               required
               error={errors.year}
             >
@@ -316,6 +472,23 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 className="input"
                 value={formData.year}
                 onChange={(e) => handleChange("year", e.target.value)}
+                style={{
+                  padding:"14px 16px",
+                  fontSize:14,
+                  border:"2px solid var(--n-200)",
+                  borderRadius:12,
+                  transition:"all 0.2s ease",
+                  background:"white",
+                  cursor:"pointer"
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#2563EB";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--n-200)";
+                  e.target.style.boxShadow = "none";
+                }}
               >
                 <option value="">เลือกชั้นปี</option>
                 <option value="1">ปี 1</option>
@@ -330,13 +503,40 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
         </div>
 
         {/* Cover Letter */}
-        <div style={{ marginBottom:32 }}>
-          <h3 style={{ fontSize:16, fontWeight:800, color:"var(--text-primary)", marginBottom:20 }}>
-            <i className="fas fa-file-lines" style={{marginRight:8, color:"var(--primary)"}}></i>
+        <div style={{ 
+          marginBottom:40,
+          padding:24,
+          background:"linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
+          borderRadius:16,
+          border:"1px solid #A7F3D0"
+        }}>
+          <h3 style={{ 
+            fontSize:18, 
+            fontWeight:800, 
+            color:"#047857", 
+            marginBottom:24,
+            display:"flex",
+            alignItems:"center",
+            gap:12
+          }}>
+            <div style={{
+              width:40,
+              height:40,
+              borderRadius:10,
+              background:"#059669",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              color:"white",
+              fontSize:18
+            }}>
+              <i className="fas fa-file-lines"></i>
+            </div>
             จดหมายสมัครงาน
           </h3>
           <FormField
             label="เขียนจดหมายแนะนำตัวและเหตุผลที่สนใจตำแหน่งนี้"
+            icon="pen-to-square"
             required
             error={errors.coverLetter}
             hint={`${formData.coverLetter.length}/2000 ตัวอักษร (ขั้นต่ำ 50 ตัวอักษร)`}
@@ -348,19 +548,63 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               onChange={(e) => handleChange("coverLetter", e.target.value)}
               rows={8}
               maxLength={2000}
-              style={{ resize:"vertical" }}
+              style={{
+                resize:"vertical",
+                padding:"14px 16px",
+                fontSize:14,
+                border:"2px solid var(--n-200)",
+                borderRadius:12,
+                transition:"all 0.2s ease",
+                background:"white",
+                lineHeight:1.6
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#2563EB";
+                e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--n-200)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </FormField>
         </div>
 
         {/* Portfolio (Optional) */}
-        <div style={{ marginBottom:32 }}>
-          <h3 style={{ fontSize:16, fontWeight:800, color:"var(--text-primary)", marginBottom:20 }}>
-            <i className="fas fa-link" style={{marginRight:8, color:"var(--primary)"}}></i>
+        <div style={{ 
+          marginBottom:32,
+          padding:24,
+          background:"linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
+          borderRadius:16,
+          border:"1px solid #FDE68A"
+        }}>
+          <h3 style={{ 
+            fontSize:18, 
+            fontWeight:800, 
+            color:"#B45309", 
+            marginBottom:24,
+            display:"flex",
+            alignItems:"center",
+            gap:12
+          }}>
+            <div style={{
+              width:40,
+              height:40,
+              borderRadius:10,
+              background:"#D97706",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              color:"white",
+              fontSize:18
+            }}>
+              <i className="fas fa-link"></i>
+            </div>
             Portfolio (ถ้ามี)
           </h3>
           <FormField
             label="ลิงก์ Portfolio, GitHub, LinkedIn หรือเว็บไซต์ส่วนตัว"
+            icon="link"
             error={errors.portfolioUrl}
           >
             <input
@@ -369,6 +613,22 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               placeholder="https://example.com/portfolio"
               value={formData.portfolioUrl}
               onChange={(e) => handleChange("portfolioUrl", e.target.value)}
+              style={{
+                padding:"14px 16px",
+                fontSize:14,
+                border:"2px solid var(--n-200)",
+                borderRadius:12,
+                transition:"all 0.2s ease",
+                background:"white",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#2563EB";
+                e.target.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--n-200)";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </FormField>
         </div>
@@ -390,22 +650,57 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
 }
 
 // Helper Components
-function FormField({ label, required, error, hint, children }) {
+function FormField({ label, required, error, hint, children, icon }) {
   return (
-    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-      <label style={{ fontSize:14, fontWeight:600, color:"var(--text-primary)" }}>
+    <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+      <label style={{ 
+        fontSize:13, 
+        fontWeight:700, 
+        color:"var(--text-primary)",
+        letterSpacing:"0.01em",
+        display:"flex",
+        alignItems:"center",
+        gap:8
+      }}>
+        {icon && <i className={`fas fa-${icon}`} style={{color:"#2563EB", fontSize:14}}></i>}
         {label}
-        {required && <span style={{ color:"var(--error)", marginLeft:4 }}>*</span>}
+        {required && (
+          <span style={{ 
+            color:"#DC2626", 
+            marginLeft:2,
+            fontSize:16,
+            lineHeight:1
+          }}>*</span>
+        )}
       </label>
-      {children}
+      <div style={{ position:"relative" }}>
+        {children}
+      </div>
       {error && (
-        <p style={{ fontSize:13, color:"var(--error)", display:"flex", alignItems:"center", gap:6 }}>
+        <p style={{ 
+          fontSize:12, 
+          color:"#DC2626", 
+          display:"flex", 
+          alignItems:"center", 
+          gap:6,
+          padding:"8px 12px",
+          background:"#FEF2F2",
+          borderRadius:8,
+          border:"1px solid #FEE2E2"
+        }}>
           <i className="fas fa-circle-exclamation"></i>
           {error}
         </p>
       )}
       {hint && !error && (
-        <p style={{ fontSize:12, color:"var(--text-muted)" }}>
+        <p style={{ 
+          fontSize:11, 
+          color:"var(--text-muted)",
+          display:"flex",
+          alignItems:"center",
+          gap:6
+        }}>
+          <i className="fas fa-info-circle" style={{fontSize:10}}></i>
           {hint}
         </p>
       )}
