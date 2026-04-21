@@ -1,1 +1,0 @@
-﻿# UTCC Training Portal - Updated

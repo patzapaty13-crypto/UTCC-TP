@@ -1,20 +1,72 @@
 package org.example.utcctp.report;
 
+import org.example.utcctp.api.dto.ReportGradeRequest;
+import org.example.utcctp.api.dto.ReportRequest;
+import org.example.utcctp.api.dto.ReportResponse;
 import org.example.utcctp.model.Report;
+import org.example.utcctp.model.RoleType;
+import org.example.utcctp.model.User;
 import org.example.utcctp.repository.ReportRepository;
+import org.example.utcctp.repository.InternshipPositionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
     
     private final ReportRepository reportRepository;
+    private final InternshipPositionRepository internshipPositionRepository;
 
-    public ReportService(ReportRepository reportRepository) {
+    public ReportService(ReportRepository reportRepository, InternshipPositionRepository internshipPositionRepository) {
         this.reportRepository = reportRepository;
+        this.internshipPositionRepository = internshipPositionRepository;
+    }
+
+    public List<ReportResponse> listReports(User user) {
+        List<Report> reports;
+        if (user.getRoles().contains(RoleType.STUDENT)) {
+            reports = reportRepository.findByStudentIdOrderByCreatedAtDesc(user.getId());
+        } else {
+            // For advisors/staff/admin, show all reports
+            reports = reportRepository.findAll();
+        }
+        return reports.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ReportResponse createReport(ReportRequest request, User user) {
+        Report report = new Report();
+        report.setStudent(user);
+        report.setTitle("Report"); // Default title
+        report.setType(Report.ReportType.WEEKLY);
+        report.setStatus(Report.ReportStatus.DRAFT);
+        
+        if (request.internshipPositionId() != null) {
+            internshipPositionRepository.findById(request.internshipPositionId())
+                    .ifPresent(report::setInternship);
+        }
+        
+        return toResponse(reportRepository.save(report));
+    }
+
+    public ReportResponse gradeReport(UUID reportId, ReportGradeRequest request, User user) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+        
+        if (request.score() != null) {
+            report.setScore(request.score().intValue());
+        }
+        report.setFeedback(request.comment());
+        report.setStatus(Report.ReportStatus.GRADED);
+        report.setGradedAt(LocalDateTime.now());
+        report.setGradedBy(user);
+        
+        return toResponse(reportRepository.save(report));
     }
 
     public List<Report> getStudentReports(UUID studentId) {
@@ -28,10 +80,6 @@ public class ReportService {
     public Report getReport(UUID reportId) {
         return reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found"));
-    }
-
-    public Report createReport(Report report) {
-        return reportRepository.save(report);
     }
 
     public Report updateReport(UUID reportId, Report updatedReport) {
@@ -50,16 +98,19 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-    public Report gradeReport(UUID reportId, Integer score, String feedback, UUID gradedBy) {
-        Report report = getReport(reportId);
-        report.setScore(score);
-        report.setFeedback(feedback);
-        report.setStatus(Report.ReportStatus.GRADED);
-        report.setGradedAt(LocalDateTime.now());
-        return reportRepository.save(report);
-    }
-
     public void deleteReport(UUID reportId) {
         reportRepository.deleteById(reportId);
+    }
+
+    private ReportResponse toResponse(Report report) {
+        return new ReportResponse(
+                report.getId(),
+                report.getTitle(),
+                report.getContent(),
+                report.getStatus().name(),
+                report.getSubmittedAt() != null ? 
+                    java.time.Instant.from(report.getSubmittedAt().atZone(java.time.ZoneId.systemDefault())) : null,
+                null // fileId not implemented yet
+        );
     }
 }
