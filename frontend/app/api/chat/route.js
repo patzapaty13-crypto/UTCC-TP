@@ -1,6 +1,6 @@
 // Server-side proxy to n8n webhook — bypasses CORS completely
 const N8N_WEBHOOK_URL =
-  "https://thanathorn123.app.n8n.cloud/webhook/da94c05d-206c-4d04-9de0-1b4284c0d8bd/chat";
+  "https://thanathorn123.app.n8n.cloud/webhook/61c66b6e-3f07-4ce5-a283-259ce9c5f610/chat";
 
 export async function POST(request) {
   try {
