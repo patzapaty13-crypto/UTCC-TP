@@ -128,6 +128,14 @@ export default function StudentHomePage() {
                 <div style={iconStyle("#059669")}><i className="fas fa-clipboard-user"></i></div>
                 <div><p style={labelStyle}>ติดตามสถานะ</p><p style={subStyle}>My Applications</p></div>
               </Link>
+              <Link href="/student/offers" className="shortcut-card animate-fade-in" style={shortcutStyle("#DC2626")}>
+                <div style={iconStyle("#DC2626")}><i className="fas fa-file-signature"></i></div>
+                <div><p style={labelStyle}>ข้อเสนองาน</p><p style={subStyle}>Job Offers</p></div>
+              </Link>
+              <Link href="/student/interviews" className="shortcut-card animate-fade-in" style={shortcutStyle("#8B5CF6")}>
+                <div style={iconStyle("#8B5CF6")}><i className="fas fa-calendar-check"></i></div>
+                <div><p style={labelStyle}>การสัมภาษณ์</p><p style={subStyle}>Interviews</p></div>
+              </Link>
               <Link href="/student/reports/submit" className="shortcut-card animate-fade-in" style={shortcutStyle("#7C3AED")}>
                 <div style={iconStyle("#7C3AED")}><i className="fas fa-file-upload"></i></div>
                 <div><p style={labelStyle}>ส่งรายงาน</p><p style={subStyle}>Submit Report</p></div>

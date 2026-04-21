@@ -18,38 +18,73 @@ export default function OfferResponsePage() {
 
   useEffect(() => {
     if (!offerId) return;
-    
-    // Mock offer data - in real app, fetch from API
-    setTimeout(() => {
-      setOffer({
-        id: offerId,
-        positionTitle: "Frontend Developer Intern",
-        company: "Tech Innovation Co., Ltd.",
-        salary: "15,000",
-        startDate: "2024-06-01",
-        endDate: "2024-08-31",
-        benefits: [
-          "ค่าเดินทาง 2,000 บาท/เดือน",
-          "ค่าอาหารกลางวัน",
-          "ประกันอุบัติเหตุ",
-          "ใบประกาศนียบัตร"
-        ],
-        workingHours: "จันทร์-ศุกร์ 9:00-17:00",
-        location: "อาคารไอทีสแควร์ ชั้น 15",
-        supervisor: "คุณสมชาย ใจดี",
-        contactEmail: "hr@techinnovation.co.th",
-        contactPhone: "02-123-4567",
-        expiryDate: "2024-05-15",
-        terms: [
-          "ต้องเข้าร่วมโครงการฝึกงานครบ 3 เดือน",
-          "ส่งรายงานความคืบหน้าทุกสัปดาห์",
-          "เข้าร่วมกิจกรรมของบริษัทตามที่ได้รับมอบหมาย",
-          "รักษาความลับของบริษัท"
-        ]
-      });
-      setLoading(false);
-    }, 1000);
+    loadOffer();
   }, [offerId]);
+
+  const loadOffer = async () => {
+    try {
+      setLoading(true);
+      // Get applications first to find the one with this offer
+      const applications = await api.getApplications();
+      
+      let foundOffer = null;
+      let foundApplication = null;
+      
+      for (const application of applications) {
+        try {
+          const offers = await api.get(`/offers/application/${application.id}`);
+          const offer = offers.find(o => o.id === offerId);
+          if (offer) {
+            foundOffer = offer;
+            foundApplication = application;
+            break;
+          }
+        } catch (err) {
+          console.error(`Failed to load offers for application ${application.id}:`, err);
+        }
+      }
+      
+      if (foundOffer && foundApplication) {
+        // Transform API data to match the expected format
+        setOffer({
+          id: foundOffer.id,
+          positionTitle: foundOffer.title || foundApplication.positionTitle,
+          company: foundApplication.companyName,
+          salary: foundOffer.allowanceAmount ? 
+            new Intl.NumberFormat("th-TH").format(foundOffer.allowanceAmount) : "ไม่ระบุ",
+          startDate: foundOffer.startsOn,
+          endDate: foundOffer.endsOn,
+          benefits: [
+            "ค่าเดินทาง 2,000 บาท/เดือน",
+            "ค่าอาหารกลางวัน",
+            "ประกันอุบัติเหตุ",
+            "ใบประกาศนียบัตร"
+          ],
+          workingHours: "จันทร์-ศุกร์ 9:00-17:00",
+          location: "สำนักงานบริษัท",
+          supervisor: "ผู้จัดการฝ่ายทรัพยากรบุคคล",
+          contactEmail: "hr@company.com",
+          contactPhone: "02-123-4567",
+          expiryDate: foundOffer.responseDeadline,
+          terms: foundOffer.termsText ? foundOffer.termsText.split('\n').filter(t => t.trim()) : [
+            "ต้องเข้าร่วมโครงการฝึกงานครบ 3 เดือน",
+            "ส่งรายงานความคืบหน้าทุกสัปดาห์",
+            "เข้าร่วมกิจกรรมของบริษัทตามที่ได้รับมอบหมาย",
+            "รักษาความลับของบริษัท"
+          ],
+          status: foundOffer.status,
+          applicationId: foundApplication.id
+        });
+      } else {
+        setOffer(null);
+      }
+    } catch (err) {
+      console.error("Failed to load offer:", err);
+      setError("ไม่สามารถโหลดข้อมูลข้อเสนองานได้");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,13 +99,14 @@ export default function OfferResponsePage() {
     setError("");
 
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const responseData = {
+        status: response === "ACCEPT" ? "ACCEPTED" : "REJECTED"
+      };
       
-      // In real app: await api.respondToOffer(offerId, { response, rejectionReason });
+      await api.put(`/offers/${offerId}/respond`, responseData);
       
-      // Redirect back to applications with success message
-      router.push("/applications?success=offer-responded");
+      // Redirect back to offers with success message
+      router.push("/student/offers?success=offer-responded");
     } catch (err) {
       setError(err.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
@@ -99,8 +135,8 @@ export default function OfferResponsePage() {
         <div className="empty-state-icon"><i className="fas fa-file-signature"></i></div>
         <h3>ไม่พบข้อเสนองาน</h3>
         <p>ข้อเสนองานที่คุณต้องการดูอาจถูกลบหรือหมดอายุแล้ว</p>
-        <button className="btn btn-primary" onClick={() => router.push("/applications")}>
-          กลับไปหน้าใบสมัคร
+        <button className="btn btn-primary" onClick={() => router.push("/student/offers")}>
+          กลับไปหน้าข้อเสนองาน
         </button>
       </div>
     );
@@ -342,12 +378,12 @@ export default function OfferResponsePage() {
               <button
                 type="button"
                 className="btn btn-ghost"
-                onClick={() => router.push("/applications")}
+                onClick={() => router.push("/student/offers")}
                 disabled={submitting}
                 style={{ width: "100%" }}
               >
                 <i className="fas fa-arrow-left" style={{ marginRight: 8 }}></i>
-                กลับไปหน้าใบสมัคร
+                กลับไปหน้าข้อเสนองาน
               </button>
             </div>
           </form>
