@@ -42,8 +42,10 @@ public class ReportService {
     public ReportResponse createReport(ReportRequest request, User user) {
         Report report = new Report();
         report.setStudent(user);
-        report.setTitle("Report"); // Default title
-        report.setType(Report.ReportType.WEEKLY);
+        report.setTitle(request.title() != null ? request.title() : "Report");
+        report.setContent(request.content());
+        report.setType(Report.ReportType.valueOf(request.type() != null ? request.type() : "WEEKLY"));
+        report.setWeekNumber(request.weekNumber());
         report.setStatus(Report.ReportStatus.DRAFT);
         
         if (request.internshipPositionId() != null) {
@@ -51,7 +53,16 @@ public class ReportService {
                     .ifPresent(report::setInternship);
         }
         
-        return toResponse(reportRepository.save(report));
+        Report saved = reportRepository.save(report);
+        
+        // Auto-submit if requested
+        if (request.submit() != null && request.submit()) {
+            saved.setStatus(Report.ReportStatus.SUBMITTED);
+            saved.setSubmittedAt(LocalDateTime.now());
+            saved = reportRepository.save(saved);
+        }
+        
+        return toResponse(saved);
     }
 
     public ReportResponse gradeReport(UUID reportId, ReportGradeRequest request, User user) {

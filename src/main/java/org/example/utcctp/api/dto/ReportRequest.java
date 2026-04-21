@@ -5,8 +5,9 @@ import java.util.UUID;
 public record ReportRequest(
         String title,
         String content,
-        UUID tripId,
+        String type,
+        Integer weekNumber,
         UUID internshipPositionId,
-        UUID fileId
+        Boolean submit
 ) {
 }

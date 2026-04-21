@@ -38,19 +38,27 @@ export default function SubmitReportPage() {
 
   const loadInternships = async () => {
     try {
-      // Mock data - in real app, fetch accepted internships
-      setInternships([
-        {
-          id: 1,
-          company: "Tech Innovation Co., Ltd.",
-          position: "Frontend Developer Intern",
-          startDate: "2024-06-01",
-          endDate: "2024-08-31",
-          supervisor: "คุณสมชาย ใจดี"
-        }
-      ]);
+      // Get user's applications that are accepted
+      const applications = await api.getApplications();
+      const acceptedApps = applications.filter(app => 
+        app.status === "ACCEPTED" || app.status === "OFFER_ACCEPTED"
+      );
+      
+      // Transform to internship format
+      const internshipsData = acceptedApps.map(app => ({
+        id: app.id,
+        company: app.companyName || "บริษัท",
+        position: app.positionTitle || "ตำแหน่ง",
+        startDate: app.startDate || new Date().toISOString(),
+        endDate: app.endDate || new Date().toISOString(),
+        supervisor: app.supervisor || "ไม่ระบุ"
+      }));
+      
+      setInternships(internshipsData);
     } catch (err) {
       console.error("Failed to load internships:", err);
+      // Fallback to empty array
+      setInternships([]);
     }
   };
 
@@ -127,17 +135,41 @@ export default function SubmitReportPage() {
     setError("");
 
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In real app: await api.submitReport(formData);
+      // Upload attachments first
+      const uploadedFileIds = [];
+      for (const file of formData.attachments) {
+        const formDataFile = new FormData();
+        formDataFile.append("file", file);
+        formDataFile.append("category", "report");
+        formDataFile.append("docType", "report-attachment");
+        
+        const result = await api.upload("/files", formDataFile);
+        uploadedFileIds.push(result.id);
+      }
+
+      // Submit report
+      const reportData = {
+        title: formData.title,
+        content: formData.content,
+        type: formData.reportType,
+        weekNumber: formData.reportType === "WEEKLY" ? parseInt(formData.weekNumber) : null,
+        internshipPositionId: internships.find(i => i.company === formData.internshipCompany)?.id,
+        fileIds: uploadedFileIds,
+        // Additional fields
+        achievements: formData.achievements,
+        challenges: formData.challenges,
+        learnings: formData.learnings,
+        nextWeekPlan: formData.nextWeekPlan
+      };
+
+      await api.submitReport(reportData);
       
       setSuccess("ส่งรายงานเรียบร้อยแล้ว");
       
       // Redirect after success
       setTimeout(() => {
         router.push("/student/reports");
-      }, 2000);
+      }, 1500);
       
     } catch (err) {
       setError(err.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
