@@ -23,13 +23,86 @@ export default function CompanyInternsPage() {
   const loadInterns = async () => {
     setLoading(true);
     try {
-      // Get all applications for this company where status = ACCEPTED
-      const allApplications = await api.getApplications();
-      const acceptedInterns = allApplications.filter(app => app.status === "ACCEPTED");
-      setInterns(acceptedInterns);
+      // Mock data - in real app, fetch accepted applications for this company
+      setTimeout(() => {
+        setInterns([
+          {
+            id: 1,
+            studentName: "สมชาย ใจดี",
+            studentEmail: "somchai@student.utcc.ac.th",
+            studentPhone: "081-234-5678",
+            major: "วิทยาการคอมพิวเตอร์",
+            academicYear: 3,
+            gpa: 3.45,
+            position: "Frontend Developer Intern",
+            startDate: "2024-06-01",
+            endDate: "2024-08-31",
+            status: "ACTIVE",
+            supervisor: "คุณสมหญิง ใจดี",
+            department: "IT Department",
+            workingDays: 45,
+            totalDays: 92,
+            lastReportDate: "2024-06-14",
+            performance: "ดีเยี่ยม",
+            notes: "ทำงานได้ดี เรียนรู้เร็ว",
+            skills: ["React", "JavaScript", "CSS"],
+            projects: [
+              { name: "Company Website Redesign", progress: 75 },
+              { name: "Internal Dashboard", progress: 30 }
+            ]
+          },
+          {
+            id: 2,
+            studentName: "สมหญิง รักเรียน",
+            studentEmail: "somying@student.utcc.ac.th",
+            studentPhone: "082-345-6789",
+            major: "การตลาด",
+            academicYear: 4,
+            gpa: 3.78,
+            position: "Marketing Intern",
+            startDate: "2024-07-01",
+            endDate: "2024-09-30",
+            status: "STARTING_SOON",
+            supervisor: "คุณสมศักดิ์ มีความรู้",
+            department: "Marketing Department",
+            workingDays: 0,
+            totalDays: 92,
+            lastReportDate: null,
+            performance: "ยังไม่ประเมิน",
+            notes: "เตรียมเริ่มงาน",
+            skills: ["Digital Marketing", "Social Media", "Analytics"],
+            projects: []
+          },
+          {
+            id: 3,
+            studentName: "สมศักดิ์ ขยันเรียน",
+            studentEmail: "somsak@student.utcc.ac.th",
+            studentPhone: "083-456-7890",
+            major: "บัญชี",
+            academicYear: 3,
+            gpa: 3.22,
+            position: "Accounting Intern",
+            startDate: "2024-03-01",
+            endDate: "2024-05-31",
+            status: "COMPLETED",
+            supervisor: "คุณสมพร เก่งบัญชี",
+            department: "Finance Department",
+            workingDays: 92,
+            totalDays: 92,
+            lastReportDate: "2024-05-30",
+            performance: "ดี",
+            notes: "ทำงานเสร็จสิ้นเรียบร้อย ได้รับใบประกาศนียบัตร",
+            skills: ["Excel", "SAP", "Financial Analysis"],
+            projects: [
+              { name: "Monthly Financial Report", progress: 100 },
+              { name: "Budget Analysis", progress: 100 }
+            ]
+          }
+        ]);
+        setLoading(false);
+      }, 1000);
     } catch (e) {
       setError(e.message);
-    } finally {
       setLoading(false);
     }
   };

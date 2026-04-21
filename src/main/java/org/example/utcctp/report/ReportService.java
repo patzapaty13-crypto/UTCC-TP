@@ -1,124 +1,127 @@
 package org.example.utcctp.report;
 
-import lombok.RequiredArgsConstructor;
+import org.example.utcctp.api.dto.ReportGradeRequest;
+import org.example.utcctp.api.dto.ReportRequest;
+import org.example.utcctp.api.dto.ReportResponse;
+import org.example.utcctp.model.FileAsset;
+import org.example.utcctp.model.NotificationType;
 import org.example.utcctp.model.Report;
+import org.example.utcctp.model.ReportGrade;
+import org.example.utcctp.model.ReportStatus;
+import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.User;
-import org.example.utcctp.model.InternshipPosition;
+import org.example.utcctp.notification.NotificationService;
+import org.example.utcctp.repository.FileAssetRepository;
+import org.example.utcctp.repository.ReportGradeRepository;
 import org.example.utcctp.repository.ReportRepository;
-import org.example.utcctp.repository.UserRepository;
-import org.example.utcctp.repository.InternshipRepository;
+import org.example.utcctp.repository.TripRepository;
+import org.example.utcctp.repository.InternshipPositionRepository;
+import org.example.utcctp.model.InternshipPosition;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class ReportService {
-    
     private final ReportRepository reportRepository;
-    private final UserRepository userRepository;
-    private final InternshipRepository internshipRepository;
+    private final ReportGradeRepository reportGradeRepository;
+    private final FileAssetRepository fileAssetRepository;
+    private final TripRepository tripRepository;
+    private final InternshipPositionRepository internshipRepository;
+    private final NotificationService notificationService;
 
-    @Transactional
-    public Report createReport(Long studentId, Report report) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        
+    public ReportService(
+            ReportRepository reportRepository,
+            ReportGradeRepository reportGradeRepository,
+            FileAssetRepository fileAssetRepository,
+            TripRepository tripRepository,
+            InternshipPositionRepository internshipRepository,
+            NotificationService notificationService
+    ) {
+        this.reportRepository = reportRepository;
+        this.reportGradeRepository = reportGradeRepository;
+        this.fileAssetRepository = fileAssetRepository;
+        this.tripRepository = tripRepository;
+        this.internshipRepository = internshipRepository;
+        this.notificationService = notificationService;
+    }
+
+    public ReportResponse createReport(ReportRequest request, User student) {
+        Report report = new Report();
         report.setStudent(student);
-        
-        if (report.getInternship() != null && report.getInternship().getId() != null) {
-            InternshipPosition internship = internshipRepository.findById(report.getInternship().getId())
-                    .orElseThrow(() -> new RuntimeException("Internship not found"));
-            report.setInternship(internship);
+        report.setStatus(ReportStatus.AWAITING_REVIEW);
+
+        // Set title and content from the request
+        if (request.title() != null && !request.title().isBlank()) {
+            report.setTitle(request.title());
         }
-        
-        return reportRepository.save(report);
-    }
-
-    @Transactional
-    public Report submitReport(Long reportId) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-        
-        report.setStatus(Report.ReportStatus.SUBMITTED);
-        report.setSubmittedAt(LocalDateTime.now());
-        
-        return reportRepository.save(report);
-    }
-
-    @Transactional
-    public Report gradeReport(Long reportId, Integer score, String feedback, Long gradedBy) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-        
-        User grader = userRepository.findById(gradedBy)
-                .orElseThrow(() -> new RuntimeException("Grader not found"));
-        
-        report.setScore(score);
-        report.setFeedback(feedback);
-        report.setStatus(Report.ReportStatus.GRADED);
-        report.setGradedAt(LocalDateTime.now());
-        report.setGradedBy(grader);
-        
-        return reportRepository.save(report);
-    }
-
-    @Transactional
-    public Report updateReport(Long reportId, Report updatedReport) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-        
-        // Only allow updates if status is DRAFT or NEEDS_REVISION
-        if (report.getStatus() != Report.ReportStatus.DRAFT && 
-            report.getStatus() != Report.ReportStatus.NEEDS_REVISION) {
-            throw new RuntimeException("Cannot update submitted report");
+        if (request.content() != null) {
+            report.setContent(request.content());
         }
-        
-        report.setTitle(updatedReport.getTitle());
-        report.setContent(updatedReport.getContent());
-        report.setType(updatedReport.getType());
-        report.setWeekNumber(updatedReport.getWeekNumber());
-        report.setAchievements(updatedReport.getAchievements());
-        report.setChallenges(updatedReport.getChallenges());
-        report.setLearnings(updatedReport.getLearnings());
-        report.setNextWeekPlan(updatedReport.getNextWeekPlan());
-        
-        return reportRepository.save(report);
-    }
 
-    public List<Report> getStudentReports(Long studentId) {
-        return reportRepository.findByStudentIdOrderByCreatedAtDesc(studentId);
-    }
-
-    public List<Report> getAdvisorReports(Long advisorId) {
-        return reportRepository.findByAdvisorId(advisorId);
-    }
-
-    public List<Report> getAdvisorPendingReports(Long advisorId) {
-        return reportRepository.findByAdvisorIdAndStatus(advisorId, Report.ReportStatus.SUBMITTED);
-    }
-
-    public Report getReport(Long reportId) {
-        return reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-    }
-
-    public List<Report> getAllReports() {
-        return reportRepository.findAll();
-    }
-
-    @Transactional
-    public void deleteReport(Long reportId) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-        
-        // Only allow deletion if status is DRAFT
-        if (report.getStatus() != Report.ReportStatus.DRAFT) {
-            throw new RuntimeException("Cannot delete submitted report");
+        if (request.tripId() != null) {
+            Trip trip = tripRepository.findById(request.tripId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+            report.setTrip(trip);
         }
-        
-        reportRepository.delete(report);
+        if (request.internshipPositionId() != null) {
+            InternshipPosition position = internshipRepository.findById(request.internshipPositionId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
+            report.setInternshipPosition(position);
+        }
+        if (request.fileId() != null) {
+            FileAsset file = fileAssetRepository.findById(request.fileId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
+            report.setFile(file);
+        }
+        reportRepository.save(report);
+        notificationService.notifyUser(student, "Report submitted", "Your report was submitted successfully.", NotificationType.REPORT);
+        return mapReport(report);
+    }
+
+    public List<ReportResponse> listReports(User user) {
+        boolean isStudent = user.getRoles().stream().anyMatch(role -> role.name().equals("STUDENT"));
+        List<Report> reports = isStudent ? reportRepository.findByStudentId(user.getId()) : reportRepository.findAll();
+        return reports.stream().map(this::mapReport).toList();
+    }
+
+    public ReportResponse gradeReport(UUID id, ReportGradeRequest request, User grader) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found"));
+        ReportGrade grade = new ReportGrade();
+        grade.setReport(report);
+        grade.setGrader(grader);
+        grade.setScore(request.score());
+        grade.setComment(request.comment());
+        reportGradeRepository.save(grade);
+        report.setStatus(ReportStatus.GRADED);
+        reportRepository.save(report);
+        notificationService.notifyUser(report.getStudent(), "Report graded", "Your report has been graded.", NotificationType.REPORT);
+        return mapReport(report);
+    }
+
+    private ReportResponse mapReport(Report report) {
+        // Title priority: explicit title > trip title > position title > fallback
+        String title = report.getTitle();
+        if (title == null || title.isBlank()) {
+            title = report.getTrip() != null
+                    ? report.getTrip().getTitle()
+                    : report.getInternshipPosition() != null
+                    ? report.getInternshipPosition().getTitle()
+                    : "Report";
+        }
+        return new ReportResponse(
+                report.getId(),
+                title,
+                report.getContent(),
+                report.getStatus().name(),
+                report.getSubmittedAt(),
+                report.getFile() == null ? null : report.getFile().getId()
+        );
     }
 }

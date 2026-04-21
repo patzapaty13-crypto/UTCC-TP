@@ -1,99 +1,127 @@
 package org.example.utcctp.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "reports")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Report {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
     @ManyToOne
-    @JoinColumn(name = "internship_id")
-    private InternshipPosition internship;
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
 
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "internship_position_id")
+    private InternshipPosition internshipPosition;
+
+    @ManyToOne
+    @JoinColumn(name = "file_id")
+    private FileAsset file;
+
+    @Column(length = 255)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReportType type; // WEEKLY, MONTHLY, FINAL
+    @Column(nullable = false, length = 30)
+    private ReportStatus status = ReportStatus.SUBMITTED;
 
-    @Column(name = "week_number")
-    private Integer weekNumber;
+    @Column(name = "submitted_at", nullable = false)
+    private Instant submittedAt = Instant.now();
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReportStatus status; // DRAFT, SUBMITTED, UNDER_REVIEW, GRADED, NEEDS_REVISION
+    @OneToMany(mappedBy = "report")
+    private List<ReportGrade> grades = new ArrayList<>();
 
-    private Integer score; // 0-100
-
-    @Column(columnDefinition = "TEXT")
-    private String feedback;
-
-    @Column(columnDefinition = "TEXT")
-    private String achievements;
-
-    @Column(columnDefinition = "TEXT")
-    private String challenges;
-
-    @Column(columnDefinition = "TEXT")
-    private String learnings;
-
-    @Column(name = "next_week_plan", columnDefinition = "TEXT")
-    private String nextWeekPlan;
-
-    @Column(name = "submitted_at")
-    private LocalDateTime submittedAt;
-
-    @Column(name = "graded_at")
-    private LocalDateTime gradedAt;
-
-    @ManyToOne
-    @JoinColumn(name = "graded_by")
-    private User gradedBy;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (status == null) {
-            status = ReportStatus.DRAFT;
-        }
+    public UUID getId() {
+        return id;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public User getStudent() {
+        return student;
     }
 
-    public enum ReportType {
-        WEEKLY, MONTHLY, FINAL
+    public void setStudent(User student) {
+        this.student = student;
     }
 
-    public enum ReportStatus {
-        DRAFT, SUBMITTED, UNDER_REVIEW, GRADED, NEEDS_REVISION
+    public Trip getTrip() {
+        return trip;
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
+
+    public InternshipPosition getInternshipPosition() {
+        return internshipPosition;
+    }
+
+    public void setInternshipPosition(InternshipPosition internshipPosition) {
+        this.internshipPosition = internshipPosition;
+    }
+
+    public FileAsset getFile() {
+        return file;
+    }
+
+    public void setFile(FileAsset file) {
+        this.file = file;
+    }
+
+    public ReportStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReportStatus status) {
+        this.status = status;
+    }
+
+    public Instant getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public List<ReportGrade> getGrades() {
+        return grades;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

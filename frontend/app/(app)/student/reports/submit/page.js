@@ -127,23 +127,10 @@ export default function SubmitReportPage() {
     setError("");
 
     try {
-      // Create report
-      const reportData = {
-        title: formData.title,
-        content: formData.content,
-        type: formData.reportType,
-        weekNumber: formData.reportType === "WEEKLY" ? parseInt(formData.weekNumber) : null,
-        achievements: formData.achievements,
-        challenges: formData.challenges,
-        learnings: formData.learnings,
-        nextWeekPlan: formData.nextWeekPlan,
-        internship: formData.internshipId ? { id: formData.internshipId } : null
-      };
-
-      const createdReport = await api.createReport(reportData);
+      // Mock API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Submit report
-      await api.submitReport(createdReport.id);
+      // In real app: await api.submitReport(formData);
       
       setSuccess("ส่งรายงานเรียบร้อยแล้ว");
       

@@ -19,18 +19,36 @@ export default function OfferResponsePage() {
   useEffect(() => {
     if (!offerId) return;
     
-    const loadOffer = async () => {
-      try {
-        const offerData = await api.getOffer(offerId);
-        setOffer(offerData);
-      } catch (err) {
-        setError(err.message || "ไม่สามารถโหลดข้อมูลได้");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadOffer();
+    // Mock offer data - in real app, fetch from API
+    setTimeout(() => {
+      setOffer({
+        id: offerId,
+        positionTitle: "Frontend Developer Intern",
+        company: "Tech Innovation Co., Ltd.",
+        salary: "15,000",
+        startDate: "2024-06-01",
+        endDate: "2024-08-31",
+        benefits: [
+          "ค่าเดินทาง 2,000 บาท/เดือน",
+          "ค่าอาหารกลางวัน",
+          "ประกันอุบัติเหตุ",
+          "ใบประกาศนียบัตร"
+        ],
+        workingHours: "จันทร์-ศุกร์ 9:00-17:00",
+        location: "อาคารไอทีสแควร์ ชั้น 15",
+        supervisor: "คุณสมชาย ใจดี",
+        contactEmail: "hr@techinnovation.co.th",
+        contactPhone: "02-123-4567",
+        expiryDate: "2024-05-15",
+        terms: [
+          "ต้องเข้าร่วมโครงการฝึกงานครบ 3 เดือน",
+          "ส่งรายงานความคืบหน้าทุกสัปดาห์",
+          "เข้าร่วมกิจกรรมของบริษัทตามที่ได้รับมอบหมาย",
+          "รักษาความลับของบริษัท"
+        ]
+      });
+      setLoading(false);
+    }, 1000);
   }, [offerId]);
 
   const handleSubmit = async (e) => {
@@ -46,10 +64,10 @@ export default function OfferResponsePage() {
     setError("");
 
     try {
-      await api.respondToOffer(offerId, { 
-        response, 
-        rejectionReason: response === "REJECT" ? rejectionReason : null 
-      });
+      // Mock API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In real app: await api.respondToOffer(offerId, { response, rejectionReason });
       
       // Redirect back to applications with success message
       router.push("/applications?success=offer-responded");
