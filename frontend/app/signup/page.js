@@ -15,7 +15,7 @@ const ROLE_OPTIONS = [
 
 export default function SignupPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", username: "", password: "", role: "STUDENT" });
+  const [form, setForm] = useState({ displayName: "", email: "", username: "", password: "", role: "STUDENT" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -25,7 +25,7 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
     try {
-      await api.signupRequestOtp(form);
+      await api.signupRequestOtp({ ...form, studentId: form.username });
       router.push(`/signup/verify?email=${encodeURIComponent(form.email)}`);
     } catch (err) {
       setError(err.message || "ไม่สามารถสมัครสมาชิกได้");
@@ -84,7 +84,7 @@ export default function SignupPage() {
 
             <div className="field-group">
               <label className="field-label">ชื่อ-นามสกุล (Full Name)</label>
-              <input className="input-style" type="text" placeholder="ชื่อ-นามสกุลของคุณ" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} required />
+              <input className="input-style" type="text" placeholder="ชื่อ-นามสกุลของคุณ" value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} disabled={loading} required />
             </div>
 
             <div className="field-group">
@@ -102,7 +102,7 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <button type="submit" className="btn-submit" disabled={loading || !form.username || !form.password || !form.email || !form.name}>
+            <button type="submit" className="btn-submit" disabled={loading || !form.username || !form.password || !form.email || !form.displayName}>
               {loading ? <i className="fas fa-circle-notch fa-spin"></i> : <>ส่งรหัส OTP ป้องกันบัญชี <i className="fas fa-arrow-right"></i></>}
             </button>
           </form>
