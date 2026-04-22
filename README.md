@@ -1,203 +1,119 @@
-# UTCC-TP
+# 🎓 UTCC-TP: Trip & Internship Management Platform
 
-**Trip & Internship Management Platform** — University of the Thai Chamber of Commerce.
-
-Spring Boot 3.4 (Java 21) + Next.js 16 (React 19). Supports Supabase Postgres, Cloudinary file storage, Resend transactional email, OTP signup, audit logs, and a live analytics dashboard.
-
----
-
-## Stack
-
-| Layer       | Tech                                                        |
-|-------------|-------------------------------------------------------------|
-| Backend     | Spring Boot 3.4.3 · Java 21 · JWT · Flyway                  |
-| Frontend    | Next.js 16 (App Router) · React 19                          |
-| Database    | Postgres (Supabase / self-hosted) · H2 in-memory for dev    |
-| Storage     | Cloudinary (prod) · Local filesystem (dev)                  |
-| Email       | Resend API                                                  |
-| Automation  | n8n Webhook                                                 |
-| AI          | OpenAI API (optional)                                       |
+**University of the Thai Chamber of Commerce**
+A professional, automated Internship Application Tracking System (ATS) and Trip Management platform.
 
 ---
 
-## Local development
+## 🏗️ System Architecture & Data Flow
 
-### 1. Backend (H2 in-memory, zero setup)
+The platform follows a modern full-stack architecture with clear separation of concerns:
 
-```bash
-./mvnw -DskipTests spring-boot:run
+```mermaid
+graph TD
+    subgraph "Frontend (Next.js 16)"
+        UI["React 19 Components"]
+        Lib["API Library (Axios)"]
+        Context["Auth Context / Session"]
+    end
+
+    subgraph "Backend (Spring Boot 3.4)"
+        API["REST Controllers"]
+        Security["JWT / Spring Security"]
+        Service["Business Logic Services"]
+        Repo["JPA Repositories"]
+    end
+
+    subgraph "Infrastructure"
+        DB[("PostgreSQL")]
+        n8n["n8n Automation Cloud"]
+        Cloud["Cloudinary Storage"]
+        Mail["Resend Email API"]
+    end
+
+    UI --> Lib
+    Lib -->|JWT Authenticated Requests| API
+    API --> Security
+    Security --> Service
+    Service --> Repo
+    Repo --> DB
+    Service -->|Async Webhooks| n8n
+    Service -->|File Uploads| Cloud
+    n8n --> Mail
 ```
 
-Backend boots on `http://localhost:8080`. Seeded demo users:
-
-| Username  | Password | Role       |
-|-----------|----------|------------|
-| student1  | pass123  | STUDENT    |
-| advisor1  | pass123  | ADVISOR    |
-| admin1    | pass123  | ADMIN      |
-
-### 2. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend runs on `http://localhost:3000` and targets `http://localhost:8080/api/v1` by default (override via `NEXT_PUBLIC_API_URL`).
-
-### 3. Postgres via Docker (optional)
-
-```bash
-docker compose up -d
-SPRING_PROFILES_ACTIVE=postgres ./mvnw -DskipTests spring-boot:run
-```
+### Flow Example: Internship Application
+1. **Frontend**: Student fills out the `ApplicationForm.js` and submits.
+2. **API**: `ApplicationController` receives the request.
+3. **Security**: `JwtAuthFilter` validates the student's token.
+4. **Service**: `ApplicationService` saves data, creates a status log, and fires an **n8n Webhook**.
+5. **Automation**: n8n receives the webhook, generates a notification, and sends an email via **Resend**.
 
 ---
 
-## Production deploy
+## 📂 Project Structure
 
-### A. Database — Supabase Postgres
+### 💻 Frontend (`/frontend`)
+Built with **Next.js 16 (App Router)** and **Tailwind CSS**.
 
-1. Create a Supabase project. Copy the connection string (Pooler 5432 is fine; include `?sslmode=require`).
-2. Set env vars on the backend host:
-   - `DATABASE_URL` — full JDBC URL, e.g. `jdbc:postgresql://db.xxx.supabase.co:5432/postgres?sslmode=require`
-   - `DATABASE_USERNAME` (usually `postgres`)
-   - `DATABASE_PASSWORD`
-   - `SPRING_PROFILES_ACTIVE=supabase`
-3. Flyway auto-runs migrations V1 → V5 on first start.
+| Folder / File | Description |
+|---|-|
+| `app/` | **Pages & API Routes.** Uses App Router hierarchy. |
+| `app/(app)/` | Protected routes requiring login (Student, Advisor, Admin dashboards). |
+| `app/auth/` | Login and role-based authentication entry points. |
+| `app/api/chat/` | Nexus AI route — handles communication between UI and n8n/Gemini. |
+| `components/` | **Reusable UI Components.** |
+| `components/RoleDashboardShell.js` | The main layout for all dashboards (dynamic sidebar based on role). |
+| `components/ApplicationForm.js` | The complex multi-step internship application form. |
+| `components/NexusChat.js` | The floating AI assistant interface. |
+| `lib/api.js` | Axios configuration with interceptors for JWT token management. |
+| `lib/statusConfig.js` | Centralized config for application statuses (colors, icons, steps). |
 
-### B. File storage — Cloudinary
+### ⚙️ Backend (`/src/main/java/org/example/utcctp`)
+Built with **Spring Boot 3.4** and **Java 21**.
 
-1. Sign up at cloudinary.com → copy **cloud name** from the dashboard.
-2. Preferred (signed): set `CLOUDINARY_API_KEY` + `CLOUDINARY_API_SECRET`.
-3. Simpler (unsigned): create an unsigned **upload preset** and set `CLOUDINARY_UPLOAD_PRESET`.
-4. `STORAGE_PROVIDER=auto` (default) uses Cloudinary when configured, otherwise falls back to local disk.
+| Package | Description |
+|---|-|
+| `api/` | **REST Controllers.** Entry points for frontend requests. |
+| `auth/` | **Authentication Logic.** Handles OTP, Signup, and JWT generation. |
+| `model/` | **JPA Entities.** Database schema definitions (User, Application, etc.). |
+| `service/` | **Business Logic.** The "brain" of the app. Processes data and business rules. |
+| `notification/` | **WebhookService.** Dispatches async events to n8n for emails/automation. |
+| `security/` | **Spring Security Config.** Defines permissions and JWT filtering. |
+| `storage/` | **Storage Providers.** Pluggable logic for Local vs Cloudinary uploads. |
+| `repository/` | **Data Access.** Spring Data JPA interfaces for DB queries. |
 
-### C. Email — Resend
-
-1. Create a Resend account, verify your sender domain.
-2. Set `RESEND_API_KEY` and `MAIL_FROM` (e.g. `UTCC-TP <noreply@yourdomain.com>`).
-3. If either is missing, the backend runs in dry-run mode (logs instead of sending) — safe for staging.
-
-### D. Backend — Render (Docker)
-
-`render.yaml` is included. Steps:
-
-1. New web service → "Existing repo" → pick this repo.
-2. Render auto-detects `Dockerfile` (`runtime: docker`).
-3. In the dashboard → **Environment**, add all secrets from `.env.example`.
-4. Render sets `PORT` automatically; health check is at `/actuator/health`.
-
-### E. Frontend — Vercel
-
-1. Import repo, Root Directory = `frontend/`.
-2. Vercel auto-detects Next.js.
-3. Environment variable: `NEXT_PUBLIC_API_URL = https://<your-backend>.onrender.com/api/v1`.
-4. Update backend `CORS_ALLOWED_ORIGINS=https://<your-vercel-domain>`.
-
-### F. Automation — n8n Cloud (9 Active Workflows)
-
-The backend integrates with **9 active n8n workflows** via webhooks for email delivery, AI processing, and scheduling.
-
-Set all `N8N_WEBHOOK_*` env vars (see `.env.example` for full list). Key endpoints:
-
-| Env Var | Webhook Path | Purpose |
-|---------|-------------|---------|
-| `N8N_WEBHOOK_URL` | `/webhook/otp-send` | OTP email delivery |
-| `N8N_WEBHOOK_APP_STATUS` | `/webhook/utcctp-app-status` | Application status emails |
-| `N8N_WEBHOOK_INTERVIEW` | `/webhook/utcctp-interview-scheduled` | Interview scheduling + Calendar |
-| `N8N_WEBHOOK_RESUME` | `/webhook/utcctp-resume-screening` | AI resume scoring |
-| `N8N_WEBHOOK_SECURITY` | `/webhook/security-alert` | Security alert emails |
-| `N8N_WEBHOOK_FORGOT_PW` | `/webhook/forgot-password` | Password reset emails |
-| `N8N_WEBHOOK_EVENTS` | `/webhook/utcctp-events` | Generic event router |
-
-All webhooks are **fire-and-forget** (async) via `WebhookService`. If a URL is unconfigured, the call is silently skipped — safe for local development.
-
-See [PRODUCTION_READY.md](./PRODUCTION_READY.md) for complete deployment guide.
-
-
-## Features
-
-- **ATS pipeline** — application funnel with status logs, AI match scoring.
-- **Enhanced Application Form** (Phase 1) — multi-step form with personal info, academic info, cover letter, and portfolio.
-- **Enhanced Job Details** (Phase 1) — salary range, duration, deadline, benefits, contact info, and Google Maps.
-- **OTP signup** — `POST /api/v1/auth/signup/request-otp` → `POST /api/v1/auth/signup/verify`.
-- **Audit trail** — every sensitive mutation logged with actor/IP/UA. Admin view: `GET /api/v1/admin/audit`.
-- **Analytics dashboard** — `GET /api/v1/analytics/dashboard` returns applications by status / major / month + placement rate. Rendered on `/analytics` page.
-- **File storage** — pluggable provider (`LOCAL` / `CLOUDINARY`) selected per request.
-- **Email notifications** — transactional mail on status changes via Resend.
-- **Role-based access** — `STUDENT`, `ADVISOR`, `STAFF`, `ADMIN` with method-level `@PreAuthorize`.
+### 🗄️ Database & Resources (`/src/main/resources`)
+| Path | Description |
+|---|-|
+| `db/migration/` | **Flyway Scripts.** Versioned SQL migrations for schema evolution. |
+| `application.properties` | Central configuration for DB, JWT, and n8n URLs. |
 
 ---
 
-## 📚 Documentation
+## 🛠️ Key Files & Their Functions
 
-- **[Phase 1 Enhancements](./docs/PHASE1_ENHANCEMENTS.md)** - Technical documentation for Phase 1 features
-- **[Phase 1 Quick Start](./docs/PHASE1_QUICK_START.md)** - User guide for students and companies
-- **[Phase 1 Complete](./PHASE1_COMPLETE.md)** - Summary of Phase 1 completion
-- **[Workflows & Roles](./docs/01-workflows-roles.md)** - System workflows and user roles
-- **[ERD & API](./docs/02-erd-api.md)** - Database schema and API documentation
-- **[Wireframes](./docs/03-wireframes.md)** - UI/UX design mockups
+### Backend Highlights
+- **`SecurityConfig.java`**: Configures CORS (allowing Vercel) and protects endpoints.
+- **`ApplicationService.java`**: Manages the lifecycle of an internship (Draft -> Pending -> Approved -> Finished).
+- **`WebhookService.java`**: Sends data to n8n. It is "fire-and-forget" to ensure the main UI stays fast.
+- **`User.java`**: Supports multiple roles and stores extra data like `skills` and `experiences` as JSONB.
 
----
-
-## Environment variables
-
-See `.env.example` (backend) and `frontend/.env.example` (frontend) for the full list with descriptions.
-
-Minimum required for production:
-
-```
-JWT_SECRET              # REQUIRED - long random string
-DATABASE_URL            # REQUIRED - Supabase JDBC URL
-DATABASE_PASSWORD       # REQUIRED
-RESEND_API_KEY          # email notifications
-CLOUDINARY_CLOUD_NAME   # +  API_KEY/SECRET or UPLOAD_PRESET
-CORS_ALLOWED_ORIGINS    # your frontend origin(s)
-```
+### Frontend Highlights
+- **`api.js`**: Automatically attaches `Authorization: Bearer <token>` to every request.
+- **`RoleDashboardShell.js`**: Renders different menus for `STUDENT`, `ADVISOR`, `COMPANY`, and `ADMIN`.
+- **`ApplicationForm.js`**: Handles file uploads (Resume/Transcript) before submitting the final application.
 
 ---
 
-## Database migrations
+## 🚀 Deployment Status
 
-Flyway SQL files in `src/main/resources/db/migration/`:
-
-| Version | Description                                 |
-|---------|---------------------------------------------|
-| V1      | Initial schema (users, trips, applications) |
-| V2      | ATS tables (status log, AI evaluations)     |
-| V3      | File storage provider columns               |
-| V4      | Signup / OTP table + user fields            |
-| V5      | Audit logs                                  |
-| V8      | **Phase 1 Enhancements** (application form fields, job details) |
-
-**Phase 1 Enhancement** (V8):
-- Applications: +9 fields (phone, email, address, gpa, student_year, cover_letter, portfolio_url, updated_at, submitted_at)
-- Internship Positions: +10 fields (salary_min, salary_max, start_date, end_date, application_deadline, benefits, internship_type, contact_email, contact_phone, contact_line)
-
-See [docs/PHASE1_ENHANCEMENTS.md](./docs/PHASE1_ENHANCEMENTS.md) for details.
+- **Frontend**: [https://utcc-tp-indol.vercel.app](https://utcc-tp-indol.vercel.app)
+- **Backend**: [https://utcc-tp-backend.onrender.com](https://utcc-tp-backend.onrender.com)
+- **Automation**: n8n Cloud (handling 9 production workflows)
 
 ---
 
-## API surface (abridged)
-
-```
-POST   /api/v1/auth/login
-POST   /api/v1/auth/signup/request-otp
-POST   /api/v1/auth/signup/verify
-GET    /api/v1/auth/me
-
-GET    /api/v1/internships
-POST   /api/v1/applications
-PUT    /api/v1/applications/{id}/status
-POST   /api/v1/applications/{id}/decide
-
-POST   /api/v1/files                (multipart upload)
-GET    /api/v1/files/{id}           (redirect for Cloudinary, stream for local)
-
-GET    /api/v1/analytics/dashboard  (STAFF/ADMIN/ADVISOR)
-GET    /api/v1/admin/audit          (ADMIN)
-GET    /api/v1/notifications/stream (SSE)
-```
-
+## 📖 Maintenance
+- To add a new database field: Add a new `V__xxx.sql` in `db/migration` and update the JPA Entity.
+- To add a new dashboard page: Create a folder in `app/(app)/<role>/` and update `RoleDashboardShell.js` navigation.
