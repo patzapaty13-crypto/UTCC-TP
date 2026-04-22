@@ -244,7 +244,7 @@ export default function DashboardLayout({ children }) {
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
             <Link href="/dashboard" className="hub-link" title="กลับหน้าหลัก">
               <i className="fas fa-grid-2" style={{ color: "#2563EB", fontSize: 20 }}></i>
-              <span style={{ fontSize: 20, letterSpacing: "-1px" }}>Dashboard <span className="gradient-text" style={{ fontWeight: 900 }}>Portal</span></span>
+              <span style={{ fontSize: 20, letterSpacing: "-1px" }}>Internship <span className="gradient-text" style={{ fontWeight: 900 }}>Portal</span></span>
             </Link>
           </div>
 
