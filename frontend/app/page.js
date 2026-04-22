@@ -5,6 +5,7 @@ import Link from "next/link";
 import StatItem from "@/components/landing/StatItem";
 import StepsSection from "@/components/landing/StepsSection";
 import FeaturesBento from "@/components/landing/FeaturesBento";
+import InternshipNews from "@/components/landing/InternshipNews";
 import FaqSection from "@/components/landing/FaqSection";
 import RoleCards from "@/components/landing/RoleCards";
 import { useScrollReveal } from "@/components/landing/useScrollReveal";
@@ -131,6 +132,7 @@ export default function LandingPage() {
 
       <StepsSection />
       <FeaturesBento />
+      <InternshipNews />
 
       {/* ── ABOUT (Kept video as requested) ────────────────────── */}
       <section id="about" style={{ padding: "100px 32px", background: "white" }}>
