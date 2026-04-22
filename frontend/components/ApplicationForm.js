@@ -10,7 +10,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
 
   const [formData, setFormData] = useState({
     fullName: "",
-    phone: "",
+    phone: "TESTING",
     email: "",
     address: "",
     gpa: "",
@@ -231,7 +231,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 placeholder="ระบุชื่อ-นามสกุลของคุณ"
               />
               <InputGroup
-                label="เบอร์โทรศัพท์"
+                label="เบอร์โทรศัพท์ (TEST)"
                 icon="phone"
                 required
                 error={errors.phone}

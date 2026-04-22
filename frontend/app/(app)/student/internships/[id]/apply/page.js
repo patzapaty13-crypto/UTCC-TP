@@ -116,7 +116,11 @@ export default function ApplyForInternshipPage() {
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  if (val.length <= 10) setFormData({ ...formData, phone: val });
+                }}
+                placeholder="0xx-xxx-xxxx"
                 required
                 style={{
                   width: "100%",
@@ -136,6 +140,7 @@ export default function ApplyForInternshipPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="user@example.com"
                 required
                 style={{
                   width: "100%",
@@ -156,6 +161,7 @@ export default function ApplyForInternshipPage() {
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={2}
+              placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
               style={{
                 width: "100%",
                 padding: "10px 14px",
@@ -179,6 +185,7 @@ export default function ApplyForInternshipPage() {
                 max="4"
                 value={formData.gpa}
                 onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
+                placeholder="X.XX"
                 style={{
                   width: "100%",
                   padding: "10px 14px",
@@ -197,6 +204,7 @@ export default function ApplyForInternshipPage() {
                 type="text"
                 value={formData.major}
                 onChange={(e) => setFormData({ ...formData, major: e.target.value })}
+                placeholder="ชื่อสาขาวิชาของคุณ"
                 style={{
                   width: "100%",
                   padding: "10px 14px",
