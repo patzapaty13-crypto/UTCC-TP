@@ -56,7 +56,7 @@ export default function InternshipNews() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
           {NEWS_ITEMS.map((item, i) => (
             <div key={item.id} className={`reveal reveal-delay-${i + 1}`} 
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(`/internships/${item.id}`)}
               style={{ background: "white", borderRadius: 20, border: "1px solid #F1F5F9", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", transition: "transform 0.3s, box-shadow 0.3s", cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-8px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.03)"; }}>
