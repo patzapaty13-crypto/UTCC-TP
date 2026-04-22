@@ -15,11 +15,16 @@
   from { opacity: 0; transform: scale(0.94); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
 
 .animate-fade-in     { animation: fadeIn 0.35s var(--ease) both; }
 .animate-fade-fast   { animation: fadeInFast 0.2s var(--ease) both; }
 .animate-slide-left  { animation: slideInLeft 0.3s var(--ease) both; }
 .animate-scale-in    { animation: scaleIn 0.25s var(--ease) both; }
+.animate-slide-in    { animation: slideIn 0.3s var(--ease) both; }
 
 /* Stagger children */
 .stagger > *:nth-child(1) { animation-delay: 0ms; }
