@@ -1,7 +1,7 @@
 // Status configuration for applications
 export const STATUS_CONFIG = {
   PENDING: {
-    label: "รอการตรวจสอบ",
+    label: "รอการตรวจสอบ 5 - 7 วัน",
     color: "#F59E0B",
     background: "#FEF3C7",
     borderColor: "#FCD34D",

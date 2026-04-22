@@ -14,6 +14,7 @@ const NAV_ITEMS = {
     { href: "/student/profile", label: "โปรไฟล์", icon: "fa-user" },
     { href: "/student/internships", label: "ค้นหาฝึกงาน", icon: "fa-briefcase" },
     { href: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
+    { href: "/student/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
     { href: "/student/reports", label: "รายงานฝึกงาน", icon: "fa-file-lines" },
     { href: "/student/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
@@ -31,9 +32,8 @@ const NAV_ITEMS = {
     { href: "/company/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
     { href: "/company/applications", label: "ใบสมัคร", icon: "fa-clipboard-list" },
-    { href: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-contract" },
+    { href: "/company/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
     { href: "/company/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
-    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
     { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },
@@ -63,31 +63,37 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
         const unread = notifications.filter(n => !n.read).length;
         setUnreadCount(unread);
       })
-      .catch(err => console.error("Failed to load notifications:", err));
+      .catch(err => {
+        // Silently fail if notifications endpoint doesn't exist
+        console.warn("Notifications not available");
+      });
 
-    // SSE connection for real-time updates
-    const token = localStorage.getItem("utcctp_token");
-    if (token) {
-      const eventSource = new EventSource(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
-      );
+    // SSE connection for real-time updates - disabled until backend endpoint is available
+    // const token = localStorage.getItem("utcctp_token");
+    // if (token) {
+    //   try {
+    //     const eventSource = new EventSource(
+    //       `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
+    //     );
 
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "notification") {
-          setUnreadCount(prev => prev + 1);
-        }
-      };
+    //     eventSource.onmessage = (event) => {
+    //       const data = JSON.parse(event.data);
+    //       if (data.type === "notification") {
+    //         setUnreadCount(prev => prev + 1);
+    //       }
+    //     };
 
-      eventSource.onerror = (error) => {
-        console.error("SSE error:", error);
-        eventSource.close();
-      };
+    //     eventSource.onerror = (error) => {
+    //       eventSource.close();
+    //     };
 
-      return () => {
-        eventSource.close();
-      };
-    }
+    //     return () => {
+    //       eventSource.close();
+    //     };
+    //   } catch (err) {
+    //     // Silently fail if SSE is not available
+    //   }
+    // }
   }, []);
 
   return (

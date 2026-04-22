@@ -32,7 +32,7 @@ export default function StudentInterviewsPage() {
 
   const loadInterviews = async () => {
     try {
-      const data = await api.get("/interviews");
+      const data = await api.getInterviews();
       setInterviews(data || []);
     } catch (err) {
       console.error("Failed to load interviews:", err);
@@ -670,25 +670,14 @@ function InterviewDetailModal({ interview, onClose, onConfirm, onReschedule }) {
         marginBottom: 24
       }}>
         <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>สถานะการยืนยัน</h4>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <i className={`fas fa-${interview.studentConfirmed ? "check-circle" : "clock"}`} style={{
-              color: interview.studentConfirmed ? "#10B981" : "#F59E0B",
-              fontSize: 16
-            }}></i>
-            <span style={{ fontSize: 13 }}>
-              นักศึกษา: {interview.studentConfirmed ? "ยืนยันแล้ว" : "รอยืนยัน"}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <i className={`fas fa-${interview.companyConfirmed ? "check-circle" : "clock"}`} style={{
-              color: interview.companyConfirmed ? "#10B981" : "#F59E0B",
-              fontSize: 16
-            }}></i>
-            <span style={{ fontSize: 13 }}>
-              บริษัท: {interview.companyConfirmed ? "ยืนยันแล้ว" : "รอยืนยัน"}
-            </span>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <i className={`fas fa-${interview.studentConfirmed ? "check-circle" : "clock"}`} style={{
+            color: interview.studentConfirmed ? "#10B981" : "#F59E0B",
+            fontSize: 16
+          }}></i>
+          <span style={{ fontSize: 13 }}>
+            นักศึกษา: {interview.studentConfirmed ? "ยืนยันแล้ว" : "รอยืนยัน"}
+          </span>
         </div>
       </div>
 

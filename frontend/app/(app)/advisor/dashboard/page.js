@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import RoleDashboardShell from "@/components/RoleDashboardShell";
 import Link from "next/link";
+import { api } from "@/lib/api";
 
 export default function AdvisorDashboard() {
   const [stats, setStats] = useState(null);
@@ -14,21 +15,18 @@ export default function AdvisorDashboard() {
 
   const loadStats = async () => {
     try {
-      // Use mock data for now
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setStats({
-        totalStudents: 12,
-        pendingReports: 5,
-        pendingApprovals: 3,
-        unreadNotifications: 2,
-        recentActivities: [
-          { title: "นักศึกษาส่งรายงานใหม่", description: "สมชาย ใจดี ส่งรายงานสัปดาห์ที่ 4", icon: "fa-file-lines", color: "#F59E0B", time: "2 ชั่วโมงที่แล้ว" },
-          { title: "คำขออนุมัติใหม่", description: "วิภา สุขใจ ขออนุมัติเอกสาร", icon: "fa-circle-check", color: "#10B981", time: "5 ชั่วโมงที่แล้ว" },
-          { title: "การแจ้งเตือนใหม่", description: "มีการแจ้งเตือนจากระบบ", icon: "fa-bell", color: "#2563EB", time: "1 วันที่แล้ว" },
-        ]
-      });
+      const data = await api.getAdvisorStats();
+      setStats(data);
     } catch (err) {
       console.error("Failed to load dashboard stats:", err);
+      // Fallback to mock data if API fails
+      setStats({
+        totalStudents: 0,
+        pendingReports: 0,
+        pendingApprovals: 0,
+        unreadNotifications: 0,
+        recentActivities: []
+      });
     } finally {
       setLoading(false);
     }

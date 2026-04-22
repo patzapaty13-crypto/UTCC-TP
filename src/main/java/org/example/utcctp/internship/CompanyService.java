@@ -53,6 +53,9 @@ public class CompanyService {
         company.setLocation(request.location());
         company.setContactName(request.contactName());
         company.setContactEmail(request.contactEmail());
+        if (request.logoUrl() != null) {
+            company.setLogoUrl(request.logoUrl());
+        }
         if (company.getStatus() == null || company.getStatus().isBlank()) {
             company.setStatus("ACTIVE");
         }
@@ -66,7 +69,8 @@ public class CompanyService {
                 company.getLocation(),
                 company.getStatus(),
                 company.getContactName(),
-                company.getContactEmail()
+                company.getContactEmail(),
+                company.getLogoUrl()
         );
     }
 }

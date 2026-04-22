@@ -51,7 +51,7 @@ export default function StudentDashboard() {
           value={stats?.pendingInterviews || 0}
           icon="fa-calendar-check"
           color="#7C3AED"
-          link="/student/interviews"
+          link="/student/applications"
         />
         <StatCard
           title="ข้อเสนองาน"
@@ -89,7 +89,7 @@ export default function StudentDashboard() {
             color="#10B981"
           />
           <QuickAction
-            href="/student/interviews"
+            href="/student/applications"
             icon="fa-calendar-check"
             label="นัดสัมภาษณ์"
             color="#7C3AED"

@@ -10,6 +10,7 @@ export default function AdvisorReportsPage() {
   const [error, setError] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   const [showGradeModal, setShowGradeModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [gradeForm, setGradeForm] = useState({
     grade: "",
     feedback: "",
@@ -37,7 +38,10 @@ export default function AdvisorReportsPage() {
     if (!selectedReport) return;
 
     try {
-      await api.gradeReport(selectedReport.id, gradeForm);
+      await api.gradeReport(selectedReport.id, {
+        score: parseFloat(gradeForm.grade),
+        comment: gradeForm.feedback
+      });
       setShowGradeModal(false);
       setSelectedReport(null);
       setGradeForm({ grade: "", feedback: "" });
@@ -48,8 +52,8 @@ export default function AdvisorReportsPage() {
     }
   };
 
-  const pendingReports = reports.filter(r => !r.grade);
-  const gradedReports = reports.filter(r => r.grade);
+  const pendingReports = reports.filter(r => r.score === null || r.score === undefined);
+  const gradedReports = reports.filter(r => r.score !== null && r.score !== undefined);
 
   const filteredReports = statusFilter === "ALL" ? reports :
     statusFilter === "PENDING" ? pendingReports : gradedReports;
@@ -92,7 +96,7 @@ export default function AdvisorReportsPage() {
           </p>
           <p style={{ fontSize: 32, fontWeight: 900, color: "var(--success)" }}>
             {gradedReports.length > 0 
-              ? (gradedReports.reduce((sum, r) => sum + (parseFloat(r.grade) || 0), 0) / gradedReports.length).toFixed(2)
+              ? (gradedReports.reduce((sum, r) => sum + (parseFloat(r.score) || 0), 0) / gradedReports.length).toFixed(2)
               : "-"}
           </p>
         </div>
@@ -124,6 +128,7 @@ export default function AdvisorReportsPage() {
                 key={report.id} 
                 report={report} 
                 onGrade={() => { setSelectedReport(report); setShowGradeModal(true); }}
+                onViewDetail={() => { setSelectedReport(report); setShowDetailModal(true); }}
               />
             ))}
           </div>
@@ -139,7 +144,11 @@ export default function AdvisorReportsPage() {
           </h3>
           <div style={{ display: "grid", gap: 16 }}>
             {gradedReports.map(report => (
-              <ReportCard key={report.id} report={report} />
+              <ReportCard 
+                key={report.id} 
+                report={report} 
+                onViewDetail={() => { setSelectedReport(report); setShowDetailModal(true); }}
+              />
             ))}
           </div>
         </div>
@@ -200,11 +209,11 @@ export default function AdvisorReportsPage() {
             {selectedReport.content && (
               <div style={{ marginBottom: 24 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>เนื้อหารายงาน</h4>
-                <div style={{ 
-                  padding: 16, 
-                  background: "var(--n-50)", 
-                  borderRadius: 12, 
-                  maxHeight: 200, 
+                <div style={{
+                  padding: 16,
+                  background: "var(--n-50)",
+                  borderRadius: 12,
+                  maxHeight: 200,
                   overflowY: "auto",
                   fontSize: 13,
                   lineHeight: 1.6,
@@ -218,25 +227,25 @@ export default function AdvisorReportsPage() {
             <form onSubmit={handleGrade} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div className="field-group">
                 <label className="field-label">คะแนน (0-100) *</label>
-                <input 
-                  className="field-input" 
-                  type="number" 
+                <input
+                  className="field-input"
+                  type="number"
                   min="0"
                   max="100"
-                  placeholder="85" 
-                  value={gradeForm.grade} 
-                  onChange={(e) => setGradeForm({...gradeForm, grade: e.target.value})} 
-                  required 
+                  placeholder="85"
+                  value={gradeForm.grade}
+                  onChange={(e) => setGradeForm({...gradeForm, grade: e.target.value})}
+                  required
                 />
               </div>
 
               <div className="field-group">
                 <label className="field-label">ความคิดเห็น *</label>
-                <textarea 
-                  className="field-input" 
-                  placeholder="ให้ข้อเสนอแนะและคำแนะนำแก่นักศึกษา" 
-                  value={gradeForm.feedback} 
-                  onChange={(e) => setGradeForm({...gradeForm, feedback: e.target.value})} 
+                <textarea
+                  className="field-input"
+                  placeholder="ให้ข้อเสนอแนะและคำแนะนำแก่นักศึกษา"
+                  value={gradeForm.feedback}
+                  onChange={(e) => setGradeForm({...gradeForm, feedback: e.target.value})}
                   rows={5}
                   required
                 />
@@ -255,16 +264,149 @@ export default function AdvisorReportsPage() {
           </div>
         </div>
       )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedReport && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 999,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+        }} onClick={() => setShowDetailModal(false)}>
+          <div className="card animate-scale-in" style={{ width: "100%", maxWidth: 800, padding: 32, position: "relative", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowDetailModal(false)}
+              style={{ position: "absolute", top: 20, right: 24, background: "none", border: "none", fontSize: 18, color: "var(--n-400)", cursor: "pointer" }}
+            >
+              <i className="fas fa-xmark"></i>
+            </button>
+
+            <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 24 }}>
+              <i className="fas fa-file-lines" style={{ marginRight: 10, color: "var(--primary)" }}></i>
+              รายละเอียดรายงาน
+            </h2>
+
+            <div style={{ padding: 16, background: "var(--n-50)", borderRadius: 12, marginBottom: 24 }}>
+              <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+                {selectedReport.studentName || "ไม่ระบุชื่อ"}
+              </p>
+              <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                {selectedReport.title || "รายงานฝึกงาน"}
+              </p>
+              {selectedReport.submittedAt && (
+                <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>
+                  <i className="fas fa-clock" style={{ marginRight: 6 }}></i>
+                  ส่งเมื่อ: {new Date(selectedReport.submittedAt).toLocaleDateString("th-TH", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </p>
+              )}
+            </div>
+
+            {/* Full Report Content */}
+            {selectedReport.content && (
+              <div style={{ marginBottom: 24 }}>
+                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>เนื้อหารายงาน</h4>
+                <div style={{
+                  padding: 20,
+                  background: "white",
+                  borderRadius: 12,
+                  border: "1px solid var(--n-200)",
+                  fontSize: 14,
+                  lineHeight: 1.8,
+                  whiteSpace: "pre-wrap"
+                }}>
+                  {selectedReport.content}
+                </div>
+              </div>
+            )}
+
+            {/* File Download */}
+            {selectedReport.fileName && (
+              <div style={{ marginBottom: 24 }}>
+                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>ไฟล์แนบ</h4>
+                <button
+                  onClick={() => {
+                    const token = localStorage.getItem("utcctp_token");
+                    const downloadUrl = api.downloadReportFile(selectedReport.id);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.setAttribute('download', selectedReport.fileName || 'report.pdf');
+                    fetch(downloadUrl, {
+                      headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      link.href = url;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      window.URL.revokeObjectURL(url);
+                    })
+                    .catch(err => alert('ไม่สามารถดาวน์โหลดไฟล์ได้: ' + err.message));
+                  }}
+                  className="btn btn-primary"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                >
+                  <i className="fas fa-file-pdf"></i>
+                  {selectedReport.fileName}
+                  <i className="fas fa-download"></i>
+                </button>
+              </div>
+            )}
+
+            {/* Grade and Feedback if already graded */}
+            {selectedReport.score !== null && selectedReport.score !== undefined && (
+              <div style={{ padding: 16, background: "var(--success-50)", borderRadius: 12, marginBottom: 24 }}>
+                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--success)" }}>
+                  <i className="fas fa-star" style={{ marginRight: 8 }}></i>
+                  คะแนนและความคิดเห็น
+                </h4>
+                <p style={{ fontSize: 24, fontWeight: 900, color: "var(--success)", marginBottom: 8 }}>
+                  {selectedReport.score}/100
+                </p>
+                {selectedReport.feedback && (
+                  <p style={{ fontSize: 14, lineHeight: 1.6 }}>
+                    {selectedReport.feedback}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
+              <button className="btn btn-ghost" onClick={() => setShowDetailModal(false)}>
+                ปิด
+              </button>
+              {(selectedReport.score === null || selectedReport.score === undefined) && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    setShowGradeModal(true);
+                  }}
+                >
+                  <i className="fas fa-star" style={{ marginRight: 8 }}></i>
+                  ให้คะแนน
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </RoleDashboardShell>
   );
 }
 
-function ReportCard({ report, onGrade }) {
-  const hasGrade = report.grade !== null && report.grade !== undefined;
-  const gradeColor = report.grade >= 80 ? "var(--success)" : 
-                     report.grade >= 70 ? "var(--primary)" :
-                     report.grade >= 60 ? "var(--warning)" : "var(--error)";
-  
+function ReportCard({ report, onGrade, onViewDetail }) {
+  const hasGrade = report.score !== null && report.score !== undefined;
+  const gradeColor = report.score >= 80 ? "var(--success)" :
+                     report.score >= 70 ? "var(--primary)" :
+                     report.score >= 60 ? "var(--warning)" : "var(--error)";
+
   const hasFile = report.fileName && report.fileName.length > 0;
 
   const handleDownload = () => {
@@ -350,14 +492,24 @@ function ReportCard({ report, onGrade }) {
               คะแนน
             </p>
             <p style={{ fontSize: 32, fontWeight: 900, color: gradeColor, lineHeight: 1 }}>
-              {report.grade}
+              {report.score}
             </p>
+            <button className="btn btn-ghost btn-sm" onClick={onViewDetail} style={{ marginTop: 8 }}>
+              <i className="fas fa-eye" style={{ marginRight: 6 }}></i>
+              ดูรายละเอียด
+            </button>
           </div>
         ) : (
-          <button className="btn btn-primary btn-sm" onClick={onGrade}>
-            <i className="fas fa-star" style={{ marginRight: 6 }}></i>
-            ให้คะแนน
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn btn-ghost btn-sm" onClick={onViewDetail}>
+              <i className="fas fa-eye" style={{ marginRight: 6 }}></i>
+              ดูรายละเอียด
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={onGrade}>
+              <i className="fas fa-star" style={{ marginRight: 6 }}></i>
+              ให้คะแนน
+            </button>
+          </div>
         )}
       </div>
 

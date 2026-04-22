@@ -9,6 +9,7 @@ public record CompanyResponse(
         String location,
         String status,
         String contactName,
-        String contactEmail
+        String contactEmail,
+        String logoUrl
 ) {
 }

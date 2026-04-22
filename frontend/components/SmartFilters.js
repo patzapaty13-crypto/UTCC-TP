@@ -122,7 +122,7 @@ export function ApplicationFilters({ applications, onFilter }) {
             onChange={handleStatusChange}
           >
             <option value="">ทุกสถานะ</option>
-            <option value="PENDING">⏳ รอการตรวจสอบ</option>
+            <option value="PENDING">⏳ รอการตรวจสอบ 5 - 7 วัน</option>
             <option value="UNDER_REVIEW">🔍 กำลังตรวจสอบ</option>
             <option value="INTERVIEW_SCHEDULED">📅 นัดสัมภาษณ์</option>
             <option value="INTERVIEW_COMPLETED">✅ สัมภาษณ์เสร็จสิ้น</option>

@@ -27,26 +27,25 @@ export default function ScheduleInterviewModal({ application, onClose, onSuccess
     setLoading(true);
 
     try {
-      // Combine date and time
-      const dateTime = new Date(`${formData.interviewDate}T${formData.interviewTime}`);
-      
+      // Combine date and time with seconds and milliseconds in UTC timezone
+      const scheduledAt = `${formData.interviewDate}T${formData.interviewTime}:00.000Z`;
+
       const interviewData = {
         applicationId: application.id,
         studentId: application.studentId,
         companyId: application.companyId,
         positionId: application.positionId,
-        interviewType: formData.interviewType,
-        interviewDate: dateTime.toISOString(),
-        interviewDuration: parseInt(formData.interviewDuration),
+        type: formData.interviewType,
+        scheduledAt: scheduledAt,
+        duration: parseInt(formData.interviewDuration),
         location: formData.location,
         videoLink: formData.videoLink,
         meetingId: formData.meetingId,
         interviewerName: formData.interviewerName,
         interviewerEmail: formData.interviewerEmail,
         interviewerPhone: formData.interviewerPhone,
-        instructions: formData.instructions,
+        notes: formData.instructions,
         preparationNotes: formData.preparationNotes,
-        status: "SCHEDULED",
       };
 
       await api.createInterview(interviewData);

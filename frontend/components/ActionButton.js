@@ -6,9 +6,14 @@ export default function ActionButton({ application, userRole, onAction, size = "
   const [loading, setLoading] = useState(false);
 
   const handleAction = async (action) => {
+    console.log("ActionButton handleAction called with:", action);
     setLoading(true);
     try {
-      await onAction(action);
+      await onAction({
+        action: action,
+        applicationId: application.id,
+        data: application
+      });
     } finally {
       setLoading(false);
     }

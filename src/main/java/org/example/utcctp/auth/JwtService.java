@@ -40,6 +40,7 @@ public class JwtService {
                 .withExpiresAt(now.plus(expiryMinutes, ChronoUnit.MINUTES))
                 .withClaim("roles", user.getRoles().stream().map(Enum::name).toList())
                 .withClaim("uid", user.getId().toString())
+                .withClaim("companyId", user.getCompanyId() != null ? user.getCompanyId().toString() : null)
                 .sign(algorithm);
     }
 
@@ -52,7 +53,9 @@ public class JwtService {
             List<String> roles = decoded.getClaim("roles").asList(String.class);
             String userId = decoded.getClaim("uid").asString();
             UUID id = userId == null ? null : UUID.fromString(userId);
-            return new JwtPrincipal(id, username, roles);
+            String companyIdStr = decoded.getClaim("companyId").asString();
+            UUID companyId = companyIdStr == null ? null : UUID.fromString(companyIdStr);
+            return new JwtPrincipal(id, username, roles, companyId);
         } catch (JWTVerificationException ex) {
             return null;
         }

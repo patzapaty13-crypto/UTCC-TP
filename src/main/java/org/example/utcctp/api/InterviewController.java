@@ -16,6 +16,7 @@ import org.example.utcctp.repository.UserRepository;
 import org.example.utcctp.api.dto.AdvisorInterviewResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -64,6 +65,61 @@ public class InterviewController {
         }
         List<Interview> interviews = interviewService.getStudentInterviews(principal.userId());
         return ResponseEntity.ok(interviews);
+    }
+
+    @GetMapping("/company")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<List<org.example.utcctp.api.dto.CompanyInterviewResponse>> getCompanyInterviews(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        JwtPrincipal principal = jwtService.parseToken(jwt);
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Look up the user's companyId — userId ≠ companyId
+        User user = userRepository.findById(principal.userId()).orElse(null);
+        if (user == null || user.getCompanyId() == null) {
+            return ResponseEntity.ok(List.of());
+        }
+        List<Interview> interviews = interviewService.getCompanyInterviews(user.getCompanyId());
+        
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        
+        List<org.example.utcctp.api.dto.CompanyInterviewResponse> responses = interviews.stream().map(interview -> {
+            User student = userRepository.findById(interview.getStudentId()).orElse(null);
+            String studentName = student != null ? student.getDisplayName() : "นักศึกษา";
+            
+            String dateStr = "";
+            String timeStr = "";
+            if (interview.getInterviewDate() != null) {
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(interview.getInterviewDate(), ZoneId.systemDefault());
+                dateStr = localDateTime.format(dateFormatter);
+                timeStr = localDateTime.format(timeFormatter);
+            }
+            
+            String typeLabel = interview.getInterviewType();
+            if ("IN_PERSON".equals(typeLabel)) typeLabel = "สัมภาษณ์ที่บริษัท";
+            else if ("VIDEO".equals(typeLabel)) typeLabel = "ออนไลน์";
+            else if ("PHONE".equals(typeLabel)) typeLabel = "โทรศัพท์";
+            
+            String loc = interview.getLocation();
+            if ("VIDEO".equals(interview.getInterviewType()) && interview.getVideoLink() != null) {
+                loc = interview.getVideoLink();
+            }
+            
+            return new org.example.utcctp.api.dto.CompanyInterviewResponse(
+                interview.getId(),
+                studentName,
+                dateStr,
+                timeStr,
+                typeLabel,
+                loc,
+                interview.getStatus(),
+                interview.getResult()
+            );
+        }).toList();
+        
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/advisor")
@@ -124,17 +180,20 @@ public class InterviewController {
     public ResponseEntity<Interview> createInterview(@RequestBody Map<String, Object> body) {
         Interview interview = new Interview();
         
-        // Handle applicationId - fetch studentId and positionId from application
+        // Handle applicationId - fetch studentId, positionId, and companyId from application
         if (body.containsKey("applicationId")) {
             UUID applicationId = UUID.fromString(body.get("applicationId").toString());
             interview.setApplicationId(applicationId);
-            
+
             Application application = applicationRepository.findById(applicationId).orElse(null);
             if (application != null) {
                 interview.setStudentId(application.getStudent().getId());
-                // Only set positionId if the application has an internshipPosition
+                // Only set positionId and companyId if the application has an internshipPosition
                 if (application.getInternshipPosition() != null) {
                     interview.setPositionId(application.getInternshipPosition().getId());
+                    if (application.getInternshipPosition().getCompany() != null) {
+                        interview.setCompanyId(application.getInternshipPosition().getCompany().getId());
+                    }
                 }
                 // If it's a trip application, we might need to handle it differently
                 // For now, we'll skip setting positionId for trip applications
@@ -368,5 +427,16 @@ public class InterviewController {
     public ResponseEntity<Void> deleteInterview(@PathVariable UUID id) {
         interviewService.deleteInterview(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/result")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<Interview> setInterviewResult(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> body
+    ) {
+        String result = body.get("result"); // PASSED or FAILED
+        Interview updated = interviewService.setInterviewResult(id, result);
+        return ResponseEntity.ok(updated);
     }
 }

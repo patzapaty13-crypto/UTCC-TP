@@ -104,31 +104,37 @@ export default function DashboardLayout({ children }) {
         const unread = notifications.filter(n => !n.read).length;
         setUnreadCount(unread);
       })
-      .catch(err => console.error("Failed to load notifications:", err));
+      .catch(err => {
+        // Silently fail if notifications endpoint doesn't exist
+        console.warn("Notifications not available");
+      });
 
-    // SSE connection for real-time updates
-    const token = localStorage.getItem("utcctp_token");
-    if (token) {
-      const eventSource = new EventSource(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
-      );
+    // SSE connection for real-time updates - disabled until backend endpoint is available
+    // const token = localStorage.getItem("utcctp_token");
+    // if (token) {
+    //   try {
+    //     const eventSource = new EventSource(
+    //       `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
+    //     );
 
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "notification") {
-          setUnreadCount(prev => prev + 1);
-        }
-      };
+    //     eventSource.onmessage = (event) => {
+    //       const data = JSON.parse(event.data);
+    //       if (data.type === "notification") {
+    //         setUnreadCount(prev => prev + 1);
+    //       }
+    //     };
 
-      eventSource.onerror = (error) => {
-        console.error("SSE error:", error);
-        eventSource.close();
-      };
+    //     eventSource.onerror = (error) => {
+    //       eventSource.close();
+    //     };
 
-      return () => {
-        eventSource.close();
-      };
-    }
+    //     return () => {
+    //       eventSource.close();
+    //     };
+    //   } catch (err) {
+    //     // Silently fail if SSE is not available
+    //   }
+    // }
   }, []);
 
   const initials = (user?.displayName || user?.username || "U")

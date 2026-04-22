@@ -73,12 +73,13 @@ public class DataSeeder implements CommandLineRunner {
 
         // --- COMPANIES (for demo data only, no COMPANY role users) ---
         Company company1 = new Company();
-        company1.setName("Global Tech Solutions");
+        company1.setName("Logitect");
         company1.setIndustry("Software Development");
         company1.setLocation("Wireless Road, Bangkok");
         company1.setStatus("ACTIVE");
         company1.setContactName("Sarah Connor");
-        company1.setContactEmail("hr@globaltech.local");
+        company1.setContactEmail("hr@logitect.local");
+        company1.setLogoUrl("https://img2.pic.in.th/imagefcfda1cc8a6cc43f.png");
         companyRepository.save(company1);
 
         // Link company user to company entity

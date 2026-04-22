@@ -149,7 +149,7 @@ function getGuidance(status, userRole) {
   const guidanceMap = {
     PENDING: {
       icon: "fa-clock",
-      title: "รอการตรวจสอบ",
+      title: "รอการตรวจสอบ 5 - 7 วัน",
       description: "บริษัทกำลังตรวจสอบใบสมัครของคุณ โปรดรอการติดต่อกลับ"
     },
     UNDER_REVIEW: {
@@ -180,7 +180,7 @@ function getGuidance(status, userRole) {
     REJECTED: {
       icon: "fa-times-circle",
       title: "ไม่ผ่านการคัดเลือก",
-      description: "ขอบคุณที่สนใจ โปรดลองสมัครตำแหน่งอื่น"
+      description: "ขอบคุณที่สนใจ"
     },
     WITHDRAWN: {
       icon: "fa-ban",
@@ -196,9 +196,9 @@ function getStudentGuidance(status) {
   const guidanceMap = {
     PENDING: {
       icon: "fa-clock",
-      title: "รอการตรวจสอบ",
-      description: "บริษัทกำลังตรวจสอบใบสมัครของคุณ โปรดรอการติดต่อกลับ ปกติจะใช้เวลา 3-7 วันทำการ",
-      actions: ["แก้ไขโปรไฟล์", "ค้นหางานอื่น"]
+      title: "รอการตรวจสอบ 5 - 7 วัน",
+      description: "รอการตรวจสอบ",
+      actions: []
     },
     UNDER_REVIEW: {
       icon: "fa-magnifying-glass",
@@ -216,7 +216,7 @@ function getStudentGuidance(status) {
       icon: "fa-check-circle",
       title: "สัมภาษณ์เสร็จสิ้น",
       description: "บริษัทกำลังพิจารณาผลการสัมภาษณ์ โปรดรอการติดต่อกลับ",
-      actions: ["ค้นหางานอื่น"]
+      actions: []
     },
     OFFER_RECEIVED: {
       icon: "fa-file-contract",
@@ -234,13 +234,13 @@ function getStudentGuidance(status) {
       icon: "fa-times-circle",
       title: "ไม่ผ่านการคัดเลือก",
       description: "ขอบคุณที่สนใจ อย่าท้อแท้ ลองปรับปรุงโปรไฟล์และสมัครตำแหน่งอื่น",
-      actions: ["ปรับปรุงโปรไฟล์", "ค้นหางานอื่น"]
+      actions: ["ปรับปรุงโปรไฟล์"]
     },
     WITHDRAWN: {
       icon: "fa-ban",
       title: "ถอนใบสมัคร",
       description: "คุณได้ถอนใบสมัครนี้แล้ว คุณสามารถสมัครตำแหน่งอื่นได้",
-      actions: ["ค้นหางานอื่น"]
+      actions: []
     }
   };
 

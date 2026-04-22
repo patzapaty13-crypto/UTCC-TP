@@ -149,7 +149,7 @@ export default function StudentOffersPage() {
           {filter === "ALL" && (
             <button
               className="btn btn-primary"
-              onClick={() => router.push("/internships")}
+              onClick={() => router.push("/student/internships")}
               style={{ marginTop: 16 }}
             >
               <i className="fas fa-search" style={{ marginRight: 8 }}></i>

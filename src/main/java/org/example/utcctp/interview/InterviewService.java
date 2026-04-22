@@ -1,6 +1,9 @@
 package org.example.utcctp.interview;
 
+import org.example.utcctp.model.Application;
+import org.example.utcctp.model.ApplicationStatus;
 import org.example.utcctp.model.Interview;
+import org.example.utcctp.repository.ApplicationRepository;
 import org.example.utcctp.repository.InterviewRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +13,11 @@ import java.util.UUID;
 @Service
 public class InterviewService {
     private final InterviewRepository interviewRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public InterviewService(InterviewRepository interviewRepository) {
+    public InterviewService(InterviewRepository interviewRepository, ApplicationRepository applicationRepository) {
         this.interviewRepository = interviewRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     public List<Interview> getStudentInterviews(UUID studentId) {
@@ -63,6 +68,15 @@ public class InterviewService {
         if (isStudent) {
             interview.setStudentConfirmed(true);
             interview.setStatus("CONFIRMED");
+
+            // Update application status to INTERVIEW_SCHEDULED
+            if (interview.getApplicationId() != null) {
+                Application application = applicationRepository.findById(interview.getApplicationId()).orElse(null);
+                if (application != null) {
+                    application.setStatus(ApplicationStatus.INTERVIEW_SCHEDULED);
+                    applicationRepository.save(application);
+                }
+            }
         }
 
         return interviewRepository.save(interview);
@@ -80,5 +94,25 @@ public class InterviewService {
 
     public void deleteInterview(UUID id) {
         interviewRepository.deleteById(id);
+    }
+
+    public Interview setInterviewResult(UUID id, String result) {
+        Interview interview = interviewRepository.findById(id).orElseThrow();
+        interview.setResult(result);
+
+        // Update application status based on interview result
+        if (interview.getApplicationId() != null) {
+            Application application = applicationRepository.findById(interview.getApplicationId()).orElse(null);
+            if (application != null) {
+                if ("PASSED".equals(result)) {
+                    application.setStatus(ApplicationStatus.OFFER_EXTENDED);
+                } else if ("FAILED".equals(result)) {
+                    application.setStatus(ApplicationStatus.REJECTED);
+                }
+                applicationRepository.save(application);
+            }
+        }
+
+        return interviewRepository.save(interview);
     }
 }

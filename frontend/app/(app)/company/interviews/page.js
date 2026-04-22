@@ -14,7 +14,7 @@ export default function CompanyInterviewsPage() {
 
   const loadInterviews = async () => {
     try {
-      const data = await api.getInterviews();
+      const data = await api.getCompanyInterviews();
       setInterviews(data || []);
     } catch (err) {
       console.error("Failed to load interviews:", err);
@@ -40,6 +40,16 @@ export default function CompanyInterviewsPage() {
       loadInterviews();
     } catch (err) {
       alert("ไม่สามารถเลื่อนได้: " + (err.message || ""));
+    }
+  };
+
+  const handleSetResult = async (interviewId, result) => {
+    if (!confirm(`ยืนยันว่านักศึกษา${result === "PASSED" ? "ผ่าน" : "ไม่ผ่าน"}การสัมภาษณ์?`)) return;
+    try {
+      await api.setInterviewResult(interviewId, result);
+      loadInterviews();
+    } catch (err) {
+      alert("ไม่สามารถบันทึกผลได้: " + (err.message || ""));
     }
   };
 
@@ -72,6 +82,18 @@ export default function CompanyInterviewsPage() {
                   <p className="text-muted" style={{ marginTop: 4, fontSize: 14 }}>
                     {interview.interviewDate} • {interview.interviewType}
                   </p>
+                  {interview.scheduledTime && (
+                    <p className="text-muted" style={{ marginTop: 2, fontSize: 13 }}>
+                      <i className="fas fa-clock" style={{ marginRight: 4 }}></i>
+                      เวลา: {interview.scheduledTime}
+                    </p>
+                  )}
+                  {interview.location && (
+                    <p className="text-muted" style={{ marginTop: 2, fontSize: 13 }}>
+                      <i className="fas fa-map-marker-alt" style={{ marginRight: 4 }}></i>
+                      สถานที่: {interview.location}
+                    </p>
+                  )}
                   <div style={{ marginTop: 8 }}>
                     <span className={`badge ${interview.status === "SCHEDULED" ? "badge-blue" : interview.status === "CONFIRMED" ? "badge-green" : "badge-gray"}`}>
                       {interview.status}
@@ -83,6 +105,21 @@ export default function CompanyInterviewsPage() {
                     <button className="btn btn-primary" style={{ padding: "8px 16px" }} onClick={() => handleConfirm(interview.id)}>
                       ยืนยัน
                     </button>
+                  )}
+                  {interview.status === "CONFIRMED" && !interview.result && (
+                    <>
+                      <button className="btn btn-success" style={{ padding: "8px 16px", background: "#10B981", color: "white", border: "none" }} onClick={() => handleSetResult(interview.id, "PASSED")}>
+                        ผ่าน
+                      </button>
+                      <button className="btn btn-danger" style={{ padding: "8px 16px", background: "#EF4444", color: "white", border: "none" }} onClick={() => handleSetResult(interview.id, "FAILED")}>
+                        ไม่ผ่าน
+                      </button>
+                    </>
+                  )}
+                  {interview.result && (
+                    <span className={`badge ${interview.result === "PASSED" ? "badge-green" : "badge-red"}`}>
+                      {interview.result === "PASSED" ? "ผ่าน" : "ไม่ผ่าน"}
+                    </span>
                   )}
                   <button className="btn btn-ghost" style={{ padding: "8px 16px" }} onClick={() => handleReschedule(interview.id)}>
                     เลื่อน

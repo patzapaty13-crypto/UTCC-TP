@@ -15,18 +15,11 @@ export default function CompanyApplicationsPage() {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [scheduleData, setScheduleData] = useState({ date: "", time: "", location: "", notes: "" });
+  const [scheduleData, setScheduleData] = useState({ date: "", time: "", location: "" });
 
   useEffect(() => {
     loadApplications();
   }, []);
-
-  useEffect(() => {
-    const applicationId = searchParams.get("applicationId");
-    if (applicationId) {
-      router.push(`/applications/${applicationId}`);
-    }
-  }, [searchParams, router]);
 
   const loadApplications = async () => {
     try {
@@ -68,15 +61,15 @@ export default function CompanyApplicationsPage() {
       }
 
       // Then schedule interview
+      const scheduledAt = `${scheduleData.date}T${scheduleData.time}:00.000Z`;
       await api.createInterview({
         applicationId: selectedApplication.id,
-        scheduledDate: `${scheduleData.date}T${scheduleData.time}`,
-        location: scheduleData.location,
-        notes: scheduleData.notes
+        scheduledAt: scheduledAt,
+        location: scheduleData.location
       });
       alert("อนุมัติและนัดสัมภาษณ์สำเร็จ");
       setShowScheduleModal(false);
-      setScheduleData({ date: "", time: "", location: "", notes: "" });
+      setScheduleData({ date: "", time: "", location: "" });
       loadApplications();
     } catch (err) {
       alert("ไม่สามารถอนุมัติและนัดสัมภาษณ์ได้: " + (err.message || ""));
@@ -355,19 +348,6 @@ export default function CompanyApplicationsPage() {
                     required
                     placeholder="เช่น ห้องประชุมชั้น 3, หรือ Online (Zoom/Google Meet)"
                     style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 14, width: "100%" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#475569", fontSize: 14 }}>
-                    หมายเหตุเพิ่มเติม
-                  </label>
-                  <textarea
-                    value={scheduleData.notes}
-                    onChange={(e) => setScheduleData({ ...scheduleData, notes: e.target.value })}
-                    rows={3}
-                    placeholder="เช่น นำเอกสารประกอบมาด้วย, แต่งการแต่งชุดสุภาพ"
-                    style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 14, width: "100%", resize: "vertical" }}
                   />
                 </div>
 

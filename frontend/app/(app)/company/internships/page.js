@@ -38,7 +38,7 @@ export default function CompanyInternshipsPage() {
   return (
     <RoleDashboardShell role="COMPANY" title="ประกาศฝึกงาน" subtitle="จัดการตำแหน่งฝึกงานสำหรับนักศึกษา">
       <div style={{ marginBottom: 24 }}>
-        <Link href="/internships/create" className="btn btn-primary">
+        <Link href="/company/internships/create" className="btn btn-primary">
           <i className="fas fa-plus" style={{ marginRight: 8 }}></i>
           ประกาศฝึกงานใหม่
         </Link>
@@ -59,7 +59,7 @@ export default function CompanyInternshipsPage() {
                     {internship.companyName} • {internship.location} • {internship.status}
                   </p>
                 </div>
-                <Link href={`/internships/${internship.id}`} className="btn btn-ghost" style={{ padding: "8px 16px" }}>
+                <Link href={`/company/internships/${internship.id}`} className="btn btn-ghost" style={{ padding: "8px 16px" }}>
                   จัดการ
                 </Link>
               </div>

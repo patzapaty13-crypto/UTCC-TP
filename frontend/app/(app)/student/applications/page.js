@@ -88,13 +88,27 @@ export default function StudentApplicationsPage() {
 
   const handleApplicationAction = async (actionData) => {
     try {
+      console.log("handleApplicationAction received:", actionData);
       const { applicationId, action, reason, data } = actionData;
 
-      if (action === "withdraw") {
-        return handleWithdraw(actionData);
+      if (!action) {
+        console.error("Action is undefined in actionData:", actionData);
+        return;
       }
 
-      if (action === "confirm_interview") {
+      const normalizedAction = action.toLowerCase();
+
+      if (normalizedAction === "withdraw") {
+        // Open withdraw modal instead of directly calling API
+        const app = applications.find(a => a.id === applicationId);
+        if (app) {
+          setSelectedApp(app);
+          setShowWithdrawModal(true);
+        }
+        return;
+      }
+
+      if (normalizedAction === "confirm_interview") {
         try {
           const interviews = await api.getInterviews(applicationId);
           if (interviews && interviews.length > 0) {
@@ -108,7 +122,7 @@ export default function StudentApplicationsPage() {
         return;
       }
 
-      if (action === "reschedule") {
+      if (normalizedAction === "reschedule") {
         const reason = prompt("กรุณาระบุเหตุผลที่ต้องการขอเลื่อนนัด:");
         if (reason) {
           try {
@@ -125,7 +139,7 @@ export default function StudentApplicationsPage() {
         return;
       }
 
-      if (action === "accept_offer") {
+      if (normalizedAction === "accept_offer") {
         try {
           const offers = await api.getOffers(applicationId);
           if (offers && offers.length > 0) {
@@ -139,7 +153,7 @@ export default function StudentApplicationsPage() {
         return;
       }
 
-      if (action === "decline_offer") {
+      if (normalizedAction === "decline_offer") {
         const reason = prompt("กรุณาระบุเหตุผลที่ปฏิเสธข้อเสนอ:");
         if (reason) {
           try {
@@ -156,7 +170,7 @@ export default function StudentApplicationsPage() {
         return;
       }
 
-      if (action === "view_contract") {
+      if (normalizedAction === "view_contract") {
         alert("สัญญาจะเปิดให้ดูเมื่อบริษัทสร้างแล้ว กรุณารอสัญญาจากบริษัท");
         return;
       }
@@ -169,74 +183,8 @@ export default function StudentApplicationsPage() {
     }
   };
 
-  const handleMessageAdvisor = async () => {
-    try {
-      const user = await api.getMe();
-      if (!user.advisorId) {
-        alert("คุณยังไม่มีอาจารย์ที่ปรึกษา");
-        return;
-      }
-
-      // Check if advisor info is already in user object
-      if (user.advisorUsername) {
-        window.location.href = `/messages?user=${user.advisorUsername}`;
-        return;
-      }
-
-      // If not, try to get users (this might fail for non-admin users)
-      try {
-        const users = await api.getUsers();
-        const advisor = users.find(u => u.id === user.advisorId);
-        if (advisor) {
-          window.location.href = `/messages?user=${advisor.username}`;
-        } else {
-          alert("ไม่พบข้อมูลอาจารย์ที่ปรึกษา");
-        }
-      } catch (err) {
-        // If admin endpoint fails, show a message
-        alert("ไม่สามารถดึงข้อมูลอาจารย์ได้ กรุณาค้นหาอาจารย์จากหน้าข้อความ");
-        window.location.href = `/messages`;
-      }
-    } catch (err) {
-      alert("ไม่สามารถติดต่ออาจารย์ได้: " + (err.message || ""));
-    }
-  };
-
   return (
     <RoleDashboardShell role="STUDENT" title="ใบสมัครของฉัน" subtitle="ติดตามสถานะการสมัครและขั้นตอนการคัดเลือก">
-      {/* Contact Advisor Button */}
-      <div style={{ marginBottom: 24 }}>
-        <button
-          onClick={handleMessageAdvisor}
-          style={{
-            padding: "12px 24px",
-            background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
-            color: "white",
-            border: "none",
-            borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 6px 16px rgba(124, 58, 237, 0.4)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.3)";
-          }}
-        >
-          <i className="fas fa-comments"></i>
-          ติดต่ออาจารย์ที่ปรึกษา
-        </button>
-      </div>
-
       {/* Next Step Guidance */}
       {applications.length > 0 && (
         <StudentGuidance application={{ status: "PENDING" }} />
@@ -333,7 +281,21 @@ export default function StudentApplicationsPage() {
               </button>
               <button
                 className="btn"
-                onClick={handleWithdraw}
+                onClick={async () => {
+                  if (!selectedApp?.id) {
+                    alert("ไม่พบข้อมูลใบสมัคร");
+                    return;
+                  }
+                  if (!withdrawReason || withdrawReason.trim() === "") {
+                    alert("กรุณาระบุเหตุผลในการถอนใบสมัคร");
+                    return;
+                  }
+                  try {
+                    await handleWithdraw({ applicationId: selectedApp.id, reason: withdrawReason });
+                  } catch (err) {
+                    alert("ไม่สามารถถอนใบสมัครได้: " + (err.message || ""));
+                  }
+                }}
                 style={{
                   background: "#EF4444",
                   color: "white",
@@ -603,9 +565,39 @@ function ApplicationDetailModal({ application, timeline, timelineLoading, onClos
 
       {/* Application Details */}
       <div style={{ marginBottom: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>ข้อมูลใบสมัคร</h3>
-        <div style={{ display: "grid", gap: 16 }}>
-          <InfoRow label="วันที่สมัคร" value={new Date(application.appliedAt || Date.now()).toLocaleString("th-TH")} />
+        <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>รายละเอียดใบสมัคร</h4>
+        <div style={{ display: "grid", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-muted)" }}>
+            <i className="fas fa-calendar" style={{ width: 16 }}></i>
+            <span>สมัครเมื่อ: {application.appliedAt ? new Date(application.appliedAt).toLocaleDateString("th-TH") : "-"}</span>
+          </div>
+          {status === "INTERVIEW_SCHEDULED" && application.interviewDate && (
+            <div style={{
+              padding: 12,
+              background: "#EDE9FE",
+              borderRadius: 8,
+              border: "1px solid #C4B5FD"
+            }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: "#7C3AED", marginBottom: 4 }}>
+                <i className="fas fa-calendar-check" style={{ marginRight: 6 }}></i>
+                นัดสัมภาษณ์
+              </p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#5B21B6", marginBottom: 2 }}>
+                {new Date(application.interviewDate).toLocaleDateString("th-TH", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                })}
+              </p>
+              <p style={{ fontSize: 13, color: "#7C3AED" }}>
+                เวลา {new Date(application.interviewDate).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit"
+                })}
+              </p>
+            </div>
+          )}
           <InfoRow label="GPA" value={application.gpa || "-"} />
           <InfoRow label="สาขาวิชา" value={application.major || "-"} />
           <InfoRow label="ชั้นปี" value={application.year ? `ปี ${application.year}` : "-"} />
@@ -640,7 +632,7 @@ function ApplicationDetailModal({ application, timeline, timelineLoading, onClos
       <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", paddingTop: 24, borderTop: "1px solid var(--border)" }}>
         {status === "INTERVIEW_SCHEDULED" && (
           <Link
-            href="/student/interviews"
+            href="/student/applications"
             style={{
               padding: "10px 20px",
               background: "#7C3AED",

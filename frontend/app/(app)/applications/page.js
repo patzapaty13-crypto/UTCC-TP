@@ -130,7 +130,7 @@ export default function ApplicationsPage() {
             <p>คุณยังไม่ได้สมัครเข้าร่วมกิจกรรมใดๆ ในระบบ</p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", marginTop:16 }}>
               <Link href="/trips" className="btn btn-primary">ดูทริปที่เปิดรับ</Link>
-              <Link href="/internships" className="btn btn-secondary">ค้นหาที่ฝึกงาน</Link>
+              <Link href="/student/internships" className="btn btn-secondary">ค้นหาที่ฝึกงาน</Link>
             </div>
           </div>
         ) : filteredApps.length === 0 ? (

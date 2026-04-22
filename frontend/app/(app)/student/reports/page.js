@@ -27,6 +27,9 @@ export default function StudentReportsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  
+  // Modal
+  const [selectedReport, setSelectedReport] = useState(null);
 
   const loadReports = async () => {
     setLoading(true);
@@ -38,6 +41,44 @@ export default function StudentReportsPage() {
       setError("ไม่สามารถโหลดรายงานได้: " + (err.message || ""));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownload = async (reportId) => {
+    try {
+      const token = localStorage.getItem("utcctp_token");
+      const response = await fetch(api.downloadReportFile(reportId), {
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error("ไม่สามารถดาวน์โหลดไฟล์ได้");
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      // Extract filename from header if possible, else default
+      const contentDisposition = response.headers.get("content-disposition");
+      let filename = `report-${reportId}.pdf`;
+      if (contentDisposition && contentDisposition.indexOf("filename=") !== -1) {
+        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, "");
+        }
+      }
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error(err);
+      alert("เกิดข้อผิดพลาดในการดาวน์โหลด: " + err.message);
     }
   };
 
@@ -294,7 +335,7 @@ export default function StudentReportsPage() {
                           </div>
                         )}
 
-                        {report.score && (
+                        {report.score !== null && report.score !== undefined && (
                           <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
                             <i className="fas fa-star" style={{ marginRight: 6, color: "var(--warning)" }}></i>
                             คะแนน: <strong style={{ color: report.score >= 80 ? "var(--success)" : report.score >= 70 ? "var(--warning)" : "var(--error)" }}>
@@ -341,17 +382,17 @@ export default function StudentReportsPage() {
                               className="btn btn-ghost btn-sm"
                             >
                               <i className="fas fa-edit" style={{ marginRight: 6 }}></i>
-                              แก้ไข
-                            </Link>
+                            แก้ไข
+                          </Link>
                           )}
                           
-                          <button className="btn btn-ghost btn-sm">
+                          <button className="btn btn-ghost btn-sm" onClick={() => setSelectedReport(report)}>
                             <i className="fas fa-eye" style={{ marginRight: 6 }}></i>
                             ดูรายละเอียด
                           </button>
 
                           {report.attachments.length > 0 && (
-                            <button className="btn btn-ghost btn-sm">
+                            <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(report.id)}>
                               <i className="fas fa-download" style={{ marginRight: 6 }}></i>
                               ดาวน์โหลด
                             </button>
@@ -366,6 +407,96 @@ export default function StudentReportsPage() {
           </div>
         )}
       </div>
+
+      {selectedReport && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            borderRadius: 16,
+            padding: 24,
+            width: "90%",
+            maxWidth: 700,
+            maxHeight: "90vh",
+            overflowY: "auto"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}>
+                รายละเอียดรายงาน
+              </h2>
+              <button onClick={() => setSelectedReport(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#64748b" }}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{selectedReport.title}</h4>
+              <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                {REPORT_TYPES[selectedReport.type]?.label} {selectedReport.type === "WEEKLY" && `สัปดาห์ที่ ${selectedReport.weekNumber}`}
+              </p>
+            </div>
+
+            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 16, border: "1px solid var(--border)" }}>
+              <h5 style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 8 }}>เนื้อหารายงาน</h5>
+              <p style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "#334155", margin: 0 }}>{selectedReport.content || "ไม่มีเนื้อหา"}</p>
+            </div>
+
+            {selectedReport.achievements && (
+              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 16, border: "1px solid var(--border)" }}>
+                <h5 style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 8 }}>ผลงานที่สำเร็จ</h5>
+                <p style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "#334155", margin: 0 }}>{selectedReport.achievements}</p>
+              </div>
+            )}
+
+            {selectedReport.challenges && (
+              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 16, border: "1px solid var(--border)" }}>
+                <h5 style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 8 }}>ปัญหาและอุปสรรค</h5>
+                <p style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "#334155", margin: 0 }}>{selectedReport.challenges}</p>
+              </div>
+            )}
+
+            {selectedReport.learnings && (
+              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 16, border: "1px solid var(--border)" }}>
+                <h5 style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 8 }}>สิ่งที่ได้เรียนรู้</h5>
+                <p style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "#334155", margin: 0 }}>{selectedReport.learnings}</p>
+              </div>
+            )}
+
+            {selectedReport.type === "WEEKLY" && selectedReport.nextWeekPlan && (
+              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 16, border: "1px solid var(--border)" }}>
+                <h5 style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 8 }}>แผนสัปดาห์หน้า</h5>
+                <p style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "#334155", margin: 0 }}>{selectedReport.nextWeekPlan}</p>
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
+              {selectedReport.attachments?.length > 0 && (
+                <button
+                  onClick={() => handleDownload(selectedReport.id)}
+                  className="btn btn-primary"
+                  style={{ padding: "10px 20px" }}
+                >
+                  <i className="fas fa-download" style={{ marginRight: 8 }}></i> ดาวน์โหลดไฟล์
+                </button>
+              )}
+              <button
+                onClick={() => setSelectedReport(null)}
+                className="btn btn-ghost"
+                style={{ padding: "10px 20px" }}
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

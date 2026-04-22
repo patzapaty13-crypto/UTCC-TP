@@ -15,6 +15,8 @@ public record InternshipResponse(
         String mode,
         int slots,
         String status,
+        String companyLogoUrl,
+        String industry,
         // Phase 1 Enhancement Fields
         BigDecimal salaryMin,
         BigDecimal salaryMax,

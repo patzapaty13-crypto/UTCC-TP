@@ -199,7 +199,7 @@ export function ApplicationTable({ applications, onStatusChange, userRole }) {
                     fontWeight: 600,
                     borderRadius: 8,
                   }}
-                  onClick={() => onStatusChange({ applicationId: app.id, action: "WITHDRAWN" })}
+                  onClick={() => onStatusChange({ applicationId: app.id, action: "withdraw" })}
                 >
                   <i className="fas fa-times" style={{ marginRight: 6 }}></i>
                   ถอนใบสมัคร

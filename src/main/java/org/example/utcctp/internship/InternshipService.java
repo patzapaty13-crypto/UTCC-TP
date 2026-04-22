@@ -174,6 +174,8 @@ public class InternshipService {
                 position.getMode(),
                 position.getSlots(),
                 position.getStatus().name(),
+                position.getCompany().getLogoUrl(),
+                position.getCompany().getIndustry(),
                 // Phase 1 Enhancement Fields
                 position.getSalaryMin(),
                 position.getSalaryMax(),

@@ -223,15 +223,22 @@ export const api = {
     return response.json();
   },
   downloadReportFile: (reportId) => `${API_BASE}/reports/${reportId}/download`,
-  
+
+  // -------------------------------------------------------------
+  // Advisor Stats
+  // -------------------------------------------------------------
+  getAdvisorStats: () => apiFetch("/dashboard/advisor-stats"),
+
   // -------------------------------------------------------------
   // Interviews / Offers
   // -------------------------------------------------------------
   getInterviews: (applicationId) => apiFetch(`/interviews${applicationId ? `?applicationId=${applicationId}` : ""}`),
+  getCompanyInterviews: () => apiFetch("/interviews/company"),
   createInterview: (data) => apiFetch("/interviews", { method: "POST", body: JSON.stringify(data) }),
   updateInterview: (id, data) => apiFetch(`/interviews/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   confirmInterview: (id) => apiFetch(`/interviews/${id}/confirm`, { method: "PUT", body: JSON.stringify({}) }),
   rescheduleInterview: (id, reason) => apiFetch(`/interviews/${id}/reschedule`, { method: "PUT", body: JSON.stringify({ reason }) }),
+  setInterviewResult: (id, result) => apiFetch(`/interviews/${id}/result`, { method: "PUT", body: JSON.stringify({ result }) }),
   getOffers: (applicationId) => apiFetch(`/offers${applicationId ? `?applicationId=${applicationId}` : ""}`),
   createOffer: (data) => apiFetch("/offers", { method: "POST", body: JSON.stringify(data) }),
   updateOffer: (id, data) => apiFetch(`/offers/${id}`, { method: "PUT", body: JSON.stringify(data) }),

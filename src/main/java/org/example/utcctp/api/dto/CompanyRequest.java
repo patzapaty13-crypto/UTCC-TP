@@ -5,6 +5,7 @@ public record CompanyRequest(
         String industry,
         String location,
         String contactName,
-        String contactEmail
+        String contactEmail,
+        String logoUrl
 ) {
 }

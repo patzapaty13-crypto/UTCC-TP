@@ -89,6 +89,9 @@ public class Interview {
     @Column(name = "reschedule_count")
     private Integer rescheduleCount = 0;
 
+    @Column(name = "result", length = 20)
+    private String result; // PASSED, FAILED, PENDING
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -289,6 +292,14 @@ public class Interview {
 
     public void setRescheduleCount(Integer rescheduleCount) {
         this.rescheduleCount = rescheduleCount;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
     public Instant getCreatedAt() {

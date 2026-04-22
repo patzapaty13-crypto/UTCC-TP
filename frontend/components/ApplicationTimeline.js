@@ -215,7 +215,7 @@ export default function ApplicationTimeline({ application }) {
           <div style={{ marginTop: 12 }}>
             <button 
               className="btn btn-primary btn-sm"
-              onClick={() => window.location.href = "/internships"}
+              onClick={() => window.location.href = "/student/internships"}
             >
               <i className="fas fa-search" style={{ marginRight: 6 }}></i>
               หางานอื่น
