@@ -3,13 +3,11 @@ package org.example.utcctp.offer;
 import org.example.utcctp.api.dto.OfferRequest;
 import org.example.utcctp.api.dto.OfferResponse;
 import org.example.utcctp.model.Application;
-import org.example.utcctp.model.Intern;
 import org.example.utcctp.model.NotificationType;
 import org.example.utcctp.model.Offer;
 import org.example.utcctp.model.User;
 import org.example.utcctp.notification.NotificationService;
 import org.example.utcctp.repository.ApplicationRepository;
-import org.example.utcctp.repository.InternRepository;
 import org.example.utcctp.repository.OfferRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,13 +26,11 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final ApplicationRepository applicationRepository;
     private final NotificationService notificationService;
-    private final InternRepository internRepository;
 
-    public OfferService(OfferRepository offerRepository, ApplicationRepository applicationRepository, NotificationService notificationService, InternRepository internRepository) {
+    public OfferService(OfferRepository offerRepository, ApplicationRepository applicationRepository, NotificationService notificationService) {
         this.offerRepository = offerRepository;
         this.applicationRepository = applicationRepository;
         this.notificationService = notificationService;
-        this.internRepository = internRepository;
     }
 
     public List<OfferResponse> listByApplication(UUID applicationId) {
@@ -93,8 +89,7 @@ public class OfferService {
         Application application = offer.getApplication();
         if ("ACCEPTED".equalsIgnoreCase(status)) {
             application.setStatus(org.example.utcctp.model.ApplicationStatus.ACCEPTED);
-            // If offer is accepted, automatically create an Intern record
-            createInternFromOffer(offer);
+            // Note: Intern record creation removed - handled separately if needed
         } else if ("REJECTED".equalsIgnoreCase(status)) {
             application.setStatus(org.example.utcctp.model.ApplicationStatus.REJECTED);
         }
@@ -103,36 +98,6 @@ public class OfferService {
         // TODO: Implement notification system
         // notificationService.notifyUser(offer.getApplication().getStudent(), "Offer updated", "Your offer status has been updated.", NotificationType.APPLICATION);
         return map(offerRepository.save(offer));
-    }
-    
-    private void createInternFromOffer(Offer offer) {
-        Application application = offer.getApplication();
-        
-        // Check if intern record already exists for this application
-        if (internRepository.findByApplicationId(application.getId()).isPresent()) {
-            return; // Already created
-        }
-        
-        Intern intern = new Intern();
-        intern.setApplicationId(application.getId());
-        intern.setStudentId(application.getStudent().getId());
-        intern.setCompanyId(application.getInternshipPosition().getCompany().getId());
-        intern.setInternshipId(application.getInternshipPosition().getId());
-        intern.setStartDate(offer.getStartsOn());
-        intern.setEndDate(offer.getEndsOn());
-        intern.setStatus(Intern.InternStatus.ACTIVE);
-        
-        // Calculate total days
-        long days = ChronoUnit.DAYS.between(offer.getStartsOn(), offer.getEndsOn());
-        intern.setTotalDays((int) days);
-        intern.setWorkingDays(0);
-        
-        // Set supervisor info if available from company
-        // This can be updated later by the company
-        intern.setSupervisorName(null);
-        intern.setSupervisorEmail(null);
-        
-        internRepository.save(intern);
     }
 
     private Instant parseInstant(String value) {

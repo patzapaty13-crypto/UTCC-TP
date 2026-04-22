@@ -1,7 +1,6 @@
 package org.example.utcctp.notification;
 
 import org.example.utcctp.api.dto.NotificationResponse;
-import org.example.utcctp.api.dto.NotificationSummaryResponse;
 import org.example.utcctp.model.Notification;
 import org.example.utcctp.model.User;
 import org.example.utcctp.repository.NotificationRepository;
@@ -69,13 +68,6 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public List<Notification> getUnreadNotifications(UUID userId) {
         return notificationRepository.findByUserIdAndIsReadOrderByCreatedAtDesc(userId, false);
-    }
-
-    @Transactional(readOnly = true)
-    public NotificationSummaryResponse summary(User user) {
-        long unread = notificationRepository.countByUserIdAndIsRead(user.getId(), false);
-        long total = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).size();
-        return new NotificationSummaryResponse(total, unread);
     }
 
     @Transactional(readOnly = true)
