@@ -21,6 +21,10 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
   });
 
   const handleChange = (field, value) => {
+    // Only allow digits for phone
+    if (field === "phone") {
+      value = value.replace(/\D/g, "");
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
@@ -233,12 +237,13 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.phone}
                 value={formData.phone}
                 onChange={(v) => handleChange("phone", v)}
-                placeholder="0812345678"
+                placeholder="เช่น 0812345678"
                 maxLength={10}
+                hint="ตัวเลข 10 หลัก (เช่น 08x-xxx-xxxx)"
               />
             </div>
             <InputGroup
-              label="อีเมล"
+              label="อีเมลสำหรับติดต่อ"
               icon="envelope"
               required
               error={errors.email}
@@ -247,6 +252,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               placeholder="example@email.com"
               type="email"
               style={{ marginTop: 20 }}
+              hint="อีเมลที่ใช้งานจริงสำหรับรับข่าวสารการสมัคร"
             />
             <div style={{ marginTop: 20 }}>
               <label style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
@@ -279,9 +285,10 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.gpa}
                 value={formData.gpa}
                 onChange={(v) => handleChange("gpa", v)}
-                placeholder="3.50"
+                placeholder="เช่น 3.50"
                 type="number"
                 step="0.01"
+                hint="เกรดเฉลี่ยสะสมปัจจุบัน (0.00 - 4.00)"
               />
               <InputGroup
                 label="สาขาวิชา"
@@ -304,8 +311,11 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                   style={{ borderRadius: 16, padding: "14px 16px", border: "2px solid #DDD6FE", height: "auto" }}
                 >
                   <option value="">เลือกชั้นปี</option>
-                  {[1, 2, 3, 4, 5, 6].map(y => <option key={y} value={y}>ปี {y}</option>)}
+                  {[1, 2, 3, 4, 5, 6].map(y => <option key={y} value={y}>ชั้นปีที่ {y}</option>)}
                 </select>
+                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                  <i className="fas fa-info-circle"></i> เลือกชั้นปีปัจจุบันของคุณ
+                </p>
                 {errors.year && <p style={{ fontSize: 11, color: "#DC2626", marginTop: 4 }}>{errors.year}</p>}
               </div>
             </div>
@@ -353,13 +363,14 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
             bg="linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)"
           >
             <InputGroup
-              label="ลิงก์ Portfolio, GitHub, LinkedIn หรือเว็บไซต์ส่วนตัว"
+              label="ลิงก์ Portfolio / ผลงาน"
               icon="share-nodes"
               error={errors.portfolioUrl}
               value={formData.portfolioUrl}
               onChange={(v) => handleChange("portfolioUrl", v)}
-              placeholder="https://example.com/portfolio"
+              placeholder="https://github.com/yourname"
               type="url"
+              hint="GitHub, LinkedIn, หรือ Google Drive (ถ้ามี)"
             />
           </SectionCard>
 
@@ -414,7 +425,7 @@ function SectionCard({ title, icon, color, bg, children }) {
   );
 }
 
-function InputGroup({ label, icon, required, error, value, onChange, placeholder, type = "text", maxLength, style, step }) {
+function InputGroup({ label, icon, required, error, value, onChange, placeholder, type = "text", maxLength, style, step, hint }) {
   const [focused, setFocused] = useState(false);
   
   return (
@@ -451,6 +462,11 @@ function InputGroup({ label, icon, required, error, value, onChange, placeholder
           boxShadow: focused ? "0 0 0 4px rgba(37, 99, 235, 0.1)" : "none"
         }}
       />
+      {hint && !error && (
+        <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+          <i className="fas fa-info-circle"></i> {hint}
+        </p>
+      )}
       {error && (
         <p style={{ fontSize: 11, color: "#DC2626", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
           <i className="fas fa-exclamation-circle"></i> {error}
