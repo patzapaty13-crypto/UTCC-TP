@@ -1,119 +1,109 @@
-# 🎓 UTCC-TP: Trip & Internship Management Platform
+# 🎓 UTCC-TP: ระบบบริหารจัดการการฝึกงานและการเดินทาง (Trip & Internship Management)
 
-**University of the Thai Chamber of Commerce**
-A professional, automated Internship Application Tracking System (ATS) and Trip Management platform.
+**มหาวิทยาลัยหอการค้าไทย (University of the Thai Chamber of Commerce)**
+ระบบ ATS (Applicant Tracking System) ระดับมืออาชีพที่ผสานพลัง AI และระบบ Automation เพื่อยกระดับการจัดการฝึกงาน
 
 ---
 
-## 🏗️ System Architecture & Data Flow
+## 🏗️ สถาปัตยกรรมระบบและกระแสข้อมูล (System Architecture)
 
-The platform follows a modern full-stack architecture with clear separation of concerns:
+ระบบถูกออกแบบโดยแบ่งแยกหน้าที่อย่างชัดเจน (Separation of Concerns) เพื่อความเสถียรและความปลอดภัย:
 
 ```mermaid
 graph TD
-    subgraph "Frontend (Next.js 16)"
-        UI["React 19 Components"]
-        Lib["API Library (Axios)"]
-        Context["Auth Context / Session"]
+    subgraph "หน้าบ้าน (Frontend - Next.js 16)"
+        UI["React 19 Components (UI)"]
+        Lib["API Library (Axios + Interceptors)"]
+        Context["Auth Context (จัดการ Login/Session)"]
     end
 
-    subgraph "Backend (Spring Boot 3.4)"
-        API["REST Controllers"]
-        Security["JWT / Spring Security"]
-        Service["Business Logic Services"]
-        Repo["JPA Repositories"]
+    subgraph "หลังบ้าน (Backend - Spring Boot 3.4)"
+        API["REST Controllers (จุดรับ Request)"]
+        Security["JWT & Spring Security (ระบบรักษาความปลอดภัย)"]
+        Service["Business Logic Services (หัวใจการประมวลผล)"]
+        Repo["JPA Repositories (การเชื่อมต่อฐานข้อมูล)"]
     end
 
-    subgraph "Infrastructure"
-        DB[("PostgreSQL")]
-        n8n["n8n Automation Cloud"]
-        Cloud["Cloudinary Storage"]
-        Mail["Resend Email API"]
+    subgraph "โครงสร้างพื้นฐาน (Infrastructure)"
+        DB[("PostgreSQL Database")]
+        n8n["n8n Automation Cloud (ระบบจัดการคิวงาน)"]
+        Cloud["Cloudinary (ที่เก็บไฟล์และรูปภาพ)"]
+        Mail["Resend API (ระบบส่งอีเมล)"]
     end
 
     UI --> Lib
-    Lib -->|JWT Authenticated Requests| API
+    Lib -->|ส่ง JWT Token + ข้อมูล| API
     API --> Security
-    Security --> Service
+    Security -->|ตรวจสอบสิทธิ์| Service
     Service --> Repo
     Repo --> DB
-    Service -->|Async Webhooks| n8n
-    Service -->|File Uploads| Cloud
+    Service -->|สั่งงานอัตโนมัติแบบ Async| n8n
+    Service -->|อัปโหลดไฟล์| Cloud
     n8n --> Mail
 ```
 
-### Flow Example: Internship Application
-1. **Frontend**: Student fills out the `ApplicationForm.js` and submits.
-2. **API**: `ApplicationController` receives the request.
-3. **Security**: `JwtAuthFilter` validates the student's token.
-4. **Service**: `ApplicationService` saves data, creates a status log, and fires an **n8n Webhook**.
-5. **Automation**: n8n receives the webhook, generates a notification, and sends an email via **Resend**.
-
 ---
 
-## 📂 Project Structure
+## 📂 เจาะลึกโครงสร้างโฟลเดอร์และไฟล์ (Deep Dive)
 
-### 💻 Frontend (`/frontend`)
-Built with **Next.js 16 (App Router)** and **Tailwind CSS**.
+### 💻 ภาคส่วนหน้าบ้าน: `/frontend`
+พัฒนาด้วย **Next.js 16 (App Router)** ซึ่งเป็นเวอร์ชันล่าสุด
 
-| Folder / File | Description |
+| โฟลเดอร์ / ไฟล์ | คำอธิบายโดยละเอียด |
 |---|-|
-| `app/` | **Pages & API Routes.** Uses App Router hierarchy. |
-| `app/(app)/` | Protected routes requiring login (Student, Advisor, Admin dashboards). |
-| `app/auth/` | Login and role-based authentication entry points. |
-| `app/api/chat/` | Nexus AI route — handles communication between UI and n8n/Gemini. |
-| `components/` | **Reusable UI Components.** |
-| `components/RoleDashboardShell.js` | The main layout for all dashboards (dynamic sidebar based on role). |
-| `components/ApplicationForm.js` | The complex multi-step internship application form. |
-| `components/NexusChat.js` | The floating AI assistant interface. |
-| `lib/api.js` | Axios configuration with interceptors for JWT token management. |
-| `lib/statusConfig.js` | Centralized config for application statuses (colors, icons, steps). |
+| `app/` | **หัวใจของ Routing:** ทุกโฟลเดอร์คือ 1 หน้าเว็บ |
+| `app/(app)/` | **Route กลุ่มที่มีการป้องกัน:** ต้อง Login เท่านั้นถึงจะเข้าได้ (Student, Advisor, Admin Dashboards) |
+| `app/api/chat/` | **API Route สำหรับ Nexus AI:** ทำหน้าที่เป็นตัวกลางส่งข้อความจาก User ไปหา n8n หรือ Gemini |
+| `components/` | **ส่วนประกอบ UI ที่นำกลับมาใช้ใหม่ได้:** ช่วยให้โค้ดสะอาดและจัดการง่าย |
+| `components/RoleDashboardShell.js` | **เฟรมเวิร์กหลักของ Dashboard:** ตรวจสอบ Role ของ User และแสดงเมนูข้าง (Sidebar) ที่ต่างกัน |
+| `components/ApplicationForm.js` | **แบบฟอร์มสมัครงาน 5 ขั้นตอน:** จัดการข้อมูลส่วนตัว, ประวัติการเรียน, และการอัปโหลดไฟล์ (Resume/Transcript) |
+| `components/NexusChat.js` | **ปุ่มแชท AI ลอยตัว:** อินเตอร์เฟซสำหรับคุยกับระบบ Nexus AI |
+| `lib/api.js` | **Axios Instance:** ตั้งค่า Base URL และดักจับ Request เพื่อแนบ JWT Token อัตโนมัติ |
+| `lib/statusConfig.js` | **การตั้งค่าสถานะ (Status):** กำหนดสีและไอคอนของสถานะการสมัครงาน (เช่น Pending = สีเหลือง, Approved = สีเขียว) |
 
-### ⚙️ Backend (`/src/main/java/org/example/utcctp`)
-Built with **Spring Boot 3.4** and **Java 21**.
+---
 
-| Package | Description |
+### ⚙️ ภาคส่วนหลังบ้าน: `/src/main/java/org/example/utcctp`
+พัฒนาด้วย **Spring Boot 3.4 (Java 21)** เน้นความเร็วและความปลอดภัยระดับ Enterprise
+
+| แพ็กเกจ (Package) | คำอธิบายโดยละเอียด |
 |---|-|
-| `api/` | **REST Controllers.** Entry points for frontend requests. |
-| `auth/` | **Authentication Logic.** Handles OTP, Signup, and JWT generation. |
-| `model/` | **JPA Entities.** Database schema definitions (User, Application, etc.). |
-| `service/` | **Business Logic.** The "brain" of the app. Processes data and business rules. |
-| `notification/` | **WebhookService.** Dispatches async events to n8n for emails/automation. |
-| `security/` | **Spring Security Config.** Defines permissions and JWT filtering. |
-| `storage/` | **Storage Providers.** Pluggable logic for Local vs Cloudinary uploads. |
-| `repository/` | **Data Access.** Spring Data JPA interfaces for DB queries. |
-
-### 🗄️ Database & Resources (`/src/main/resources`)
-| Path | Description |
-|---|-|
-| `db/migration/` | **Flyway Scripts.** Versioned SQL migrations for schema evolution. |
-| `application.properties` | Central configuration for DB, JWT, and n8n URLs. |
+| `api/` | **Controllers:** ส่วนที่รับคำสั่งจาก Frontend เช่น `ApplicationController` รับการสมัครงาน, `InternshipController` จัดการประกาศรับสมัคร |
+| `auth/` | **ระบบยืนยันตัวตน:** จัดการการสมัครสมาชิก (Signup), การเข้าสู่ระบบ (Login), และระบบ OTP ผ่านอีเมล |
+| `model/` | **Entities:** นิยามโครงสร้างตารางในฐานข้อมูล (เช่น User, InternshipPosition, Application, AuditLog) |
+| `service/` | **Business Logic:** หัวใจสำคัญที่ควบคุมกฎเกณฑ์ เช่น `ApplicationService` จะคอยตรวจสอบว่าสถานะการสมัครเปลี่ยนจาก 'ยื่นคำขอ' เป็น 'สัมภาษณ์' ได้เมื่อไหร่ |
+| `notification/` | **WebhookService:** ระบบส่งสัญญาณไปหา n8n เพื่อเริ่มทำงานอัตโนมัติ เช่น ส่งเมลแจ้งเตือนเมื่อได้งาน |
+| `security/` | **Security Config:** ตั้งค่าว่าใครเข้าหน้าไหนได้บ้าง (Role-based Access Control) และจัดการ JWT Filter |
+| `storage/` | **Storage Logic:** ระบบจัดการไฟล์ที่รองรับทั้งเก็บในเครื่อง (Local) และเก็บบน Cloud (Cloudinary) |
+| `repository/` | **JPA Repositories:** ส่วนที่คุยกับฐานข้อมูล PostgreSQL โดยตรงด้วยคำสั่ง SQL หรือ Method Name |
 
 ---
 
-## 🛠️ Key Files & Their Functions
+## 🤖 ระบบอัตโนมัติด้วย n8n (Automation Workflows)
 
-### Backend Highlights
-- **`SecurityConfig.java`**: Configures CORS (allowing Vercel) and protects endpoints.
-- **`ApplicationService.java`**: Manages the lifecycle of an internship (Draft -> Pending -> Approved -> Finished).
-- **`WebhookService.java`**: Sends data to n8n. It is "fire-and-forget" to ensure the main UI stays fast.
-- **`User.java`**: Supports multiple roles and stores extra data like `skills` and `experiences` as JSONB.
+เราใช้ n8n Cloud ในการจัดการงานที่ต้องใช้เวลาประมวลผลสูง (Background Tasks):
 
-### Frontend Highlights
-- **`api.js`**: Automatically attaches `Authorization: Bearer <token>` to every request.
-- **`RoleDashboardShell.js`**: Renders different menus for `STUDENT`, `ADVISOR`, `COMPANY`, and `ADMIN`.
-- **`ApplicationForm.js`**: Handles file uploads (Resume/Transcript) before submitting the final application.
+1.  **OTP Delivery:** รับคำขอจาก Backend -> ส่งอีเมลรหัส OTP ให้ User ทันที
+2.  **Application Pipeline:** เมื่อสถานะการสมัครเปลี่ยน -> n8n จะส่งอีเมลแจ้งทั้งนักศึกษาและบริษัท
+3.  **AI Resume Screening:** (อยู่ระหว่างพัฒนา) ใช้ AI วิเคราะห์ความเหมาะสมของ Resume กับตำแหน่งงาน
+4.  **Nexus AI Assistant:** รับข้อความแชทจากหน้าเว็บ -> ประมวลผลผ่าน LLM (Gemini/OpenRouter) -> ตอบกลับ User
 
 ---
 
-## 🚀 Deployment Status
+## 🔐 ระบบความปลอดภัยและการตรวจสอบ (Security & Audit)
 
-- **Frontend**: [https://utcc-tp-indol.vercel.app](https://utcc-tp-indol.vercel.app)
-- **Backend**: [https://utcc-tp-backend.onrender.com](https://utcc-tp-backend.onrender.com)
-- **Automation**: n8n Cloud (handling 9 production workflows)
+*   **JWT (JSON Web Token):** ใช้สำหรับการจดจำ Session ของ User อย่างปลอดภัย ไม่มีการเก็บ Cookie ที่เสี่ยงต่อการแฮ็ก
+*   **Role-based Access:** ระบบแยกสิทธิ์ชัดเจน:
+    *   `STUDENT`: สมัครงาน, แก้ไขโปรไฟล์, รายงานตัว
+    *   `COMPANY`: ประกาศงาน, นัดสัมภาษณ์, ส่ง Offer
+    *   `ADVISOR`: ตรวจสอบสถานะเด็ก, อนุมัติการฝึกงาน
+    *   `ADMIN`: ดู Audit Logs, จัดการผู้ใช้, ดูสถิติรวม
+*   **Audit Logging:** ทุกการกระทำที่สำคัญ (เช่น การเปลี่ยนคะแนนสัมภาษณ์ หรือการลบข้อมูล) จะถูกบันทึกลงตาราง `audit_logs` พร้อมระบุ IP Address และ Browser ที่ใช้
 
 ---
 
-## 📖 Maintenance
-- To add a new database field: Add a new `V__xxx.sql` in `db/migration` and update the JPA Entity.
-- To add a new dashboard page: Create a folder in `app/(app)/<role>/` and update `RoleDashboardShell.js` navigation.
+## 🚀 ลิงก์สำคัญ (Production Links)
+
+*   **หน้าเว็บ (Frontend):** [https://utcc-tp-indol.vercel.app](https://utcc-tp-indol.vercel.app)
+*   **ระบบหลังบ้าน (Backend):** [https://utcc-tp-backend.onrender.com](https://utcc-tp-backend.onrender.com)
+*   **API Health Check:** [https://utcc-tp-backend.onrender.com/actuator/health](https://utcc-tp-backend.onrender.com/actuator/health)
