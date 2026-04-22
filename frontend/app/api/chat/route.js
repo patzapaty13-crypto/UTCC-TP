@@ -3,7 +3,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const N8N_CHAT_WEBHOOK_URL = process.env.N8N_CHAT_WEBHOOK_URL || "https://thanathorn123.app.n8n.cloud/webhook/df19905c-458b-4c58-8194-b7b1bb49d899";
+const N8N_CHAT_WEBHOOK_URL = process.env.N8N_CHAT_WEBHOOK_URL || "https://thanathorn123.app.n8n.cloud/webhook/df19905c-458b-4c58-8194-b7b1bb49d899/chat";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
@@ -31,6 +31,7 @@ export async function POST(request) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            action: "sendMessage",
             chatInput,
             sessionId: sessionId || "default",
             userRole: userRole || "GUEST",
