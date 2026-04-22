@@ -228,7 +228,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.fullName}
                 value={formData.fullName}
                 onChange={(v) => handleChange("fullName", v)}
-                placeholder="ชื่อ - นามสกุล (ภาษาไทย)"
+                placeholder="ระบุชื่อ-นามสกุลของคุณ"
               />
               <InputGroup
                 label="เบอร์โทรศัพท์"
@@ -237,7 +237,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.phone}
                 value={formData.phone}
                 onChange={(v) => handleChange("phone", v)}
-                placeholder="08x-xxx-xxxx"
+                placeholder="0xx-xxx-xxxx"
                 maxLength={10}
                 hint="ตัวเลข 10 หลัก (เช่น 08x-xxx-xxxx)"
               />
@@ -249,7 +249,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               error={errors.email}
               value={formData.email}
               onChange={(v) => handleChange("email", v)}
-              placeholder="example@email.com"
+              placeholder="user@example.com"
               type="email"
               style={{ marginTop: 20 }}
               hint="อีเมลที่ใช้งานจริงสำหรับรับข่าวสารการสมัคร"
@@ -368,7 +368,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               error={errors.portfolioUrl}
               value={formData.portfolioUrl}
               onChange={(v) => handleChange("portfolioUrl", v)}
-              placeholder="https://your-portfolio-link.com"
+              placeholder="https://..."
               type="url"
               hint="GitHub, LinkedIn, หรือ Google Drive (ถ้ามี)"
             />
@@ -442,10 +442,10 @@ function InputGroup({ label, icon, required, error, value, onChange, placeholder
         {label} {required && <span style={{ color: "#EF4444" }}>*</span>}
       </label>
       <input
-        type={type}
+        type={type || "text"}
         className="input"
         placeholder={placeholder}
-        value={value}
+        value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}

@@ -20,9 +20,10 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Global Placeholder Styling - Fix for visibility */
+/* Global Placeholder Styling - Forced visibility with higher contrast */
 input::placeholder, 
 textarea::placeholder {
-  color: #94A3B8 !important;
+  color: #475569 !important; /* Darker slate color for better visibility */
   opacity: 1 !important;
+  -webkit-text-fill-color: #475569 !important; /* Fix for some webkit browsers */
 }
