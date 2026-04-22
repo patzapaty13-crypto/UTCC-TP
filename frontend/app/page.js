@@ -160,22 +160,6 @@ export default function LandingPage() {
 
       <FaqSection />
 
-      {/* ── CTA BANNER ─────────────────────────────────────────── */}
-      <section style={{ background: "linear-gradient(135deg, #0B0F1A, #1E3A8A)", padding: "80px 32px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position:"absolute", top:-100, right:-100, width:360, height:360, borderRadius:"50%", background:"rgba(37,99,235,0.1)", pointerEvents:"none" }}></div>
-        <div className="reveal" style={{ position:"relative", zIndex:1, maxWidth:600, margin:"0 auto" }}>
-          <h2 style={{ fontSize: "clamp(24px, 4vw, 38px)", fontWeight: 900, color: "white", letterSpacing: "-1px", marginBottom: 16 }}>พร้อมเริ่มต้นแล้วหรือยัง?</h2>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.55)", marginBottom: 36, fontWeight: 500, lineHeight: 1.7 }}>เข้าร่วมกับนักศึกษาและอาจารย์มากกว่า 2,000 คน ที่ใช้แพลตฟอร์มนี้</p>
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/login" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "#2563EB", color: "white", padding: "14px 36px", borderRadius: 14, fontSize: 15, fontWeight: 800, boxShadow: "0 8px 24px rgba(37,99,235,0.4)", transition: "all 0.2s", textDecoration: "none" }}
-              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 12px 32px rgba(37,99,235,0.5)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 8px 24px rgba(37,99,235,0.4)"; }}>
-              เข้าสู่ระบบตอนนี้ <i className="fas fa-arrow-right"></i>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── FOOTER ─────────────────────────────────────────────── */}
       <footer style={{ background: "#020617", padding: "64px 32px 32px" }}>
         <div className="reveal" style={{ maxWidth: 1100, margin: "0 auto" }}>
