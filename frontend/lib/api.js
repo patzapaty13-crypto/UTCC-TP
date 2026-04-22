@@ -145,9 +145,13 @@ export const api = {
     if (USE_MOCK_API) { await delay(); return MOCK_INTERNSHIPS; }
     return apiFetch("/internships");
   },
+  getMyInternships: async () => {
+    return apiFetch("/internships/my");
+  },
   getInternship: (id) => apiFetch(`/internships/${id}`),
   createInternship: (data) => apiFetch("/internships", { method: "POST", body: JSON.stringify(data) }),
   updateInternship: (id, data) => apiFetch(`/internships/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteInternship: (id) => apiFetch(`/internships/${id}`, { method: "DELETE" }),
 
   // -------------------------------------------------------------
   // Companies
@@ -189,6 +193,8 @@ export const api = {
   },
   getApplicationTimeline: (id) => apiFetch(`/applications/${id}/timeline`),
   withdrawApplication: (id, reason) => apiFetch(`/applications/${id}/withdraw`, { method: "PUT", body: JSON.stringify({ reason }) }),
+  decideApplication: (id, payload) => apiFetch(`/applications/${id}/decision`, { method: "PUT", body: JSON.stringify(payload) }),
+  getApplication: (id) => apiFetch(`/applications/${id}`),
 
   // -------------------------------------------------------------
   // Reports
@@ -229,7 +235,7 @@ export const api = {
   getOffers: (applicationId) => apiFetch(`/offers${applicationId ? `?applicationId=${applicationId}` : ""}`),
   createOffer: (data) => apiFetch("/offers", { method: "POST", body: JSON.stringify(data) }),
   updateOffer: (id, data) => apiFetch(`/offers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-  respondToOffer: (id, data) => apiFetch(`/offers/${id}/respond`, { method: "PUT", body: JSON.stringify(data) }),
+  respondToOffer: (id, data) => apiFetch(`/offers/${id}/respond`, { method: "POST", body: JSON.stringify(data) }),
   
   // ATS Decide
   decideForInternship: async (id, payload) => {
@@ -262,6 +268,7 @@ export const api = {
   // -------------------------------------------------------------
   getNotifications: () => apiFetch("/notifications"),
   markNotificationRead: (id) => apiFetch(`/notifications/${id}/read`, { method: "PUT" }),
+  deleteNotification: (id) => apiFetch(`/notifications/${id}`, { method: "DELETE" }),
 
   // -------------------------------------------------------------
   // Files & Documents

@@ -58,18 +58,13 @@ public class InterviewService {
 
     public Interview confirmInterview(UUID id, boolean isStudent) {
         Interview interview = interviewRepository.findById(id).orElseThrow();
-        
+
+        // Only student needs to confirm, company is already confirmed when they created the interview
         if (isStudent) {
             interview.setStudentConfirmed(true);
-        } else {
-            interview.setCompanyConfirmed(true);
-        }
-        
-        // If both confirmed, update status
-        if (interview.getStudentConfirmed() && interview.getCompanyConfirmed()) {
             interview.setStatus("CONFIRMED");
         }
-        
+
         return interviewRepository.save(interview);
     }
 

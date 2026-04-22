@@ -157,7 +157,7 @@ public class ApplicationService {
                             Notification.NotificationType.NEW_APPLICANT,
                             "นักศึกษาสมัครฝึกงานใหม่",
                             student.getDisplayName() + " ได้สมัคร " + positionTitle,
-                            "/advisor/students"
+                            "/advisor/approvals?applicationId=" + application.getId()
                     );
                 }
             } catch (Exception e) {
@@ -166,14 +166,54 @@ public class ApplicationService {
             }
         }
 
+        // Notify company when student applies to internship
+        if (application.getInternshipPosition() != null) {
+            try {
+                User companyUser = userRepository.findByCompanyId(application.getInternshipPosition().getCompany().getId())
+                        .stream()
+                        .filter(u -> u.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY")))
+                        .findFirst()
+                        .orElse(null);
+                if (companyUser != null) {
+                    String positionTitle = application.getInternshipPosition().getTitle();
+                    notificationService.createNotification(
+                            companyUser,
+                            Notification.NotificationType.NEW_APPLICANT,
+                            "มีนักศึกษาสมัครใหม่",
+                            student.getDisplayName() + " ได้สมัครตำแหน่ง " + positionTitle,
+                            "/company/applications?applicationId=" + application.getId()
+                    );
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify company: " + e.getMessage());
+            }
+        }
+
         return mapApplication(application);
     }
 
     public List<ApplicationResponse> list(User user) {
         boolean isStudent = user.getRoles().stream().anyMatch(role -> role.name().equals("STUDENT"));
-        List<Application> applications = isStudent
-                ? applicationRepository.findByStudentId(user.getId())
-                : applicationRepository.findAll();
+        boolean isCompany = user.getRoles().stream().anyMatch(role -> role.name().equals("COMPANY"));
+        boolean isAdvisor = user.getRoles().stream().anyMatch(role -> role.name().equals("ADVISOR"));
+
+        List<Application> applications;
+        if (isStudent) {
+            applications = applicationRepository.findByStudentId(user.getId());
+        } else if (isCompany) {
+            // Companies only see applications for their internships that are approved by advisor
+            if (user.getCompanyId() != null) {
+                applications = applicationRepository.findByStatusAndCompanyId(ApplicationStatus.ADVISOR_APPROVED, user.getCompanyId());
+            } else {
+                applications = List.of();
+            }
+        } else if (isAdvisor) {
+            // Advisors see all applications (to approve and manage)
+            applications = applicationRepository.findAll();
+        } else {
+            // Admin and others see all
+            applications = applicationRepository.findAll();
+        }
         return applications.stream().map(this::mapApplication).toList();
     }
 
@@ -183,7 +223,12 @@ public class ApplicationService {
         boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.name().equals("ADMIN"));
         boolean isOwner = application.getStudent().getId().equals(user.getId());
         boolean isApprover = user.getRoles().stream().anyMatch(r -> r.name().equals("STAFF") || r.name().equals("ADVISOR") || r.name().equals("ADMIN"));
-        if (!isAdmin && !isOwner && !isApprover) {
+        boolean isCompany = user.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY"));
+        boolean isCompanyOwner = isCompany && application.getInternshipPosition() != null
+                && user.getCompanyId() != null
+                && application.getInternshipPosition().getCompany().getId().equals(user.getCompanyId());
+
+        if (!isAdmin && !isOwner && !isApprover && !isCompanyOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized");
         }
         List<ApplicationStatusLogResponse> logs = statusLogRepository.findByApplicationIdOrderByCreatedAtDesc(id).stream()
@@ -257,19 +302,78 @@ public class ApplicationService {
         notificationService.createNotification(
                 student,
                 Notification.NotificationType.APPLICATION_STATUS_CHANGED,
-                "สถานะใบสมัครอัปเดต: " + newStatus.name(),
-                "ใบสมัคร " + positionTitle + " ของคุณถูกเปลี่ยนเป็น " + newStatus.name() + (workflow.note() != null ? " (" + workflow.note() + ")" : ""),
-                "/student/applications"
+                "สถานะใบสมัครอัปเดต: " + getStatusLabelInThai(newStatus),
+                "ใบสมัคร " + positionTitle + " ของคุณถูกเปลี่ยนเป็น " + getStatusLabelInThai(newStatus) + (workflow.note() != null ? " (" + workflow.note() + ")" : ""),
+                "/student/applications?applicationId=" + application.getId()
         );
+
+        // Notify company when advisor approves application
+        if (newStatus == ApplicationStatus.ADVISOR_APPROVED && application.getInternshipPosition() != null) {
+            try {
+                User companyUser = userRepository.findByCompanyId(application.getInternshipPosition().getCompany().getId())
+                        .stream()
+                        .filter(u -> u.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY")))
+                        .findFirst()
+                        .orElse(null);
+                if (companyUser != null) {
+                    notificationService.createNotification(
+                            companyUser,
+                            Notification.NotificationType.NEW_APPLICANT,
+                            "มีใบสมัครใหม่ที่อนุมัติแล้ว",
+                            student.getDisplayName() + " ได้รับการอนุมัติจากอาจารย์แล้ว สำหรับตำแหน่ง " + positionTitle,
+                            "/company/applications?applicationId=" + application.getId()
+                    );
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify company: " + e.getMessage());
+            }
+        }
+
+        // Notify advisor when company makes decision
+        if (oldStatus == ApplicationStatus.ADVISOR_APPROVED &&
+            (newStatus == ApplicationStatus.REVIEWING || newStatus == ApplicationStatus.REJECTED ||
+             newStatus == ApplicationStatus.SHORTLISTED || newStatus == ApplicationStatus.ACCEPTED)) {
+            try {
+                if (student.getAdvisorId() != null) {
+                    User advisor = userRepository.findById(student.getAdvisorId()).orElse(null);
+                    if (advisor != null) {
+                        notificationService.createNotification(
+                                advisor,
+                                Notification.NotificationType.APPLICATION_STATUS_CHANGED,
+                                "บริษัทตัดสินใบสมัคร",
+                                student.getDisplayName() + " " + positionTitle + " ถูกเปลี่ยนเป็น " + getStatusLabelInThai(newStatus) + " โดยบริษัท",
+                                "/advisor/approvals?applicationId=" + application.getId()
+                        );
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify advisor: " + e.getMessage());
+            }
+
+            // Notify student when company starts reviewing
+            if (newStatus == ApplicationStatus.REVIEWING) {
+                try {
+                    notificationService.createNotification(
+                            student,
+                            Notification.NotificationType.APPLICATION_STATUS_CHANGED,
+                            "บริษัทรับเข้าพิจารณา",
+                            "บริษัทได้รับใบสมัคร " + positionTitle + " ของคุณเข้าพิจารณา รอนัดสัมภาษณ์",
+                            "/student/applications?applicationId=" + application.getId()
+                    );
+                } catch (Exception e) {
+                    System.err.println("Failed to notify student: " + e.getMessage());
+                }
+            }
+        }
 
         if (student.getEmail() != null && !student.getEmail().isBlank()) {
             emailService.sendAsync(
                     student.getEmail(),
-                    "[UTCC-TP] อัปเดตสถานะใบสมัคร: " + newStatus.name(),
+                    "[UTCC-TP] อัปเดตสถานะใบสมัคร: " + getStatusLabelInThai(newStatus),
                     EmailTemplates.statusChange(
                             student.getDisplayName(),
-                            oldStatus.name(),
-                            newStatus.name(),
+                            getStatusLabelInThai(oldStatus),
+                            getStatusLabelInThai(newStatus),
                             positionTitle,
                             workflow.note()
                     )
@@ -326,7 +430,16 @@ public class ApplicationService {
                 internshipTitle,
                 positionId,
                 companyId,
-                application.getCreatedAt()
+                application.getCreatedAt(),
+                application.getUpdatedAt(),
+                application.getPhone(),
+                application.getEmail(),
+                application.getAddress(),
+                application.getGpa(),
+                application.getYear(),
+                application.getCoverLetter(),
+                application.getPortfolioUrl(),
+                null // resume - not stored in entity yet
         );
     }
 
@@ -398,7 +511,7 @@ public class ApplicationService {
                             Notification.NotificationType.APPLICATION_STATUS_CHANGED,
                             "นักศึกษาถอนใบสมัคร",
                             user.getDisplayName() + " ได้ถอนใบสมัคร " + positionTitle + (reason != null ? " เหตุผล: " + reason : ""),
-                            "/advisor/students"
+                            "/advisor/approvals?applicationId=" + application.getId()
                     );
                 }
             } catch (Exception e) {
@@ -406,6 +519,57 @@ public class ApplicationService {
             }
         }
 
+        // Notify company when student withdraws application
+        if (application.getInternshipPosition() != null) {
+            try {
+                User companyUser = userRepository.findByCompanyId(application.getInternshipPosition().getCompany().getId())
+                        .stream()
+                        .filter(u -> u.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY")))
+                        .findFirst()
+                        .orElse(null);
+                if (companyUser != null) {
+                    String positionTitle = application.getInternshipPosition().getTitle();
+                    notificationService.createNotification(
+                            companyUser,
+                            Notification.NotificationType.APPLICATION_STATUS_CHANGED,
+                            "นักศึกษาถอนใบสมัคร",
+                            user.getDisplayName() + " ได้ถอนใบสมัคร " + positionTitle + (reason != null ? " เหตุผล: " + reason : ""),
+                            "/company/applications?applicationId=" + application.getId()
+                    );
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify company: " + e.getMessage());
+            }
+        }
+
         return mapApplication(application);
+    }
+
+    private String getStatusLabelInThai(ApplicationStatus status) {
+        if (status == null) return "ไม่ระบุ";
+        switch (status) {
+            case PENDING:
+                return "รออนุมัติอาจารย์";
+            case ADVISOR_APPROVED:
+                return "อนุมัติโดยอาจารย์";
+            case REVIEWING:
+                return "กำลังพิจารณาบริษัท";
+            case SHORTLISTED:
+                return "ผ่านรอบแรก";
+            case INTERVIEW_SCHEDULED:
+                return "นัดสัมภาษณ์";
+            case INTERVIEW_COMPLETED:
+                return "สัมภาษณ์เสร็จ";
+            case OFFER_EXTENDED:
+                return "ได้รับข้อเสนอ";
+            case ACCEPTED:
+                return "อนุมัติ";
+            case REJECTED:
+                return "ปฏิเสธ";
+            case WITHDRAWN:
+                return "ถอนใบสมัคร";
+            default:
+                return status.name();
+        }
     }
 }

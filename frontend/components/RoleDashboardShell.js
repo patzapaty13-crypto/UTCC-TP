@@ -14,45 +14,30 @@ const NAV_ITEMS = {
     { href: "/student/profile", label: "โปรไฟล์", icon: "fa-user" },
     { href: "/student/internships", label: "ค้นหาฝึกงาน", icon: "fa-briefcase" },
     { href: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
-    { href: "/student/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
     { href: "/student/reports", label: "รายงานฝึกงาน", icon: "fa-file-lines" },
     { href: "/student/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
-    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
-    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
-  ],
-  COMPANY: [
-    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
-    { href: "/company/profile", label: "ข้อมูลบริษัท", icon: "fa-building" },
-    { href: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
-    { href: "/company/applicants", label: "ผู้สมัคร", icon: "fa-users" },
-    { href: "/company/interviews", label: "สัมภาษณ์", icon: "fa-calendar-check" },
-    { href: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-signature" },
-    { href: "/company/interns", label: "พนักงานฝึกงาน", icon: "fa-user-tie" },
-    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADVISOR: [
-    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/advisor/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/advisor/students", label: "นักศึกษาในความดูแล", icon: "fa-user-graduate" },
-    { href: "/advisor/reports", label: "ตรวจรายงาน", icon: "fa-file-lines" },
     { href: "/advisor/approvals", label: "อนุมัติเอกสาร", icon: "fa-circle-check" },
+    { href: "/advisor/reports", label: "ตรวจรายงาน", icon: "fa-file-lines" },
     { href: "/advisor/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
     { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
-  STAFF: [
-    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
-    { href: "/staff/documents", label: "เอกสาร", icon: "fa-folder-open" },
-    { href: "/staff/companies", label: "บริษัท", icon: "fa-building" },
-    { href: "/staff/assign-advisor", label: "กำหนดอาจารย์ที่ปรึกษา", icon: "fa-user-plus" },
-    { href: "/staff/applications", label: "การสมัคร", icon: "fa-clipboard-list" },
-    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+  COMPANY: [
+    { href: "/company/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
+    { href: "/company/applications", label: "ใบสมัคร", icon: "fa-clipboard-list" },
+    { href: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-contract" },
+    { href: "/company/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
-    { href: "/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },
+    { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },
     { href: "/admin/users", label: "ผู้ใช้", icon: "fa-users" },
-    { href: "/admin/roles", label: "สิทธิ์การใช้งาน", icon: "fa-user-shield" },
     { href: "/admin/audit", label: "Audit Logs", icon: "fa-clipboard-check" },
     { href: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
@@ -65,6 +50,11 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
   const [unreadCount, setUnreadCount] = useState(0);
   const meta = getRoleMeta(role);
   const nav = NAV_ITEMS[role] || NAV_ITEMS.STUDENT;
+
+  const handleLogout = () => {
+    localStorage.removeItem("utcctp_token");
+    window.location.href = "/login";
+  };
 
   useEffect(() => {
     // Initial load
@@ -172,6 +162,29 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
                 </Link>
               );
             })}
+            
+            <div style={{ marginTop: 20, borderTop: "1px solid var(--border)", paddingTop: 20 }}>
+              <button onClick={handleLogout} className="btn btn-ghost" style={{
+                justifyContent: "flex-start",
+                color: "#DC2626",
+                fontWeight: "500",
+                borderLeft: "3px solid transparent",
+                borderRadius: "8px",
+                cursor: "pointer",
+                width: "100%"
+              }} onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#FEF2F2";
+                e.currentTarget.style.borderLeft = "3px solid #DC2626";
+                e.currentTarget.style.borderRadius = "0 8px 8px 0";
+              }} onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderLeft = "3px solid transparent";
+                e.currentTarget.style.borderRadius = "8px";
+              }}>
+                <i className="fas fa-sign-out-alt" style={{ width: 18 }}></i>
+                ออกจากระบบ
+              </button>
+            </div>
           </nav>
         </aside>
 
@@ -228,6 +241,7 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
         unreadCount={unreadCount}
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
+        onLogout={handleLogout}
       />
 
       {/* Mobile Responsive Styles */}

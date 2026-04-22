@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
 const STATUS_COLORS = {
@@ -144,16 +145,35 @@ function EmptyState({ label }) {
 }
 
 export default function AnalyticsPage() {
+  const router = useRouter();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    api.getAnalyticsDashboard()
+    // Check user role and redirect if student
+    api.getMe()
+      .then(user => {
+        setUser(user);
+        const roles = user?.roles || [];
+        if (roles.includes("STUDENT")) {
+          router.replace("/student/dashboard");
+          return;
+        }
+        // Load analytics for non-student roles
+        return api.getAnalyticsDashboard();
+      })
       .then(setData)
-      .catch(err => setError(err.message || "โหลดข้อมูลไม่สำเร็จ"))
+      .catch(err => {
+        if (err.message?.includes("403") || err.message?.includes("401")) {
+          setError("คุณไม่มีสิทธิ์เข้าถึงหน้านี้");
+        } else {
+          setError(err.message || "โหลดข้อมูลไม่สำเร็จ");
+        }
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   if (loading) {
     return <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>กำลังโหลด...</div>;

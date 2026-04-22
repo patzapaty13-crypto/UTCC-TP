@@ -47,7 +47,7 @@ public class ApplicationController {
     }
 
     @PutMapping("/{id}/decision")
-    @PreAuthorize("hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADVISOR') or hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
     public ApplicationResponse decide(@PathVariable UUID id, @RequestBody DecisionRequest request) {
         return applicationService.decide(id, request, currentUserService.requireUser());
     }

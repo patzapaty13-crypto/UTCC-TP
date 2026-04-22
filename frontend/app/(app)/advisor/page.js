@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function AdvisorRedirect() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/dashboard");
+    router.replace("/advisor/dashboard");
   }, [router]);
   return null;
 }

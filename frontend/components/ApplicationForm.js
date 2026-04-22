@@ -116,7 +116,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
   }
 
   return (
-    <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: 32, maxWidth: 900, margin: "0 auto", width: "100%" }}>
       {/* Progress Header */}
       <div className="premium-card" style={{ padding: "24px 40px", borderTop: "4px solid var(--primary)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

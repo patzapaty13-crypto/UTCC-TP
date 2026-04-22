@@ -72,6 +72,8 @@ public class Notification {
     public enum NotificationType {
         APPLICATION_STATUS_CHANGED,
         INTERVIEW_SCHEDULED,
+        INTERVIEW_CONFIRMED,
+        INTERVIEW_RESCHEDULED,
         OFFER_RECEIVED,
         OFFER_RESPONSE,
         REPORT_GRADED,

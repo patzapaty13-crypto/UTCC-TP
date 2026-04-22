@@ -1,5 +1,6 @@
 package org.example.utcctp.api.dto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,6 +15,16 @@ public record ApplicationResponse(
         String internshipTitle,
         UUID positionId,
         UUID companyId,
-        Instant createdAt
+        Instant createdAt,
+        Instant updatedAt,
+        // Application form fields
+        String phone,
+        String email,
+        String address,
+        BigDecimal gpa,
+        Integer year,
+        String coverLetter,
+        String portfolioUrl,
+        String resume
 ) {
 }

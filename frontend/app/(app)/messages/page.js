@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 
 export default function MessagesPage() {
+  const searchParams = useSearchParams();
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -13,13 +15,37 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    api.getMe().then(setCurrentUser);
-    loadContacts();
-    
+    const init = async () => {
+      const user = await api.getMe();
+      setCurrentUser(user);
+      loadContacts();
+
+      // Check if user parameter exists in URL
+      const userParam = searchParams.get("user");
+      if (userParam) {
+        // Find the user in contacts or search results
+        const foundContact = contacts.find(c => c.username === userParam) ||
+                             searchResults.find(u => u.username === userParam);
+        if (foundContact) {
+          selectContact(foundContact);
+        } else {
+          // If not found in contacts, try to get all users and find them
+          api.getUsers().then(users => {
+            const foundUser = users.find(u => u.username === userParam);
+            if (foundUser) {
+              selectContact(foundUser);
+            }
+          });
+        }
+      }
+    };
+
+    init();
+
     const interval = setInterval(() => {
       if (selectedContact) {
         refreshMessages(selectedContact.username);
@@ -31,6 +57,12 @@ export default function MessagesPage() {
   }, [selectedContact]);
 
   useEffect(() => {
+    if (currentUser) {
+      loadContacts();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -38,8 +70,42 @@ export default function MessagesPage() {
 
   const loadContacts = async () => {
     try {
-      const data = await api.getChatContacts();
-      setContacts(data);
+      // Load all users and filter by role
+      let users = [];
+      try {
+        users = await api.getUsers();
+      } catch (err) {
+        console.warn("Cannot load all users, using chat contacts only");
+      }
+
+      const currentUsername = currentUser?.username;
+
+      // Filter out current user from advisors and students
+      const advisors = users.filter(u => u.roles?.includes("ADVISOR") && u.username !== currentUsername);
+      const students = users.filter(u => u.roles?.includes("STUDENT") && u.username !== currentUsername);
+
+      // Combine with existing chat contacts (also filter out current user)
+      const chatContacts = await api.getChatContacts().catch(() => []);
+      const filteredChatContacts = chatContacts.filter(c => c.username !== currentUsername);
+
+      // Create a combined list with role indicators
+      const allContacts = [
+        ...advisors.map(u => ({ ...u, role: "ADVISOR", isSystemContact: true })),
+        ...students.map(u => ({ ...u, role: "STUDENT", isSystemContact: true })),
+        ...filteredChatContacts.map(c => ({ ...c, isChatContact: true }))
+      ];
+
+      // Remove duplicates (prefer chat contacts)
+      const uniqueContacts = [];
+      const seenUsernames = new Set();
+      for (const contact of allContacts) {
+        if (!seenUsernames.has(contact.username)) {
+          seenUsernames.add(contact.username);
+          uniqueContacts.push(contact);
+        }
+      }
+
+      setContacts(uniqueContacts);
     } catch (err) {
       console.error("Failed to load contacts", err);
     } finally {
@@ -89,15 +155,16 @@ export default function MessagesPage() {
     if (q.length > 2) {
       setIsSearching(true);
       try {
-        // We use getUsers endpoint from admin or a public search if exists
-        const users = await api.getUsers(); 
-        setSearchResults(users.filter(u => 
-          (u.username.toLowerCase().includes(q.toLowerCase()) || 
+        // Try to get users - this will fail for non-admin users
+        const users = await api.getUsers();
+        setSearchResults(users.filter(u =>
+          (u.username.toLowerCase().includes(q.toLowerCase()) ||
            (u.displayName && u.displayName.toLowerCase().includes(q.toLowerCase()))) &&
           u.username !== currentUser?.username
         ));
       } catch (err) {
-        console.error(err);
+        // If admin endpoint fails, show empty results or suggest manual search
+        setSearchResults([]);
       }
     } else {
       setIsSearching(false);
@@ -157,22 +224,35 @@ export default function MessagesPage() {
                 </div>
               ) : (
                 contacts.map(c => (
-                  <div 
-                    key={c.username} 
+                  <div
+                    key={c.username}
                     onClick={() => selectContact(c)}
-                    style={{ 
-                      padding: "16px 24px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, 
+                    style={{
+                      padding: "16px 24px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
                       background: selectedContact?.username === c.username ? "#F1F5F9" : "transparent",
                       borderLeft: selectedContact?.username === c.username ? `4px solid ${theme.primary}` : "4px solid transparent",
                       transition: "0.2s"
                     }}
                   >
-                    <div style={{ width: 50, height: 50, borderRadius: "18px", background: "#EFF6FF", border: `2px solid ${selectedContact?.username === c.username ? "white" : "transparent"}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: theme.primary, fontSize: 18 }}>
+                    <div style={{ width: 50, height: 50, borderRadius: "18px", background: c.role === "ADVISOR" ? "#F5F3FF" : "#EFF6FF", border: `2px solid ${selectedContact?.username === c.username ? "white" : "transparent"}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: c.role === "ADVISOR" ? "#7C3AED" : theme.primary, fontSize: 18 }}>
                       {c.displayName?.[0] || c.username[0].toUpperCase()}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
                         <span style={{ fontWeight: 800, color: theme.textDeep, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.displayName || c.username}</span>
+                        {c.role && (
+                          <span style={{
+                            padding: "2px 8px",
+                            borderRadius: "6px",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            background: c.role === "ADVISOR" ? "#F5F3FF" : "#EFF6FF",
+                            color: c.role === "ADVISOR" ? "#7C3AED" : theme.primary,
+                            textTransform: "uppercase"
+                          }}>
+                            {c.role === "ADVISOR" ? "อาจารย์" : "นักศึกษา"}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 13, color: theme.textSoft, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         คลิกเพื่อเริ่มสนทนา

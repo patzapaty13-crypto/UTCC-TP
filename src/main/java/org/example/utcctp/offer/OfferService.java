@@ -3,7 +3,7 @@ package org.example.utcctp.offer;
 import org.example.utcctp.api.dto.OfferRequest;
 import org.example.utcctp.api.dto.OfferResponse;
 import org.example.utcctp.model.Application;
-import org.example.utcctp.model.NotificationType;
+import org.example.utcctp.model.Notification;
 import org.example.utcctp.model.Offer;
 import org.example.utcctp.model.User;
 import org.example.utcctp.notification.NotificationService;
@@ -31,6 +31,10 @@ public class OfferService {
         this.offerRepository = offerRepository;
         this.applicationRepository = applicationRepository;
         this.notificationService = notificationService;
+    }
+
+    public List<OfferResponse> listAll() {
+        return offerRepository.findAll().stream().map(this::map).toList();
     }
 
     public List<OfferResponse> listByApplication(UUID applicationId) {
@@ -93,7 +97,21 @@ public class OfferService {
         }
         applicationRepository.save(application);
 
-        // Email notification will be handled by the service layer
+        // Notify company when student responds to offer
+        if (offer.getOfferedBy() != null) {
+            String title = "ACCEPTED".equalsIgnoreCase(status) ? "นักศึกษาตอบรับข้อเสนอ" : "นักศึกษาปฏิเสธข้อเสนอ";
+            String message = application.getStudent().getDisplayName() + " " +
+                           ("ACCEPTED".equalsIgnoreCase(status) ? "ตอบรับข้อเสนอ" : "ปฏิเสธข้อเสนอ") +
+                           " สำหรับตำแหน่ง " + offer.getTitle();
+            notificationService.createNotification(
+                    offer.getOfferedBy(),
+                    Notification.NotificationType.OFFER_RESPONSE,
+                    title,
+                    message,
+                    "/company/offers?applicationId=" + application.getId()
+            );
+        }
+
         return map(offerRepository.save(offer));
     }
 

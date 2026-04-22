@@ -24,10 +24,7 @@
 .login-visual-side {
   flex: 1.2;
   position: relative;
-  background-color: #0F172A;
-  background-image: url('/branding_background_1776695229559.png');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

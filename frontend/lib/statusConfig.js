@@ -16,6 +16,14 @@ export const STATUS_CONFIG = {
     textColor: "#1E40AF",
     icon: "fa-magnifying-glass"
   },
+  ADVISOR_APPROVED: {
+    label: "อนุมัติ",
+    color: "#10B981",
+    background: "#D1FAE5",
+    borderColor: "#6EE7B7",
+    textColor: "#065F46",
+    icon: "fa-check-circle"
+  },
   INTERVIEW_SCHEDULED: {
     label: "นัดสัมภาษณ์",
     color: "#7C3AED",
@@ -49,7 +57,7 @@ export const STATUS_CONFIG = {
     icon: "fa-handshake"
   },
   REJECTED: {
-    label: "ไม่ผ่านการคัดเลือก",
+    label: "ปฏิเสธ",
     color: "#EF4444",
     background: "#FEE2E2",
     borderColor: "#FCA5A5",

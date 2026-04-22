@@ -25,7 +25,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAnyRole('ADVISOR', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ADVISOR', 'STAFF', 'ADMIN', 'STUDENT')")
     public List<UserResponse> listUsers() {
         return userAdminService.listUsers();
     }
