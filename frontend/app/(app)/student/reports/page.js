@@ -41,7 +41,9 @@ export default function StudentReportsPage() {
     }
   };
 
-  useEffect(loadReports, []);
+  useEffect(() => {
+    loadReports();
+  }, []);
 
   // Filter logic
   const filteredReports = reports.filter(report => {
@@ -193,10 +195,10 @@ export default function StudentReportsPage() {
           <div className="empty-state">
             <div className="empty-state-icon"><i className="fas fa-file-alt"></i></div>
             <h3>ยังไม่มีรายงาน</h3>
-            <p>คุณยังไม่ได้ส่งรายงานฝึกงานใดๆ</p>
-            <Link href="/student/reports/submit" className="btn btn-primary" style={{ marginTop: 16 }}>
-              <i className="fas fa-plus" style={{ marginRight: 8 }}></i>
-              ส่งรายงานแรก
+            <p>คุณยังไม่ได้ส่งรายงานฝึกงานใดๆ เริ่มต้นส่งรายงานแรกของคุณตอนนี้</p>
+            <Link href="/student/reports/submit" className="btn btn-primary btn-lg" style={{ marginTop: 24, fontSize: 16, padding: "14px 28px" }}>
+              <i className="fas fa-plus" style={{ marginRight: 10 }}></i>
+              ส่งรายงานใหม่
             </Link>
           </div>
         ) : filteredReports.length === 0 ? (

@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RoleDashboardShell from "@/components/RoleDashboardShell";
+import ActionButton from "@/components/ActionButton";
+import StatusBadge, { StatusBadgeWithCount } from "@/components/StatusBadge";
+import NextStepGuidance, { StudentGuidance, InlineNextStepGuidance } from "@/components/NextStepGuidance";
+import { ApplicationFilters } from "@/components/SmartFilters";
+import { ApplicationTable } from "@/components/ExpandableTable";
+import { NoApplications, NoSearchResults } from "@/components/EmptyState";
 import { api } from "@/lib/api";
 import Link from "next/link";
-
-const STATUS_CONFIG = {
-  PENDING: { label: "รอพิจารณา", color: "#F59E0B", bg: "#FFFBEB", icon: "clock" },
-  REVIEWING: { label: "กำลังพิจารณา", color: "#3B82F6", bg: "#EFF6FF", icon: "eye" },
-  SHORTLISTED: { label: "ผ่านรอบแรก", color: "#8B5CF6", bg: "#F5F3FF", icon: "star" },
-  INTERVIEW: { label: "นัดสัมภาษณ์", color: "#06B6D4", bg: "#ECFEFF", icon: "calendar-check" },
-  OFFERED: { label: "ได้รับ Offer", color: "#10B981", bg: "#ECFDF5", icon: "check-circle" },
-  ACCEPTED: { label: "ตอบรับแล้ว", color: "#059669", bg: "#D1FAE5", icon: "check-double" },
-  REJECTED: { label: "ไม่ผ่าน", color: "#EF4444", bg: "#FEF2F2", icon: "times-circle" },
-  WITHDRAWN: { label: "ถอนใบสมัคร", color: "#6B7280", bg: "#F9FAFB", icon: "ban" },
-};
+import { getStatusConfig, STATUS_CONFIG } from "@/lib/statusConfig";
 
 export default function StudentApplicationsPage() {
   const [applications, setApplications] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedApp, setSelectedApp] = useState(null);
+  const [selectedTimeline, setSelectedTimeline] = useState([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawReason, setWithdrawReason] = useState("");
 
@@ -32,6 +31,7 @@ export default function StudentApplicationsPage() {
     try {
       const data = await api.getApplications();
       setApplications(data || []);
+      setFilteredApplications(data || []);
     } catch (err) {
       console.error("Failed to load applications:", err);
     } finally {
@@ -39,112 +39,101 @@ export default function StudentApplicationsPage() {
     }
   };
 
-  const handleWithdraw = async () => {
-    if (!selectedApp || !withdrawReason.trim()) {
-      alert("กรุณาระบุเหตุผลในการถอนใบสมัคร");
-      return;
-    }
+  // Handle smart filter changes
+  const handleFilterChange = useCallback((filtered, filterState) => {
+    setFilteredApplications(filtered);
+    setSearchTerm(filterState.searchTerm || "");
+  }, []);
 
+  const loadTimeline = async (applicationId) => {
+    setTimelineLoading(true);
     try {
-      await api.put(`/applications/${selectedApp.id}/withdraw`, { reason: withdrawReason });
+      const data = await api.getApplicationTimeline(applicationId);
+      setSelectedTimeline(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load timeline:", err);
+      setSelectedTimeline([]);
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
+  const handleWithdraw = async (actionData) => {
+    try {
+      const { applicationId, reason } = actionData;
+      await api.withdrawApplication(applicationId, reason);
       alert("ถอนใบสมัครสำเร็จ");
       setShowWithdrawModal(false);
       setWithdrawReason("");
       setSelectedApp(null);
       loadApplications();
     } catch (err) {
-      alert("เกิดข้อผิดพลาด: " + (err.message || ""));
+      throw new Error(err.message || "ไม่สามารถถอนใบสมัครได้");
     }
   };
 
-  const filteredApplications = applications.filter(app => {
-    if (filter === "ALL") return true;
-    if (filter === "ACTIVE") return !["REJECTED", "WITHDRAWN", "ACCEPTED"].includes(app.status);
-    if (filter === "COMPLETED") return ["ACCEPTED", "REJECTED", "WITHDRAWN"].includes(app.status);
-    return app.status === filter;
-  });
+  const handleApplicationAction = async (actionData) => {
+    try {
+      const { applicationId, action, reason, data } = actionData;
+      
+      if (action === "WITHDRAWN") {
+        return handleWithdraw(actionData);
+      }
+      
+      // Handle other actions like VIEW_OFFER, VIEW_INTERVIEW, etc.
+      console.log("Application action:", action, data);
+      // TODO: Implement specific action handlers
+      
+    } catch (err) {
+      console.error("Application action failed:", err);
+      throw err;
+    }
+  };
 
-  const activeCount = applications.filter(a => !["REJECTED", "WITHDRAWN", "ACCEPTED"].includes(a.status)).length;
-  const completedCount = applications.filter(a => ["ACCEPTED", "REJECTED", "WITHDRAWN"].includes(a.status)).length;
+  const normalizeStatus = (status) => {
+    if (status === "APPROVED") return "ACCEPTED";
+    if (status === "INTERVIEW") return "INTERVIEW_SCHEDULED";
+    if (status === "OFFERED") return "OFFER_EXTENDED";
+    return status;
+  };
 
   return (
     <RoleDashboardShell role="STUDENT" title="ใบสมัครของฉัน" subtitle="ติดตามสถานะการสมัครและขั้นตอนการคัดเลือก">
-      {/* Filter Tabs */}
-      <div className="card" style={{ padding: 20, marginBottom: 20 }}>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <FilterButton
-            active={filter === "ALL"}
-            onClick={() => setFilter("ALL")}
-            icon="list"
-            label="ทั้งหมด"
-            count={applications.length}
-          />
-          <FilterButton
-            active={filter === "ACTIVE"}
-            onClick={() => setFilter("ACTIVE")}
-            icon="spinner"
-            label="กำลังดำเนินการ"
-            count={activeCount}
-            color="#3B82F6"
-          />
-          <FilterButton
-            active={filter === "COMPLETED"}
-            onClick={() => setFilter("COMPLETED")}
-            icon="check"
-            label="เสร็จสิ้น"
-            count={completedCount}
-            color="#059669"
-          />
-        </div>
-      </div>
+      {/* Next Step Guidance */}
+      {applications.length > 0 && (
+        <StudentGuidance application={{ status: "PENDING" }} />
+      )}
 
-      {/* Applications List */}
+      {/* Smart Filters */}
+      <ApplicationFilters 
+        applications={applications}
+        onFilter={handleFilterChange}
+      />
+
+      {/* Applications Table */}
       {loading ? (
         <div className="card" style={{ padding: 40, textAlign: "center" }}>
           <i className="fas fa-spinner fa-spin" style={{ fontSize: 32, color: "#3B82F6", marginBottom: 16 }}></i>
           <p className="text-muted">กำลังโหลดใบสมัคร...</p>
         </div>
       ) : filteredApplications.length === 0 ? (
-        <div className="card" style={{ padding: 60, textAlign: "center" }}>
-          <div style={{
-            width: 80,
-            height: 80,
-            borderRadius: "50%",
-            background: "#F3F4F6",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 20px",
-            fontSize: 36,
-            color: "#9CA3AF"
-          }}>
-            <i className="fas fa-inbox"></i>
-          </div>
-          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>ไม่มีใบสมัคร</h3>
-          <p className="text-muted" style={{ marginBottom: 24 }}>
-            {filter === "ALL" ? "คุณยังไม่ได้สมัครตำแหน่งใดๆ" : `ไม่มีใบสมัครในหมวด "${filter}"`}
-          </p>
-          {filter === "ALL" && (
-            <Link href="/internships" className="btn btn-primary">
-              <i className="fas fa-search" style={{ marginRight: 8 }}></i>
-              ค้นหาตำแหน่งฝึกงาน
-            </Link>
-          )}
-        </div>
+        searchTerm ? (
+          <NoSearchResults 
+            searchTerm={searchTerm}
+            onClearSearch={() => {
+              setSearchTerm("");
+              setFilteredApplications(applications);
+            }}
+          />
+        ) : (
+          <NoApplications userRole="STUDENT" />
+        )
       ) : (
-        <div style={{ display: "grid", gap: 16 }}>
-          {filteredApplications.map((app) => (
-            <ApplicationCard
-              key={app.id}
-              application={app}
-              onViewDetails={() => setSelectedApp(app)}
-              onWithdraw={() => {
-                setSelectedApp(app);
-                setShowWithdrawModal(true);
-              }}
-            />
-          ))}
-        </div>
+        <ApplicationTable
+          applications={filteredApplications}
+          onStatusChange={handleApplicationAction}
+          userRole="STUDENT"
+        />
       )}
 
       {/* Application Detail Modal */}
@@ -152,8 +141,10 @@ export default function StudentApplicationsPage() {
         <Modal onClose={() => setSelectedApp(null)}>
           <ApplicationDetailModal
             application={selectedApp}
+            timeline={selectedTimeline}
+            timelineLoading={timelineLoading}
             onClose={() => setSelectedApp(null)}
-            onWithdraw={() => setShowWithdrawModal(true)}
+            onAction={handleApplicationAction}
           />
         </Modal>
       )}
@@ -271,9 +262,10 @@ function FilterButton({ active, onClick, icon, label, count, color = "#2563EB" }
 }
 
 // Application Card Component
-function ApplicationCard({ application, onViewDetails, onWithdraw }) {
-  const statusConfig = STATUS_CONFIG[application.status] || STATUS_CONFIG.PENDING;
-  const canWithdraw = ["PENDING", "REVIEWING"].includes(application.status);
+function ApplicationCard({ application, onViewDetails, onAction }) {
+  const status = normalizeStatus(application.status);
+  const statusConfig = getStatusConfig(status);
+  const canWithdraw = ["PENDING", "REVIEWING"].includes(status);
 
   return (
     <div
@@ -300,28 +292,21 @@ function ApplicationCard({ application, onViewDetails, onWithdraw }) {
             <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
               {application.positionTitle || "ตำแหน่งงาน"}
             </h3>
-            <span
-              style={{
-                padding: "4px 12px",
-                background: statusConfig.bg,
-                color: statusConfig.color,
-                borderRadius: 99,
-                fontSize: 12,
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 6
-              }}
-            >
-              <i className={`fas fa-${statusConfig.icon}`}></i>
-              {statusConfig.label}
-            </span>
+            <StatusBadge status={status} size="md" />
           </div>
 
           <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 12 }}>
             <i className="fas fa-building" style={{ marginRight: 8, color: "#6B7280" }}></i>
             {application.companyName || "บริษัท"}
           </p>
+
+          {/* Next Step Guidance */}
+          <div style={{ marginBottom: 12 }}>
+            <InlineNextStepGuidance 
+              application={{ ...application, status }} 
+              userRole="STUDENT" 
+            />
+          </div>
 
           <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--text-muted)" }}>
             <span>
@@ -337,25 +322,7 @@ function ApplicationCard({ application, onViewDetails, onWithdraw }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8 }}>
-          {canWithdraw && (
-            <button
-              className="btn btn-outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                onWithdraw();
-              }}
-              style={{
-                padding: "8px 16px",
-                fontSize: 13,
-                color: "#EF4444",
-                borderColor: "#FEE2E2"
-              }}
-            >
-              <i className="fas fa-ban" style={{ marginRight: 6 }}></i>
-              ถอนใบสมัคร
-            </button>
-          )}
+        <div style={{ display: "flex", gap: 8, flexDirection: "column" }}>
           <button
             className="btn btn-primary"
             onClick={(e) => {
@@ -367,6 +334,13 @@ function ApplicationCard({ application, onViewDetails, onWithdraw }) {
             <i className="fas fa-eye" style={{ marginRight: 6 }}></i>
             ดูรายละเอียด
           </button>
+          
+          <ActionButton
+            application={{ ...application, status }}
+            userRole="STUDENT"
+            onAction={onAction}
+            size="sm"
+          />
         </div>
       </div>
     </div>
@@ -374,9 +348,9 @@ function ApplicationCard({ application, onViewDetails, onWithdraw }) {
 }
 
 // Application Detail Modal Component
-function ApplicationDetailModal({ application, onClose, onWithdraw }) {
-  const statusConfig = STATUS_CONFIG[application.status] || STATUS_CONFIG.PENDING;
-  const canWithdraw = ["PENDING", "REVIEWING"].includes(application.status);
+function ApplicationDetailModal({ application, timeline, timelineLoading, onClose, onAction }) {
+  const status = normalizeStatus(application.status);
+  const statusConfig = getStatusConfig(status);
 
   return (
     <div style={{ padding: 32, maxWidth: 800 }}>
@@ -405,11 +379,11 @@ function ApplicationDetailModal({ application, onClose, onWithdraw }) {
         </button>
       </div>
 
-      {/* Status Timeline */}
+      {/* Status and Next Step Guidance */}
       <div style={{
         padding: 24,
-        background: statusConfig.bg,
-        border: `2px solid ${statusConfig.color}30`,
+        backgroundColor: statusConfig.bgColor,
+        border: `2px solid ${statusConfig.borderColor}`,
         borderRadius: 16,
         marginBottom: 24
       }}>
@@ -437,57 +411,55 @@ function ApplicationDetailModal({ application, onClose, onWithdraw }) {
           </div>
         </div>
 
+        {/* Next Step Guidance */}
+        <InlineNextStepGuidance 
+          application={{ ...application, status }} 
+          userRole="STUDENT" 
+        />
+
         {/* Timeline */}
         <div style={{ marginTop: 20, paddingTop: 20, borderTop: `1px solid ${statusConfig.color}20` }}>
           <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>ประวัติการดำเนินการ</h4>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <TimelineItem
-              icon="paper-plane"
-              label="ส่งใบสมัคร"
-              date={application.appliedAt}
-              active
-            />
-            {application.status !== "PENDING" && (
-              <TimelineItem
-                icon="eye"
-                label="บริษัทเปิดดูใบสมัคร"
-                date={application.reviewedAt}
-                active
-              />
-            )}
-            {["SHORTLISTED", "INTERVIEW", "OFFERED", "ACCEPTED"].includes(application.status) && (
-              <TimelineItem
-                icon="star"
-                label="ผ่านรอบแรก"
-                date={application.shortlistedAt}
-                active
-              />
-            )}
-            {["INTERVIEW", "OFFERED", "ACCEPTED"].includes(application.status) && (
-              <TimelineItem
-                icon="calendar-check"
-                label="นัดสัมภาษณ์"
-                date={application.interviewAt}
-                active
-              />
-            )}
-            {["OFFERED", "ACCEPTED"].includes(application.status) && (
-              <TimelineItem
-                icon="check-circle"
-                label="ได้รับ Offer"
-                date={application.offeredAt}
-                active
-              />
-            )}
-            {application.status === "ACCEPTED" && (
-              <TimelineItem
-                icon="check-double"
-                label="ตอบรับ Offer"
-                date={application.acceptedAt}
-                active
-              />
-            )}
-          </div>
+          {timelineLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="skeleton" style={{ height: 44, borderRadius: 12 }} />
+              ))}
+            </div>
+          ) : timeline.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {timeline.map((item) => (
+                <TimelineItem
+                  key={item.id}
+                  icon="circle-check"
+                  label={item.statusLabel || `${item.oldStatus || "START"} → ${item.newStatus || "UNKNOWN"}`}
+                  date={item.createdAt}
+                  active
+                  note={item.note}
+                  changedBy={item.changedBy}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <TimelineItem icon="paper-plane" label="ส่งใบสมัคร" date={application.appliedAt} active />
+              {status !== "PENDING" && (
+                <TimelineItem icon="eye" label="บริษัทเปิดดูใบสมัคร" date={application.reviewedAt} active />
+              )}
+              {["SHORTLISTED", "INTERVIEW", "INTERVIEW_SCHEDULED", "OFFERED", "OFFER_EXTENDED", "ACCEPTED"].includes(status) && (
+                <TimelineItem icon="star" label="ผ่านรอบแรก" date={application.shortlistedAt} active />
+              )}
+              {["INTERVIEW", "INTERVIEW_SCHEDULED", "OFFERED", "OFFER_EXTENDED", "ACCEPTED"].includes(status) && (
+                <TimelineItem icon="calendar-check" label="นัดสัมภาษณ์" date={application.interviewAt} active />
+              )}
+              {["OFFERED", "OFFER_EXTENDED", "ACCEPTED"].includes(status) && (
+                <TimelineItem icon="check-circle" label="ได้รับ Offer" date={application.offeredAt} active />
+              )}
+              {status === "ACCEPTED" && (
+                <TimelineItem icon="check-double" label="ตอบรับ Offer" date={application.acceptedAt} active />
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -499,6 +471,13 @@ function ApplicationDetailModal({ application, onClose, onWithdraw }) {
           <InfoRow label="GPA" value={application.gpa || "-"} />
           <InfoRow label="สาขาวิชา" value={application.major || "-"} />
           <InfoRow label="ชั้นปี" value={application.year ? `ปี ${application.year}` : "-"} />
+          <InfoRow label="ขั้นตอนถัดไป" value={application.nextStepTitle || "ตรวจสอบสถานะ"} />
+          <div style={{ padding: 16, borderRadius: 12, background: "var(--n-50)", border: "1px solid var(--border)" }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8 }}>คำแนะนำขั้นถัดไป</p>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-primary)" }}>
+              {application.nextStepDescription || "ระบบจะแสดงคำแนะนำเมื่อมีการอัปเดตสถานะ"}
+            </p>
+          </div>
           {application.coverLetter && (
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8 }}>
@@ -521,16 +500,12 @@ function ApplicationDetailModal({ application, onClose, onWithdraw }) {
 
       {/* Actions */}
       <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", paddingTop: 24, borderTop: "1px solid var(--border)" }}>
-        {canWithdraw && (
-          <button
-            className="btn btn-outline"
-            onClick={onWithdraw}
-            style={{ color: "#EF4444", borderColor: "#FEE2E2" }}
-          >
-            <i className="fas fa-ban" style={{ marginRight: 8 }}></i>
-            ถอนใบสมัคร
-          </button>
-        )}
+        <ActionButton
+          application={{ ...application, status }}
+          userRole="STUDENT"
+          onAction={onAction}
+          layout="horizontal"
+        />
         <button className="btn btn-primary" onClick={onClose}>
           ปิด
         </button>
@@ -540,7 +515,7 @@ function ApplicationDetailModal({ application, onClose, onWithdraw }) {
 }
 
 // Timeline Item Component
-function TimelineItem({ icon, label, date, active }) {
+function TimelineItem({ icon, label, date, active, note, changedBy }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, opacity: active ? 1 : 0.4 }}>
       <div style={{
@@ -562,6 +537,11 @@ function TimelineItem({ icon, label, date, active }) {
         {date && (
           <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
             {new Date(date).toLocaleString("th-TH")}
+          </p>
+        )}
+        {(changedBy || note) && (
+          <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+            {changedBy ? `โดย ${changedBy}` : ""}{changedBy && note ? " · " : ""}{note || ""}
           </p>
         )}
       </div>

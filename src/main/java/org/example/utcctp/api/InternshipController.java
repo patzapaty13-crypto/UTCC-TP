@@ -1,5 +1,6 @@
 package org.example.utcctp.api;
 
+import jakarta.validation.Valid;
 import org.example.utcctp.api.dto.InternshipRequest;
 import org.example.utcctp.api.dto.InternshipResponse;
 import org.example.utcctp.internship.InternshipService;
@@ -36,13 +37,13 @@ public class InternshipController {
 
     @PostMapping
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
-    public InternshipResponse createInternship(@RequestBody InternshipRequest request) {
+    public InternshipResponse createInternship(@Valid @RequestBody InternshipRequest request) {
         return internshipService.createPosition(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN') or hasRole('COMPANY')")
-    public InternshipResponse updateInternship(@PathVariable UUID id, @RequestBody InternshipRequest request) {
+    public InternshipResponse updateInternship(@PathVariable UUID id, @Valid @RequestBody InternshipRequest request) {
         return internshipService.updatePosition(id, request);
     }
 }

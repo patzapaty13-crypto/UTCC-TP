@@ -54,6 +54,21 @@ public class Report {
     @JoinColumn(name = "graded_by")
     private User gradedBy;
 
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_path", length = 500)
+    private String filePath;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Column(name = "file_type", length = 100)
+    private String fileType;
+
+    @Column(name = "uploaded_at")
+    private LocalDateTime uploadedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -119,6 +134,21 @@ public class Report {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
+
+    public Long getFileSize() { return fileSize; }
+    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+
+    public String getFileType() { return fileType; }
+    public void setFileType(String fileType) { this.fileType = fileType; }
+
+    public LocalDateTime getUploadedAt() { return uploadedAt; }
+    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
 
     public enum ReportType {
         WEEKLY, MONTHLY, FINAL

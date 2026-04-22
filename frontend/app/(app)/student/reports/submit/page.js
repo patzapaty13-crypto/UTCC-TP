@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
+// Force rebuild - PDF upload feature
+
 export default function SubmitReportPage() {
   const router = useRouter();
   
@@ -26,7 +28,7 @@ export default function SubmitReportPage() {
     challenges: "",
     learnings: "",
     nextWeekPlan: "",
-    attachments: []
+    pdfFile: null // Changed from attachments array to single PDF file
   });
 
   const [internships, setInternships] = useState([]);
@@ -40,6 +42,11 @@ export default function SubmitReportPage() {
     try {
       // Get user's applications that are accepted
       const applications = await api.getApplications();
+      if (!applications || !Array.isArray(applications)) {
+        setInternships([]);
+        return;
+      }
+      
       const acceptedApps = applications.filter(app => 
         app.status === "ACCEPTED" || app.status === "OFFER_ACCEPTED"
       );
@@ -57,8 +64,10 @@ export default function SubmitReportPage() {
       setInternships(internshipsData);
     } catch (err) {
       console.error("Failed to load internships:", err);
-      // Fallback to empty array
+      // Fallback to empty array - don't block the page
       setInternships([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,33 +89,34 @@ export default function SubmitReportPage() {
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
+    const file = e.target.files[0];
+    if (!file) return;
     
-    const validFiles = files.filter(file => {
-      const extension = '.' + file.name.split('.').pop().toLowerCase();
-      if (!allowedTypes.includes(extension)) {
-        setError(`ไฟล์ ${file.name} ไม่ใช่ประเภทที่รองรับ`);
-        return false;
-      }
-      if (file.size > maxSize) {
-        setError(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 10MB`);
-        return false;
-      }
-      return true;
-    });
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    // Check if it's a PDF
+    if (file.type !== 'application/pdf') {
+      setError(`กรุณาเลือกไฟล์ PDF เท่านั้น`);
+      return;
+    }
+    
+    // Check file size
+    if (file.size > maxSize) {
+      setError(`ไฟล์มีขนาดใหญ่เกิน 10MB`);
+      return;
+    }
 
     setFormData(prev => ({
       ...prev,
-      attachments: [...prev.attachments, ...validFiles]
+      pdfFile: file
     }));
+    setError(""); // Clear any previous errors
   };
 
-  const removeAttachment = (index) => {
+  const removeFile = () => {
     setFormData(prev => ({
       ...prev,
-      attachments: prev.attachments.filter((_, i) => i !== index)
+      pdfFile: null
     }));
   };
 
@@ -135,34 +145,22 @@ export default function SubmitReportPage() {
     setError("");
 
     try {
-      // Upload attachments first
-      const uploadedFileIds = [];
-      for (const file of formData.attachments) {
-        const formDataFile = new FormData();
-        formDataFile.append("file", file);
-        formDataFile.append("category", "report");
-        formDataFile.append("docType", "report-attachment");
-        
-        const result = await api.upload("/files", formDataFile);
-        uploadedFileIds.push(result.id);
-      }
-
-      // Submit report
+      // Submit report first
       const reportData = {
         title: formData.title,
         content: formData.content,
         type: formData.reportType,
         weekNumber: formData.reportType === "WEEKLY" ? parseInt(formData.weekNumber) : null,
         internshipPositionId: internships.find(i => i.company === formData.internshipCompany)?.id,
-        fileIds: uploadedFileIds,
-        // Additional fields
-        achievements: formData.achievements,
-        challenges: formData.challenges,
-        learnings: formData.learnings,
-        nextWeekPlan: formData.nextWeekPlan
+        submit: true // Auto-submit
       };
 
-      await api.submitReport(reportData);
+      const createdReport = await api.submitReport(reportData);
+      
+      // Upload PDF file if provided
+      if (formData.pdfFile && createdReport.id) {
+        await api.uploadReportFile(createdReport.id, formData.pdfFile);
+      }
       
       setSuccess("ส่งรายงานเรียบร้อยแล้ว");
       
@@ -394,15 +392,14 @@ export default function SubmitReportPage() {
             {/* File Upload */}
             <div className="card" style={{ padding: 20 }}>
               <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
-                <i className="fas fa-paperclip" style={{ marginRight: 8 }}></i>
-                ไฟล์แนบ
+                <i className="fas fa-file-pdf" style={{ marginRight: 8, color: "var(--error)" }}></i>
+                ไฟล์ PDF รายงาน
               </h4>
 
               <div style={{ marginBottom: 16 }}>
                 <input
                   type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  accept=".pdf,application/pdf"
                   onChange={handleFileUpload}
                   style={{ display: "none" }}
                   id="file-upload"
@@ -414,35 +411,40 @@ export default function SubmitReportPage() {
                   style={{ width: "100%", cursor: submitting ? "not-allowed" : "pointer" }}
                 >
                   <i className="fas fa-upload" style={{ marginRight: 8 }}></i>
-                  เลือกไฟล์
+                  เลือกไฟล์ PDF
                 </label>
               </div>
 
               <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
-                รองรับ: PDF, DOC, DOCX, JPG, PNG<br />
-                ขนาดสูงสุด: 10MB ต่อไฟล์
+                รองรับ: PDF เท่านั้น<br />
+                ขนาดสูงสุด: 10MB
               </div>
 
-              {/* Attachment List */}
-              {formData.attachments.length > 0 && (
+              {/* File Display */}
+              {formData.pdfFile && (
                 <div>
                   <h5 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>ไฟล์ที่เลือก:</h5>
-                  {formData.attachments.map((file, index) => (
-                    <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 8, background: "var(--n-50)", borderRadius: 6, marginBottom: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
-                        <i className="fas fa-file" style={{ color: "var(--text-muted)", fontSize: 12 }}></i>
-                        <span style={{ fontSize: 12, truncate: true }}>{file.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 12, background: "var(--error-50)", border: "1px solid var(--error-200)", borderRadius: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+                      <i className="fas fa-file-pdf" style={{ color: "var(--error)", fontSize: 16 }}></i>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {formData.pdfFile.name}
+                        </p>
+                        <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                          {(formData.pdfFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeAttachment(index)}
-                        style={{ background: "none", border: "none", color: "var(--error)", cursor: "pointer", padding: 4 }}
-                        disabled={submitting}
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={removeFile}
+                      style={{ background: "none", border: "none", color: "var(--error)", cursor: "pointer", padding: 8, fontSize: 16 }}
+                      disabled={submitting}
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

@@ -264,6 +264,37 @@ function ReportCard({ report, onGrade }) {
   const gradeColor = report.grade >= 80 ? "var(--success)" : 
                      report.grade >= 70 ? "var(--primary)" :
                      report.grade >= 60 ? "var(--warning)" : "var(--error)";
+  
+  const hasFile = report.fileName && report.fileName.length > 0;
+
+  const handleDownload = () => {
+    const token = localStorage.getItem("utcctp_token");
+    const downloadUrl = api.downloadReportFile(report.id);
+    
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', report.fileName || 'report.pdf');
+    
+    // Add authorization header by fetching first
+    fetch(downloadUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      alert('ไม่สามารถดาวน์โหลดไฟล์ได้: ' + err.message);
+    });
+  };
 
   return (
     <div style={{ 
@@ -290,6 +321,26 @@ function ReportCard({ report, onGrade }) {
                 year: "numeric" 
               })}
             </p>
+          )}
+          
+          {/* File Info */}
+          {hasFile && (
+            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={handleDownload}
+                className="btn btn-sm btn-ghost"
+                style={{ padding: "6px 12px" }}
+              >
+                <i className="fas fa-file-pdf" style={{ marginRight: 6, color: "var(--error)" }}></i>
+                {report.fileName}
+                <i className="fas fa-download" style={{ marginLeft: 6 }}></i>
+              </button>
+              {report.fileSize && (
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  ({(report.fileSize / 1024 / 1024).toFixed(2)} MB)
+                </span>
+              )}
+            </div>
           )}
         </div>
 

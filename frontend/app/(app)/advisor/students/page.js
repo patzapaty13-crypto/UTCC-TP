@@ -154,7 +154,7 @@ export default function AdvisorStudentsPage() {
         </div>
       </div>
 
-      {/* Students List */}
+      {/* Students Table */}
       {loading ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 100, borderRadius: 16 }}></div>)}
@@ -174,113 +174,188 @@ export default function AdvisorStudentsPage() {
           </p>
         </div>
       ) : (
-        <div style={{ display: "grid", gap: 16 }}>
-          {filteredStudents.map(student => {
-            const stats = getStudentStats(student.id);
-            const apps = getStudentApplications(student.id);
-            const hasActivePlacement = apps.some(a => a.status === "ACCEPTED");
-            const needsAttention = apps.length === 0 || apps.some(a => a.status === "REJECTED");
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1000 }}>
+              <thead>
+                <tr style={{ background: "var(--n-50)", borderBottom: "2px solid var(--border)" }}>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    นักศึกษา
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    สาขา/ชั้นปี
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ใบสมัครทั้งหมด
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    รอพิจารณา
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ตอบรับ
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    สถานะ
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    จัดการ
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map(student => {
+                  const stats = getStudentStats(student.id);
+                  const apps = getStudentApplications(student.id);
+                  const hasActivePlacement = apps.some(a => a.status === "ACCEPTED");
+                  const needsAttention = apps.length === 0 || apps.some(a => a.status === "REJECTED");
 
-            return (
-              <div 
-                key={student.id}
-                onClick={() => { setSelectedStudent(student); setShowDetail(true); }}
-                className="card"
-                style={{ 
-                  padding: 20,
-                  cursor: "pointer",
-                  transition: "all var(--transition)",
-                  border: needsAttention ? "2px solid var(--warning)" : "1px solid var(--border)"
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
-                onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div style={{ display: "flex", gap: 16, flex: 1 }}>
-                    <div style={{ 
-                      width: 56, 
-                      height: 56, 
-                      borderRadius: 16, 
-                      background: hasActivePlacement ? "var(--success-50)" : "var(--primary-50)",
-                      color: hasActivePlacement ? "var(--success)" : "var(--primary)",
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      fontSize: 24,
-                      fontWeight: 900,
-                      flexShrink: 0
-                    }}>
-                      {(student.displayName || student.username || "?").charAt(0).toUpperCase()}
-                    </div>
+                  return (
+                    <tr 
+                      key={student.id}
+                      style={{ 
+                        borderBottom: "1px solid var(--border)",
+                        transition: "background 0.2s",
+                        cursor: "pointer",
+                        borderLeft: needsAttention ? "4px solid var(--warning)" : "4px solid transparent"
+                      }}
+                      onClick={() => { setSelectedStudent(student); setShowDetail(true); }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "var(--n-50)"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                    >
+                      {/* Student Info */}
+                      <td style={{ padding: "16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            background: hasActivePlacement ? "var(--success-50)" : "var(--primary-50)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 16,
+                            fontWeight: 700,
+                            color: hasActivePlacement ? "var(--success)" : "var(--primary)",
+                            flexShrink: 0
+                          }}>
+                            {(student.displayName || student.username || "?").charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {student.displayName || student.username}
+                            </div>
+                            <div style={{ fontSize: 12, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {student.email || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
 
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                        <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>
-                          {student.displayName || student.username}
-                        </h3>
-                        {hasActivePlacement && (
+                      {/* Major/Year */}
+                      <td style={{ padding: "16px" }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+                          {student.major || "-"}
+                        </div>
+                        {student.academicYear && (
+                          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                            ปี {student.academicYear}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Total Applications */}
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        <div style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          background: "var(--primary-50)",
+                          color: "var(--primary)",
+                          fontSize: 14,
+                          fontWeight: 700
+                        }}>
+                          {stats.total}
+                        </div>
+                      </td>
+
+                      {/* Pending */}
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        <div style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          background: stats.pending > 0 ? "var(--warning-50)" : "var(--n-100)",
+                          color: stats.pending > 0 ? "var(--warning)" : "var(--text-muted)",
+                          fontSize: 14,
+                          fontWeight: 700
+                        }}>
+                          {stats.pending}
+                        </div>
+                      </td>
+
+                      {/* Accepted */}
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        <div style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          background: stats.accepted > 0 ? "var(--success-50)" : "var(--n-100)",
+                          color: stats.accepted > 0 ? "var(--success)" : "var(--text-muted)",
+                          fontSize: 14,
+                          fontWeight: 700
+                        }}>
+                          {stats.accepted}
+                        </div>
+                      </td>
+
+                      {/* Status */}
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        {hasActivePlacement ? (
                           <span className="badge badge-success" style={{ fontSize: 11 }}>
                             <i className="fas fa-check-circle" style={{ marginRight: 4 }}></i>
                             ได้ที่แล้ว
                           </span>
-                        )}
-                        {needsAttention && (
+                        ) : needsAttention ? (
                           <span className="badge badge-warning" style={{ fontSize: 11 }}>
                             <i className="fas fa-exclamation-triangle" style={{ marginRight: 4 }}></i>
                             ต้องติดตาม
                           </span>
-                        )}
-                      </div>
-
-                      <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--text-muted)", marginBottom: 12 }}>
-                        {student.email && (
-                          <span>
-                            <i className="fas fa-envelope" style={{ marginRight: 6 }}></i>
-                            {student.email}
+                        ) : (
+                          <span className="badge badge-blue" style={{ fontSize: 11 }}>
+                            <i className="fas fa-clock" style={{ marginRight: 4 }}></i>
+                            กำลังสมัคร
                           </span>
                         )}
-                        {student.major && (
-                          <span>
-                            <i className="fas fa-book" style={{ marginRight: 6 }}></i>
-                            {student.major}
-                          </span>
-                        )}
-                        {student.academicYear && (
-                          <span>
-                            <i className="fas fa-calendar" style={{ marginRight: 6 }}></i>
-                            ปี {student.academicYear}
-                          </span>
-                        )}
-                      </div>
+                      </td>
 
-                      <div style={{ display: "flex", gap: 20, fontSize: 12 }}>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>ใบสมัครทั้งหมด: </span>
-                          <strong style={{ color: "var(--primary)" }}>{stats.total}</strong>
-                        </div>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>รอพิจารณา: </span>
-                          <strong style={{ color: "var(--warning)" }}>{stats.pending}</strong>
-                        </div>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>ตอบรับ: </span>
-                          <strong style={{ color: "var(--success)" }}>{stats.accepted}</strong>
-                        </div>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>ปฏิเสธ: </span>
-                          <strong style={{ color: "var(--error)" }}>{stats.rejected}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button className="btn btn-ghost btn-sm">
-                    <i className="fas fa-arrow-right"></i>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                      {/* Actions */}
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedStudent(student);
+                            setShowDetail(true);
+                          }}
+                        >
+                          <i className="fas fa-arrow-right"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

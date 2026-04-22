@@ -1,5 +1,6 @@
 package org.example.utcctp.api;
 
+import jakarta.validation.Valid;
 import org.example.utcctp.api.dto.CompanyRequest;
 import org.example.utcctp.api.dto.CompanyResponse;
 import org.example.utcctp.internship.CompanyService;
@@ -36,13 +37,13 @@ public class CompanyController {
 
     @PostMapping
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
-    public CompanyResponse createCompany(@RequestBody CompanyRequest request) {
+    public CompanyResponse createCompany(@Valid @RequestBody CompanyRequest request) {
         return companyService.createCompany(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
-    public CompanyResponse updateCompany(@PathVariable UUID id, @RequestBody CompanyRequest request) {
+    public CompanyResponse updateCompany(@PathVariable UUID id, @Valid @RequestBody CompanyRequest request) {
         return companyService.updateCompany(id, request);
     }
 }

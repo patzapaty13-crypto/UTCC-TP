@@ -170,7 +170,7 @@ export default function StaffCompaniesPage() {
         </div>
       </div>
 
-      {/* Companies Grid */}
+      {/* Companies Table */}
       {loading ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: 16 }}>
           {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 200, borderRadius: 16 }}></div>)}
@@ -194,102 +194,143 @@ export default function StaffCompaniesPage() {
           )}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: 16 }}>
-          {filteredCompanies.map(company => (
-            <div key={company.id} className="card" style={{ padding: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                <div style={{ 
-                  width: 56, 
-                  height: 56, 
-                  borderRadius: 16, 
-                  background: "var(--primary-50)",
-                  color: "var(--primary)",
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center",
-                  fontSize: 24,
-                  fontWeight: 900
-                }}>
-                  {(company.name || "?").charAt(0).toUpperCase()}
-                </div>
-
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button 
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => handleCreateUser(company)}
-                    title="สร้าง User สำหรับบริษัทนี้"
-                    style={{ color: "var(--success)" }}
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1000 }}>
+              <thead>
+                <tr style={{ background: "var(--n-50)", borderBottom: "2px solid var(--border)" }}>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    บริษัท
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    อุตสาหกรรม
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ผู้ติดต่อ
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "left", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ช่องทางติดต่อ
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    จัดการ
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCompanies.map(company => (
+                  <tr 
+                    key={company.id}
+                    style={{ 
+                      borderBottom: "1px solid var(--border)",
+                      transition: "background 0.2s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "var(--n-50)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                   >
-                    <i className="fas fa-user-plus"></i>
-                  </button>
-                  <button 
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => handleEdit(company)}
-                    title="แก้ไข"
-                  >
-                    <i className="fas fa-edit"></i>
-                  </button>
-                  <button 
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => handleDelete(company.id)}
-                    title="ลบ"
-                    style={{ color: "var(--error)" }}
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
+                    {/* Company Info */}
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: "50%",
+                          background: "var(--primary-50)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: "var(--primary)",
+                          flexShrink: 0
+                        }}>
+                          {(company.name || "?").charAt(0).toUpperCase()}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {company.name}
+                          </div>
+                          {company.description && (
+                            <div style={{ fontSize: 12, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {company.description.substring(0, 50)}{company.description.length > 50 ? "..." : ""}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
 
-              <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>
-                {company.name}
-              </h3>
+                    {/* Industry */}
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+                        {company.industry || "-"}
+                      </div>
+                    </td>
 
-              {company.industry && (
-                <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
-                  <i className="fas fa-industry" style={{ marginRight: 6 }}></i>
-                  {company.industry}
-                </p>
-              )}
+                    {/* Contact Person */}
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+                        {company.contactPerson || "-"}
+                      </div>
+                    </td>
 
-              {company.description && (
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 16 }}>
-                  {company.description.length > 100 
-                    ? company.description.substring(0, 100) + "..." 
-                    : company.description}
-                </p>
-              )}
+                    {/* Contact Info */}
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {company.contactEmail && (
+                          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                            <i className="fas fa-envelope" style={{ marginRight: 6, width: 14 }}></i>
+                            {company.contactEmail}
+                          </div>
+                        )}
+                        {company.contactPhone && (
+                          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                            <i className="fas fa-phone" style={{ marginRight: 6, width: 14 }}></i>
+                            {company.contactPhone}
+                          </div>
+                        )}
+                        {company.website && (
+                          <div style={{ fontSize: 12 }}>
+                            <i className="fas fa-globe" style={{ marginRight: 6, width: 14, color: "var(--text-muted)" }}></i>
+                            <a href={company.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary)" }}>
+                              เว็บไซต์
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </td>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
-                {company.contactPerson && (
-                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    <i className="fas fa-user" style={{ marginRight: 8, width: 16 }}></i>
-                    {company.contactPerson}
-                  </div>
-                )}
-                {company.contactEmail && (
-                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    <i className="fas fa-envelope" style={{ marginRight: 8, width: 16 }}></i>
-                    {company.contactEmail}
-                  </div>
-                )}
-                {company.contactPhone && (
-                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    <i className="fas fa-phone" style={{ marginRight: 8, width: 16 }}></i>
-                    {company.contactPhone}
-                  </div>
-                )}
-                {company.website && (
-                  <div style={{ fontSize: 12 }}>
-                    <i className="fas fa-globe" style={{ marginRight: 8, width: 16, color: "var(--text-muted)" }}></i>
-                    <a href={company.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary)" }}>
-                      เว็บไซต์
-                      <i className="fas fa-external-link" style={{ marginLeft: 4, fontSize: 10 }}></i>
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+                    {/* Actions */}
+                    <td style={{ padding: "16px", textAlign: "center" }}>
+                      <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "nowrap" }}>
+                        <button 
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => handleCreateUser(company)}
+                          title="สร้าง User"
+                          style={{ color: "var(--success)" }}
+                        >
+                          <i className="fas fa-user-plus"></i>
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => handleEdit(company)}
+                          title="แก้ไข"
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => handleDelete(company.id)}
+                          title="ลบ"
+                          style={{ color: "var(--error)" }}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

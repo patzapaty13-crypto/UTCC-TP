@@ -46,7 +46,17 @@ export default function RecruitmentPage() {
       const res = await api.getUserResume(studentId);
       setViewResume(res);
     } catch (e) {
-      alert("ไม่สามารถดึงข้อมูล Resume ได้: " + e.message);
+      let message = "ไม่สามารถดึงข้อมูล Resume ได้";
+      if (e.message.includes("Access Denied") || e.message.includes("403") || e.message.includes("Forbidden")) {
+        message = "คุณไม่มีสิทธิ์ดู Resume นี้ กรุณาติดต่อผู้ดูแลระบบ";
+      } else if (e.message.includes("404") || e.message.includes("not found")) {
+        message = "นักศึกษายังไม่ได้กรอกข้อมูล Resume";
+      } else if (e.message.includes("401")) {
+        message = "กรุณาเข้าสู่ระบบใหม่";
+      } else {
+        message = `ไม่สามารถดึงข้อมูล Resume ได้: ${e.message}`;
+      }
+      alert(message);
     } finally {
       setResumeLoading(false);
     }

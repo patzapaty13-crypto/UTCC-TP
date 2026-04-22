@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RoleDashboardShell from "@/components/RoleDashboardShell";
+import ActionButton from "@/components/ActionButton";
+import StatusBadge, { StatusBadgeWithCount } from "@/components/StatusBadge";
+import NextStepGuidance, { CompanyGuidance, InlineNextStepGuidance, ProgressTimeline, StatusSummary } from "@/components/NextStepGuidance";
+import { StatusLegendButton } from "@/components/StatusLegend";
+import { LoadingSpinner, LoadingButton, SkeletonTable } from "@/components/Loading";
+import { useToast } from "@/components/Toast";
+import BackButton from "@/components/BackButton";
+import { ResponsiveView, ApplicationCard, CardGrid } from "@/components/CardView";
+import { ApplicationFilters } from "@/components/SmartFilters";
+import { ApplicationTable } from "@/components/ExpandableTable";
+import { NoApplications, NoSearchResults } from "@/components/EmptyState";
 import { api } from "@/lib/api";
-
-const STATUS_CFG = {
-  PENDING: { label: "รอตรวจสอบ", cls: "badge-yellow", icon: "clock" },
-  REVIEWING: { label: "กำลังพิจารณา", cls: "badge-blue", icon: "eye" },
-  INTERVIEW_SCHEDULED: { label: "นัดสัมภาษณ์", cls: "badge-purple", icon: "calendar-check" },
-  OFFER_EXTENDED: { label: "เสนอสัญญา", cls: "badge-indigo", icon: "file-signature" },
-  ACCEPTED: { label: "ตอบรับแล้ว", cls: "badge-green", icon: "check-circle" },
-  REJECTED: { label: "ปฏิเสธ", cls: "badge-red", icon: "times-circle" },
-};
+import { getStatusConfig, STATUS_CONFIG } from "@/lib/statusConfig";
 
 export default function CompanyApplicantsPage() {
   const [applications, setApplications] = useState([]);
@@ -20,13 +23,16 @@ export default function CompanyApplicantsPage() {
   const [error, setError] = useState("");
   
   // Filters
-  const [positionFilter, setPositionFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   
   // Selected application for detail view
   const [selectedApp, setSelectedApp] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [showResume, setShowResume] = useState(false);
+  const [resumeData, setResumeData] = useState(null);
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const toast = useToast();
 
   const loadData = async () => {
     setLoading(true);
@@ -37,6 +43,7 @@ export default function CompanyApplicantsPage() {
       ]);
       setApplications(apps || []);
       setPositions(pos || []);
+      setFilteredApplications(apps || []);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -48,35 +55,93 @@ export default function CompanyApplicantsPage() {
     loadData();
   }, []);
 
-  const handleStatusChange = async (appId, newStatus) => {
+  // Handle smart filter changes
+  const handleFilterChange = useCallback((filtered, filterState) => {
+    setFilteredApplications(filtered);
+    setSearchTerm(filterState.searchTerm || "");
+  }, []);
+
+  const handleStatusChange = async (actionData) => {
+    const loadingToast = toast.loading("กำลังอัปเดตสถานะ...");
+    
     try {
-      await api.updateApplicationStatus(appId, { status: newStatus });
+      const { applicationId, action, reason, data } = actionData;
+      
+      // If it's a status change
+      if (action && action !== action.toUpperCase()) {
+        // Handle non-status actions (like VIEW_INTERVIEW, etc.)
+        console.log("Non-status action:", action, data);
+        // TODO: Implement specific action handlers
+        toast.dismiss(loadingToast);
+        return;
+      }
+      
+      // Status change
+      const payload = { 
+        status: action,
+        ...(reason && { reason }),
+        ...(data && { ...data })
+      };
+      
+      await api.updateApplicationStatus(applicationId, payload);
       await loadData();
-      alert("อัปเดตสถานะสำเร็จ");
+      
+      toast.dismiss(loadingToast);
+      toast.success("อัปเดตสถานะสำเร็จ");
     } catch (e) {
-      alert("เกิดข้อผิดพลาด: " + e.message);
+      console.error("Status change failed:", e);
+      toast.dismiss(loadingToast);
+      toast.error(e.message || "ไม่สามารถอัปเดตสถานะได้");
+      throw e;
     }
   };
 
-  const filteredApps = applications.filter(app => {
-    const matchesPosition = positionFilter === "ALL" || app.internshipPositionId === parseInt(positionFilter);
-    const matchesStatus = statusFilter === "ALL" || app.status === statusFilter;
-    const matchesSearch = !searchTerm || 
-      (app.studentName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (app.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (app.major || "").toLowerCase().includes(searchTerm.toLowerCase());
+  const openResume = async (app) => {
+    const userId = app.studentId || app.student_id || app.userId;
+    if (!userId) {
+      toast.error("ไม่พบข้อมูลผู้สมัครสำหรับเปิด Resume");
+      return;
+    }
+
+    setSelectedApp(app);
+    setShowResume(true);
+    setResumeLoading(true);
+    setResumeData(null);
     
-    return matchesPosition && matchesStatus && matchesSearch;
+    try {
+      const data = await api.getUserResume(userId);
+      setResumeData(data || null);
+    } catch (e) {
+      setResumeData(null);
+      let message = "ไม่สามารถดึงข้อมูล Resume ได้";
+      if (e.message.includes("Access Denied") || e.message.includes("403") || e.message.includes("Forbidden")) {
+        message = "คุณไม่มีสิทธิ์ดู Resume นี้ กรุณาติดต่อผู้ดูแลระบบ";
+      } else if (e.message.includes("404") || e.message.includes("not found")) {
+        message = "นักศึกษายังไม่ได้กรอกข้อมูล Resume";
+      } else if (e.message.includes("401")) {
+        message = "กรุณาเข้าสู่ระบบใหม่";
+      } else {
+        message = `ไม่สามารถโหลด Resume ได้: ${e.message}`;
+      }
+      toast.error(message);
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
+  const filteredApps = filteredApplications.filter(app => {
+    const normalizedStatus = app.status === "APPROVED" ? "ACCEPTED" : app.status;
+    return true; // Smart filters handle all filtering now
   });
 
   // Group by status for kanban view
   const groupedByStatus = {
-    PENDING: filteredApps.filter(a => a.status === "PENDING"),
-    REVIEWING: filteredApps.filter(a => a.status === "REVIEWING"),
-    INTERVIEW_SCHEDULED: filteredApps.filter(a => a.status === "INTERVIEW_SCHEDULED"),
-    OFFER_EXTENDED: filteredApps.filter(a => a.status === "OFFER_EXTENDED"),
-    ACCEPTED: filteredApps.filter(a => a.status === "ACCEPTED"),
-    REJECTED: filteredApps.filter(a => a.status === "REJECTED"),
+    PENDING: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "PENDING"),
+    REVIEWING: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "REVIEWING"),
+    INTERVIEW_SCHEDULED: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "INTERVIEW_SCHEDULED"),
+    OFFER_EXTENDED: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "OFFER_EXTENDED"),
+    ACCEPTED: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "ACCEPTED"),
+    REJECTED: filteredApps.filter(a => (a.status === "APPROVED" ? "ACCEPTED" : a.status) === "REJECTED"),
   };
 
   return (
@@ -87,123 +152,153 @@ export default function CompanyApplicantsPage() {
     >
       {error && <div className="alert alert-error"><i className="fas fa-circle-exclamation"></i>{error}</div>}
 
-      {/* Filters */}
-      <div className="card" style={{ padding: 20 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center" }}>
-          <div style={{ position: "relative" }}>
-            <i className="fas fa-search" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", fontSize: 14 }}></i>
-            <input
-              type="text"
-              placeholder="ค้นหาชื่อ, อีเมล, สาขา..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ 
-                width: "100%", 
-                padding: "10px 14px 10px 40px", 
-                border: "1px solid var(--border)", 
-                borderRadius: 8,
-                fontSize: 14
-              }}
-            />
-          </div>
-
-          <select 
-            value={positionFilter} 
-            onChange={(e) => setPositionFilter(e.target.value)}
-            style={{ padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14 }}
-          >
-            <option value="ALL">ทุกตำแหน่ง</option>
-            {positions.map(p => (
-              <option key={p.id} value={p.id}>{p.title}</option>
-            ))}
-          </select>
-
-          <select 
-            value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14 }}
-          >
-            <option value="ALL">ทุกสถานะ</option>
-            {Object.entries(STATUS_CFG).map(([key, cfg]) => (
-              <option key={key} value={key}>{cfg.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginTop: 12, fontSize: 13, color: "var(--text-muted)" }}>
-          แสดง {filteredApps.length} จาก {applications.length} รายการ
-        </div>
-      </div>
+      {/* Smart Filters */}
+      <ApplicationFilters 
+        applications={applications}
+        onFilter={handleFilterChange}
+      />
 
       {loading ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 16 }}></div>)}
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <SkeletonTable rows={5} columns={6} />
         </div>
       ) : filteredApps.length === 0 ? (
-        <div className="card" style={{ padding: 60, textAlign: "center" }}>
-          <div style={{ fontSize: 48, color: "var(--n-300)", marginBottom: 16 }}>
-            <i className="fas fa-inbox"></i>
-          </div>
-          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>ยังไม่มีผู้สมัคร</h3>
-          <p style={{ color: "var(--text-muted)" }}>
-            {searchTerm || positionFilter !== "ALL" || statusFilter !== "ALL" 
-              ? "ไม่พบผู้สมัครที่ตรงกับเงื่อนไข" 
-              : "ยังไม่มีใครสมัครงานของคุณ"}
-          </p>
-        </div>
+        searchTerm ? (
+          <NoSearchResults 
+            searchTerm={searchTerm}
+            onClearSearch={() => {
+              setSearchTerm("");
+              setFilteredApplications(applications);
+            }}
+          />
+        ) : (
+          <NoApplications userRole="COMPANY" />
+        )
       ) : (
         <>
-          {/* Kanban View */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, overflowX: "auto" }}>
-            {Object.entries(groupedByStatus).map(([status, apps]) => {
-              const cfg = STATUS_CFG[status];
-              return (
-                <div key={status} className="card" style={{ padding: 16, minHeight: 200 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <i className={`fas fa-${cfg.icon}`} style={{ color: `var(--${cfg.cls.replace('badge-', '')})` }}></i>
-                      <h3 style={{ fontSize: 14, fontWeight: 800, margin: 0 }}>{cfg.label}</h3>
+          {/* Next Step Guidance */}
+          <CompanyGuidance application={{ status: "PENDING" }} />
+
+          {/* Expandable Table View */}
+          <ApplicationTable
+            applications={filteredApps}
+            onStatusChange={handleStatusChange}
+            userRole="COMPANY"
+          />
+        </>
+      )}
+
+      {/* Resume Modal */}
+      {showResume && selectedApp && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(15, 23, 42, 0.65)",
+          backdropFilter: "blur(8px)",
+          padding: 24,
+        }} onClick={() => { setShowResume(false); setResumeData(null); }}>
+          <div
+            className="card"
+            style={{
+              width: "min(1100px, calc(100vw - 48px))",
+              maxHeight: "calc(100vh - 48px)",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 24,
+              boxShadow: "0 24px 80px rgba(15, 23, 42, 0.25)",
+              position: "relative"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Back Button */}
+            <BackButton 
+              onClick={() => { setShowResume(false); setResumeData(null); }}
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "20px",
+                zIndex: 10,
+                background: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 16px rgba(15, 23, 42, 0.1)"
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, padding: "32px 32px 24px", borderBottom: "1px solid var(--n-200)", flexShrink: 0 }}>
+              <div style={{ minWidth: 0, paddingRight: 8 }}>
+                <p style={{ fontSize: 12, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, margin: 0 }}>Applicant Resume</p>
+                <h2 style={{ fontSize: 24, fontWeight: 900, marginTop: 8, marginBottom: 0, lineHeight: 1.2, wordBreak: "break-word" }}>{selectedApp.studentName || selectedApp.fullName || "Resume"}</h2>
+              </div>
+              <button
+                onClick={() => { setShowResume(false); setResumeData(null); }}
+                style={{
+                  background: "white",
+                  border: "1px solid var(--n-200)",
+                  borderRadius: 12,
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  color: "var(--n-500)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.06)",
+                }}
+              >
+                <i className="fas fa-xmark"></i>
+              </button>
+            </div>
+
+            <div style={{ padding: 28, overflowY: "auto", background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)", flex: 1 }}>
+              {resumeLoading ? (
+                <div style={{ display: "grid", gap: 16 }}>
+                  <div className="skeleton" style={{ height: 120, borderRadius: 18 }} />
+                  <div className="skeleton" style={{ height: 160, borderRadius: 18 }} />
+                  <div className="skeleton" style={{ height: 100, borderRadius: 18 }} />
+                </div>
+              ) : resumeData ? (
+                <div style={{ display: "grid", gap: 20 }}>
+                  <div style={{ padding: 20, borderRadius: 18, background: "white", border: "1px solid var(--n-200)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 14, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <i className="fas fa-user"></i>
+                      </div>
+                      <div>
+                        <p style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 800 }}>Summary</p>
+                        <p style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.6 }}>{resumeData.summary || "-"}</p>
+                      </div>
                     </div>
-                    <span className={`badge ${cfg.cls}`} style={{ fontSize: 12 }}>{apps.length}</span>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {apps.map(app => (
-                      <div 
-                        key={app.id}
-                        onClick={() => { setSelectedApp(app); setShowDetail(true); }}
-                        style={{ 
-                          padding: 12, 
-                          background: "var(--n-50)", 
-                          borderRadius: 10,
-                          border: "1px solid var(--n-200)",
-                          cursor: "pointer",
-                          transition: "all var(--transition)"
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
-                      >
-                        <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
-                          {app.studentName || app.fullName || "ไม่ระบุชื่อ"}
-                        </p>
-                        <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>
-                          <i className="fas fa-briefcase" style={{ marginRight: 5 }}></i>
-                          {app.positionTitle || "ไม่ระบุตำแหน่ง"}
-                        </p>
-                        {app.gpa && (
-                          <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                            <i className="fas fa-graduation-cap" style={{ marginRight: 5 }}></i>
-                            GPA: {app.gpa}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+                    <ResumeSection title="Skills" icon="screwdriver-wrench" value={resumeData.skills} color="#2563EB" />
+                    <ResumeSection title="Education" icon="graduation-cap" value={resumeData.education} color="#7C3AED" />
                   </div>
+
+                  <ResumeSection title="Experience" icon="briefcase" value={resumeData.experience} color="#059669" multiline />
+
+                  {resumeData.portfolioUrl && (
+                    <div style={{ padding: 20, borderRadius: 18, background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+                      <p style={{ fontSize: 12, fontWeight: 800, color: "#B45309", marginBottom: 8 }}>Portfolio / LinkedIn</p>
+                      <a href={resumeData.portfolioUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#92400E", fontWeight: 700, wordBreak: "break-all" }}>
+                        {resumeData.portfolioUrl}
+                      </a>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
+              ) : (
+                <div className="empty-state" style={{ padding: 40 }}>
+                  <div className="empty-state-icon"><i className="fas fa-file-lines"></i></div>
+                  <h3>ไม่พบ Resume</h3>
+                  <p>ผู้สมัครรายนี้ยังไม่มีข้อมูล Resume หรือระบบไม่สามารถโหลดได้</p>
+                </div>
+              )}
+            </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Detail Modal */}
@@ -214,6 +309,17 @@ export default function CompanyApplicantsPage() {
           background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
         }} onClick={() => setShowDetail(false)}>
           <div className="card animate-scale-in" style={{ width: "100%", maxWidth: 700, padding: 40, position: "relative", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            {/* Back Button */}
+            <BackButton 
+              onClick={() => setShowDetail(false)}
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "20px",
+                zIndex: 10
+              }}
+            />
+            
             <button
               onClick={() => setShowDetail(false)}
               style={{ position: "absolute", top: 20, right: 24, background: "none", border: "none", fontSize: 20, color: "var(--n-400)", cursor: "pointer" }}
@@ -230,11 +336,18 @@ export default function CompanyApplicantsPage() {
               <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 8 }}>
                 สถานะปัจจุบัน
               </label>
-              <span className={`badge ${STATUS_CFG[selectedApp.status]?.cls || 'badge-gray'}`} style={{ fontSize: 14, padding: "8px 16px" }}>
-                <i className={`fas fa-${STATUS_CFG[selectedApp.status]?.icon || 'circle'}`} style={{ marginRight: 8 }}></i>
-                {STATUS_CFG[selectedApp.status]?.label || selectedApp.status}
-              </span>
+              <StatusSummary 
+                application={{ ...selectedApp, status: selectedApp.status === "APPROVED" ? "ACCEPTED" : selectedApp.status }} 
+                userRole="COMPANY"
+                showProgress={true}
+              />
             </div>
+
+            {/* Next Step Guidance */}
+            <InlineNextStepGuidance 
+              application={{ ...selectedApp, status: selectedApp.status === "APPROVED" ? "ACCEPTED" : selectedApp.status }} 
+              userRole="COMPANY" 
+            />
 
             {/* Personal Info */}
             <div style={{ marginBottom: 24 }}>
@@ -288,61 +401,31 @@ export default function CompanyApplicantsPage() {
 
             {/* Actions */}
             <div style={{ display: "flex", gap: 12, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
-              {selectedApp.status === "PENDING" && (
-                <>
-                  <button 
-                    className="btn btn-primary" 
-                    style={{ flex: 1 }}
-                    onClick={() => handleStatusChange(selectedApp.id, "REVIEWING")}
-                  >
-                    <i className="fas fa-eye" style={{ marginRight: 8 }}></i>
-                    เริ่มพิจารณา
-                  </button>
-                  <button 
-                    className="btn btn-error" 
-                    style={{ flex: 1 }}
-                    onClick={() => handleStatusChange(selectedApp.id, "REJECTED")}
-                  >
-                    <i className="fas fa-times" style={{ marginRight: 8 }}></i>
-                    ปฏิเสธ
-                  </button>
-                </>
-              )}
-              {selectedApp.status === "REVIEWING" && (
-                <>
-                  <button 
-                    className="btn btn-primary" 
-                    style={{ flex: 1 }}
-                    onClick={() => handleStatusChange(selectedApp.id, "INTERVIEW_SCHEDULED")}
-                  >
-                    <i className="fas fa-calendar-check" style={{ marginRight: 8 }}></i>
-                    นัดสัมภาษณ์
-                  </button>
-                  <button 
-                    className="btn btn-error" 
-                    style={{ flex: 1 }}
-                    onClick={() => handleStatusChange(selectedApp.id, "REJECTED")}
-                  >
-                    <i className="fas fa-times" style={{ marginRight: 8 }}></i>
-                    ปฏิเสธ
-                  </button>
-                </>
-              )}
-              {selectedApp.status === "INTERVIEW_SCHEDULED" && (
-                <button 
-                  className="btn btn-primary" 
-                  style={{ flex: 1 }}
-                  onClick={() => handleStatusChange(selectedApp.id, "OFFER_EXTENDED")}
-                >
-                  <i className="fas fa-file-signature" style={{ marginRight: 8 }}></i>
-                  ส่ง Offer
-                </button>
-              )}
+              <ActionButton
+                application={{ ...selectedApp, status: selectedApp.status === "APPROVED" ? "ACCEPTED" : selectedApp.status }}
+                userRole="COMPANY"
+                onAction={handleStatusChange}
+                layout="horizontal"
+              />
             </div>
           </div>
         </div>
       )}
     </RoleDashboardShell>
+  );
+}
+
+function ResumeSection({ title, icon, value, color, multiline = false }) {
+  return (
+    <div style={{ padding: 20, borderRadius: 18, background: "white", border: "1px solid var(--n-200)" }}>
+      <p style={{ fontSize: 12, fontWeight: 800, color, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+        <i className={`fas fa-${icon}`}></i>
+        {title}
+      </p>
+      <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-primary)", whiteSpace: multiline ? "pre-wrap" : "normal" }}>
+        {value || "-"}
+      </p>
+    </div>
   );
 }
 

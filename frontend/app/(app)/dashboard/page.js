@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { id: "ats", path: "/recruitment", label: "ระบบ ATS", sub: "Candidate Tracking", icon: "fa-users-gear", color: "#8B5CF6", forStaff: true },
   { id: "stu", path: "/advisor/students", label: "นักศึกษา", sub: "Manage Students", icon: "fa-user-group", color: "#0ea5e9", forAdvisor: true },
   { id: "rep", path: "/advisor/reports", label: "ตรวจงาน", sub: "Review Reports", icon: "fa-file-pen", color: "#f59e0b", forAdvisor: true },
-  { id: "submit", path: "/reports", label: "ส่งรายงาน", sub: "Submit Work", icon: "fa-file-signature", color: "#f59e0b", forStudent: true },
+  { id: "submit", path: "/student/reports", label: "ส่งรายงาน", sub: "Submit Work", icon: "fa-file-signature", color: "#f59e0b", forStudent: true },
   { id: "chat", path: "/messages", label: "แชท", sub: "Peer Messages", icon: "fa-comments", color: "#2563EB" },
   { id: "analytics", path: "/analytics", label: "วิเคราะห์", sub: "System Analytics", icon: "fa-chart-mixed", color: "#ec4899" },
   { id: "admin", path: "/admin/settings", label: "ตั้งค่าระบบ", sub: "Control Panel", icon: "fa-shield-halved", color: "#64748b", forAdmin: true },

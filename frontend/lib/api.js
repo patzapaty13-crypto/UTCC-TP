@@ -177,6 +177,27 @@ export const api = {
   getReports: () => apiFetch("/reports"),
   submitReport: (data) => apiFetch("/reports", { method: "POST", body: JSON.stringify(data) }),
   gradeReport: (id, data) => apiFetch(`/reports/${id}/grade`, { method: "PUT", body: JSON.stringify(data) }),
+  uploadReportFile: async (reportId, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const url = `${API_BASE}/reports/${reportId}/upload`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Upload failed" }));
+      throw new Error(error.message || "Upload failed");
+    }
+    return response.json();
+  },
+  downloadReportFile: (reportId) => `${API_BASE}/reports/${reportId}/download`,
   
   // -------------------------------------------------------------
   // Interviews / Offers

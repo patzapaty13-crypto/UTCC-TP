@@ -33,7 +33,7 @@ public class ResumeController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN', 'ADVISOR')")
+    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN', 'ADVISOR', 'COMPANY')")
     public ResumeResponse getUserResume(@PathVariable UUID userId) {
         return resumeService.getResumeByUserId(userId);
     }

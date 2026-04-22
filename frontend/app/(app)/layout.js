@@ -5,13 +5,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import NexusChat from "@/components/NexusChat";
+import { ToastProvider } from "@/components/Toast";
 
 const NAV = [
   { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
   { path: "/internships", label: "ค้นหาตำแหน่งงาน", icon: "fa-briefcase" },
   { path: "/applications", label: "ติดตามสถานะสมัคร", icon: "fa-clipboard-list" },
   { path: "/recruitment", label: "จัดการผู้สมัคร (ATS)", icon: "fa-users-gear" },
-  { path: "/reports", label: "รายงาน", icon: "fa-file-lines" },
+  { path: "/student/reports", label: "รายงาน", icon: "fa-file-lines" },
   { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
   { path: "/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
   { path: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
@@ -53,7 +54,8 @@ export default function DashboardLayout({ children }) {
   );
 
   return (
-    <div className="app-shell full-page">
+    <ToastProvider>
+      <div className="app-shell full-page">
       <style jsx global>{`
         .full-page .main-wrapper {
           margin-left: 0 !important;
@@ -153,5 +155,6 @@ export default function DashboardLayout({ children }) {
       {/* Global AI Assistant Widget */}
       <NexusChat />
     </div>
+    </ToastProvider>
   );
 }

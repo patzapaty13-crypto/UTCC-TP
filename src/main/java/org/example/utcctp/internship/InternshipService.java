@@ -68,12 +68,26 @@ public class InternshipService {
     }
 
     private void applyPosition(InternshipPosition position, InternshipRequest request) {
-        position.setTitle(request.title());
-        position.setDescription(request.description());
-        position.setRequirements(request.requirements());
-        position.setLocation(request.location());
-        position.setMode(request.mode());
-        position.setSlots(request.slots());
+        // Only update non-null fields
+        if (request.title() != null && !request.title().isBlank()) {
+            position.setTitle(request.title());
+        }
+        if (request.description() != null) {
+            position.setDescription(request.description());
+        }
+        if (request.requirements() != null) {
+            position.setRequirements(request.requirements());
+        }
+        if (request.location() != null) {
+            position.setLocation(request.location());
+        }
+        if (request.mode() != null) {
+            position.setMode(request.mode());
+        }
+        // slots is primitive int, always has a value
+        if (request.slots() > 0) {
+            position.setSlots(request.slots());
+        }
         if (request.status() != null && !request.status().isBlank()) {
             position.setStatus(InternshipStatus.valueOf(request.status()));
         }
@@ -124,6 +138,9 @@ public class InternshipService {
         if (request.contactEmail() != null && !request.contactEmail().isBlank()) {
             position.setContactEmail(request.contactEmail());
         }
+        
+        // Note: benefits, contactPhone, contactLine are not in InternshipRequest DTO
+        // These fields exist in InternshipPosition but are not exposed in the API
     }
 
     private InternshipResponse mapPosition(InternshipPosition position) {

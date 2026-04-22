@@ -1,5 +1,6 @@
 package org.example.utcctp.api;
 
+import jakarta.validation.Valid;
 import org.example.utcctp.api.dto.OfferRequest;
 import org.example.utcctp.api.dto.OfferResponse;
 import org.example.utcctp.offer.OfferService;
@@ -35,13 +36,13 @@ public class OfferController {
 
     @PostMapping
     @PreAuthorize("hasRole('COMPANY') or hasRole('STAFF') or hasRole('ADMIN')")
-    public OfferResponse create(@RequestBody OfferRequest request) {
+    public OfferResponse create(@Valid @RequestBody OfferRequest request) {
         return offerService.create(request, currentUserService.requireUser());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('COMPANY') or hasRole('STAFF') or hasRole('ADMIN')")
-    public OfferResponse update(@PathVariable UUID id, @RequestBody OfferRequest request) {
+    public OfferResponse update(@PathVariable UUID id, @Valid @RequestBody OfferRequest request) {
         return offerService.update(id, request, currentUserService.requireUser());
     }
 
