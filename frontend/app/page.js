@@ -172,11 +172,6 @@ export default function LandingPage() {
               onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 8px 24px rgba(37,99,235,0.4)"; }}>
               เข้าสู่ระบบตอนนี้ <i className="fas fa-arrow-right"></i>
             </Link>
-            <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "white", padding: "14px 36px", borderRadius: 14, fontSize: 15, fontWeight: 800, transition: "all 0.2s", textDecoration: "none" }}
-              onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,0.15)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background="rgba(255,255,255,0.1)"; }}>
-              สร้างบัญชีใหม่
-            </Link>
           </div>
         </div>
       </section>
@@ -192,7 +187,6 @@ export default function LandingPage() {
               </p>
               <div style={{ display: "flex", gap: 16 }}>
                 <a href="https://www.facebook.com/dekutcc" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#1877F2"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-facebook"></i></a>
-                <a href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#00C300"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-line"></i></a>
                 <a href="https://www.instagram.com/dekutcc?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#E1306C"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-instagram"></i></a>
               </div>
             </div>
