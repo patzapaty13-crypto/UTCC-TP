@@ -500,6 +500,28 @@ function ApplicationDetailModal({ application, timeline, timelineLoading, onClos
 
       {/* Actions */}
       <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", paddingTop: 24, borderTop: "1px solid var(--border)" }}>
+        {status === "INTERVIEW_SCHEDULED" && (
+          <Link
+            href="/student/interviews"
+            style={{
+              padding: "10px 20px",
+              background: "#7C3AED",
+              color: "white",
+              border: "none",
+              borderRadius: 10,
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 8
+            }}
+          >
+            <i className="fas fa-calendar-check"></i>
+            ดูรายละเอียดนัดสัมภาษณ์
+          </Link>
+        )}
         <ActionButton
           application={{ ...application, status }}
           userRole="STUDENT"

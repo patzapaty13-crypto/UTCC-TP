@@ -24,7 +24,7 @@ public class Interview {
     @Column(name = "student_id", nullable = false)
     private UUID studentId;
 
-    @Column(name = "company_id", nullable = false)
+    @Column(name = "company_id")
     private UUID companyId;
 
     @Column(name = "position_id", nullable = false)

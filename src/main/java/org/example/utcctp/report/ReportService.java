@@ -3,11 +3,14 @@ package org.example.utcctp.report;
 import org.example.utcctp.api.dto.ReportGradeRequest;
 import org.example.utcctp.api.dto.ReportRequest;
 import org.example.utcctp.api.dto.ReportResponse;
+import org.example.utcctp.model.Notification;
 import org.example.utcctp.model.Report;
 import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.User;
+import org.example.utcctp.notification.NotificationService;
 import org.example.utcctp.repository.ReportRepository;
 import org.example.utcctp.repository.InternshipPositionRepository;
+import org.example.utcctp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,12 +34,17 @@ public class ReportService {
     
     private final ReportRepository reportRepository;
     private final InternshipPositionRepository internshipPositionRepository;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
     private final Path fileStoragePath;
 
     public ReportService(ReportRepository reportRepository, InternshipPositionRepository internshipPositionRepository,
+                         NotificationService notificationService, UserRepository userRepository,
                          @Value("${app.file.storage-path:uploads/reports}") String fileStoragePath) {
         this.reportRepository = reportRepository;
         this.internshipPositionRepository = internshipPositionRepository;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
         this.fileStoragePath = Paths.get(fileStoragePath).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStoragePath);
@@ -79,6 +87,27 @@ public class ReportService {
             saved.setStatus(Report.ReportStatus.SUBMITTED);
             saved.setSubmittedAt(LocalDateTime.now());
             saved = reportRepository.save(saved);
+
+            // Notify advisor if student has one
+            if (user.getAdvisorId() != null) {
+                try {
+                    User advisor = userRepository.findById(user.getAdvisorId()).orElse(null);
+                    if (advisor != null) {
+                        String positionTitle = saved.getInternship() != null
+                                ? saved.getInternship().getTitle()
+                                : "รายงาน";
+                        notificationService.createNotification(
+                                advisor,
+                                Notification.NotificationType.REPORT_SUBMITTED,
+                                "นักศึกษาส่งรายงานใหม่",
+                                user.getDisplayName() + " ได้ส่งรายงาน " + saved.getTitle() + " (" + positionTitle + ")",
+                                "/advisor/reports"
+                        );
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to notify advisor: " + e.getMessage());
+                }
+            }
         }
         
         return toResponse(saved);
@@ -96,7 +125,25 @@ public class ReportService {
         report.setGradedAt(LocalDateTime.now());
         report.setGradedBy(user);
         
-        return toResponse(reportRepository.save(report));
+        Report saved = reportRepository.save(report);
+
+        // Notify student about grading
+        try {
+            String positionTitle = saved.getInternship() != null
+                    ? saved.getInternship().getTitle()
+                    : "รายงาน";
+            notificationService.createNotification(
+                    report.getStudent(),
+                    Notification.NotificationType.REPORT_GRADED,
+                    "รายงานได้รับการให้คะแนน",
+                    "รายงาน " + saved.getTitle() + " ของคุณได้รับคะแนน " + saved.getScore() + (request.comment() != null ? " (" + request.comment() + ")" : ""),
+                    "/student/reports"
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to notify student: " + e.getMessage());
+        }
+        
+        return toResponse(saved);
     }
 
     public List<Report> getStudentReports(UUID studentId) {
@@ -124,7 +171,30 @@ public class ReportService {
         Report report = findReport(reportId);
         report.setStatus(Report.ReportStatus.SUBMITTED);
         report.setSubmittedAt(LocalDateTime.now());
-        return reportRepository.save(report);
+        report = reportRepository.save(report);
+
+        // Notify advisor if student has one
+        if (report.getStudent().getAdvisorId() != null) {
+            try {
+                User advisor = userRepository.findById(report.getStudent().getAdvisorId()).orElse(null);
+                if (advisor != null) {
+                    String positionTitle = report.getInternship() != null
+                            ? report.getInternship().getTitle()
+                            : "รายงาน";
+                    notificationService.createNotification(
+                            advisor,
+                            Notification.NotificationType.REPORT_SUBMITTED,
+                            "นักศึกษาส่งรายงานใหม่",
+                            report.getStudent().getDisplayName() + " ได้ส่งรายงาน " + report.getTitle() + " (" + positionTitle + ")",
+                            "/advisor/reports"
+                    );
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify advisor: " + e.getMessage());
+            }
+        }
+
+        return report;
     }
 
     private Report findReport(UUID reportId) {

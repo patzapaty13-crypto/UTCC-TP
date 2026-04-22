@@ -1,25 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { getRoleMeta } from "@/lib/roles";
+import { api } from "@/lib/api";
 import Breadcrumbs from "./Breadcrumbs";
 import MobileNav, { HamburgerButton } from "./MobileNav";
 
 const NAV_ITEMS = {
   STUDENT: [
-    { href: "/student", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/student/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/student/profile", label: "โปรไฟล์", icon: "fa-user" },
     { href: "/student/internships", label: "ค้นหาฝึกงาน", icon: "fa-briefcase" },
     { href: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
+    { href: "/student/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
     { href: "/student/reports", label: "รายงานฝึกงาน", icon: "fa-file-lines" },
     { href: "/student/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
     { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   COMPANY: [
-    { href: "/company", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/company/profile", label: "ข้อมูลบริษัท", icon: "fa-building" },
     { href: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
     { href: "/company/applicants", label: "ผู้สมัคร", icon: "fa-users" },
@@ -30,7 +32,7 @@ const NAV_ITEMS = {
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADVISOR: [
-    { href: "/advisor", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/advisor/students", label: "นักศึกษาในความดูแล", icon: "fa-user-graduate" },
     { href: "/advisor/reports", label: "ตรวจรายงาน", icon: "fa-file-lines" },
     { href: "/advisor/approvals", label: "อนุมัติเอกสาร", icon: "fa-circle-check" },
@@ -39,7 +41,7 @@ const NAV_ITEMS = {
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   STAFF: [
-    { href: "/staff", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
     { href: "/staff/documents", label: "เอกสาร", icon: "fa-folder-open" },
     { href: "/staff/companies", label: "บริษัท", icon: "fa-building" },
     { href: "/staff/assign-advisor", label: "กำหนดอาจารย์ที่ปรึกษา", icon: "fa-user-plus" },
@@ -48,7 +50,7 @@ const NAV_ITEMS = {
     { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
-    { href: "/admin", label: "ภาพรวมระบบ", icon: "fa-house" },
+    { href: "/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },
     { href: "/admin/users", label: "ผู้ใช้", icon: "fa-users" },
     { href: "/admin/roles", label: "สิทธิ์การใช้งาน", icon: "fa-user-shield" },
     { href: "/admin/audit", label: "Audit Logs", icon: "fa-clipboard-check" },
@@ -60,8 +62,43 @@ const NAV_ITEMS = {
 export default function RoleDashboardShell({ role, title, subtitle, children, breadcrumbs = null }) {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const meta = getRoleMeta(role);
   const nav = NAV_ITEMS[role] || NAV_ITEMS.STUDENT;
+
+  useEffect(() => {
+    // Initial load
+    api.getNotifications()
+      .then(notifications => {
+        const unread = notifications.filter(n => !n.read).length;
+        setUnreadCount(unread);
+      })
+      .catch(err => console.error("Failed to load notifications:", err));
+
+    // SSE connection for real-time updates
+    const token = localStorage.getItem("utcctp_token");
+    if (token) {
+      const eventSource = new EventSource(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
+      );
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "notification") {
+          setUnreadCount(prev => prev + 1);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE error:", error);
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, []);
 
   return (
     <>
@@ -94,6 +131,8 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
           <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {nav.map((item) => {
               const isActive = pathname === item.href || (item.href !== `/${role}` && pathname.startsWith(item.href));
+              const isNotification = item.href.includes("notifications");
+              const hasUnread = isNotification && unreadCount > 0;
               
               return (
                 <Link 
@@ -106,11 +145,30 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
                     color: isActive ? meta.color : "var(--text-secondary)",
                     fontWeight: isActive ? "600" : "500",
                     borderLeft: isActive ? `3px solid ${meta.color}` : "3px solid transparent",
-                    borderRadius: isActive ? "0 8px 8px 0" : "8px"
+                    borderRadius: isActive ? "0 8px 8px 0" : "8px",
+                    position: "relative"
                   }}
                 >
                   <i className={`fas ${item.icon}`} style={{ width: 18 }}></i>
                   {item.label}
+                  {hasUnread && (
+                    <span style={{
+                      position: "absolute",
+                      right: 12,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "#DC2626",
+                      color: "white",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: "2px 6px",
+                      borderRadius: 99,
+                      minWidth: 18,
+                      textAlign: "center"
+                    }}>
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -165,9 +223,9 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
 
       {/* Mobile Navigation */}
       <MobileNav
-        role={role}
         navItems={nav}
-        meta={meta}
+        currentPath={pathname}
+        unreadCount={unreadCount}
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
       />

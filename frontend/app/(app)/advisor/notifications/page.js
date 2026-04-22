@@ -2,10 +2,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function DepartmentRedirect() {
+export default function AdvisorNotificationsRedirect() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/dashboard");
+    router.replace("/notifications");
   }, [router]);
   return null;
 }

@@ -10,46 +10,52 @@ import { ToastProvider } from "@/components/Toast";
 // Navigation items by role
 const NAV_BY_ROLE = {
   STUDENT: [
-    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
-    { path: "/internships", label: "ค้นหาตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/student/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { path: "/student/profile", label: "โปรไฟล์", icon: "fa-user" },
+    { path: "/student/internships", label: "ค้นหาฝึกงาน", icon: "fa-briefcase" },
     { path: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
     { path: "/student/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
-    { path: "/student/offers", label: "ข้อเสนองาน", icon: "fa-file-contract" },
-    { path: "/student/reports", label: "รายงาน", icon: "fa-file-lines" },
-    { path: "/profile", label: "โปรไฟล์", icon: "fa-user" },
+    { path: "/student/reports", label: "รายงานฝึกงาน", icon: "fa-file-lines" },
+    { path: "/student/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
+    { path: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { path: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   COMPANY: [
-    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
-    { path: "/company/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { path: "/company/profile", label: "ข้อมูลบริษัท", icon: "fa-building" },
+    { path: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
     { path: "/company/applicants", label: "ผู้สมัคร", icon: "fa-users" },
-    { path: "/recruitment", label: "จัดการผู้สมัคร (ATS)", icon: "fa-users-gear" },
-    { path: "/company/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
-    { path: "/company/offers", label: "ข้อเสนองาน", icon: "fa-file-contract" },
-    { path: "/company/interns", label: "นักศึกษาฝึกงาน", icon: "fa-user-graduate" },
-    { path: "/company/profile", label: "โปรไฟล์บริษัท", icon: "fa-building" },
+    { path: "/company/interviews", label: "สัมภาษณ์", icon: "fa-calendar-check" },
+    { path: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-signature" },
+    { path: "/company/interns", label: "พนักงานฝึกงาน", icon: "fa-user-tie" },
+    { path: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { path: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADVISOR: [
-    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
-    { path: "/advisor/students", label: "นักศึกษา", icon: "fa-user-graduate" },
-    { path: "/advisor/reports", label: "รายงาน", icon: "fa-file-lines" },
-    { path: "/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
-    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { path: "/advisor/students", label: "นักศึกษาในความดูแล", icon: "fa-user-graduate" },
+    { path: "/advisor/reports", label: "ตรวจรายงาน", icon: "fa-file-lines" },
+    { path: "/advisor/approvals", label: "อนุมัติเอกสาร", icon: "fa-circle-check" },
+    { path: "/advisor/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
+    { path: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { path: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   STAFF: [
-    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { path: "/staff/documents", label: "เอกสาร", icon: "fa-folder-open" },
     { path: "/staff/companies", label: "บริษัท", icon: "fa-building" },
-    { path: "/staff/assign-advisor", label: "มอบหมายอาจารย์", icon: "fa-user-tie" },
-    { path: "/staff/documents", label: "เอกสาร", icon: "fa-file-alt" },
-    { path: "/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
-    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+    { path: "/staff/assign-advisor", label: "กำหนดอาจารย์ที่ปรึกษา", icon: "fa-user-plus" },
+    { path: "/staff/applications", label: "การสมัคร", icon: "fa-clipboard-list" },
+    { path: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { path: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
-    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
-    { path: "/admin/users", label: "จัดการผู้ใช้", icon: "fa-users-cog" },
-    { path: "/admin/companies", label: "จัดการบริษัท", icon: "fa-building" },
-    { path: "/admin/audit", label: "ตรวจสอบระบบ", icon: "fa-clipboard-check" },
-    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+    { path: "/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },
+    { path: "/admin/users", label: "ผู้ใช้", icon: "fa-users" },
+    { path: "/admin/roles", label: "สิทธิ์การใช้งาน", icon: "fa-user-shield" },
+    { path: "/admin/audit", label: "Audit Logs", icon: "fa-clipboard-check" },
     { path: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
+    { path: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
 };
 
@@ -72,6 +78,7 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const initSession = async () => {
@@ -89,6 +96,40 @@ export default function DashboardLayout({ children }) {
     };
     initSession();
   }, [router, pathname]);
+
+  useEffect(() => {
+    // Load unread count
+    api.getNotifications()
+      .then(notifications => {
+        const unread = notifications.filter(n => !n.read).length;
+        setUnreadCount(unread);
+      })
+      .catch(err => console.error("Failed to load notifications:", err));
+
+    // SSE connection for real-time updates
+    const token = localStorage.getItem("utcctp_token");
+    if (token) {
+      const eventSource = new EventSource(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/v1/notifications/stream?token=${token}`
+      );
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "notification") {
+          setUnreadCount(prev => prev + 1);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE error:", error);
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, []);
 
   const initials = (user?.displayName || user?.username || "U")
     .split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
@@ -194,7 +235,27 @@ export default function DashboardLayout({ children }) {
           </div>
           
           <div className="topbar-actions">
-            <Link href="/notifications" className="icon-btn" title="การแจ้งเตือน" style={{ textDecoration: "none" }}><i className="fas fa-bell"></i></Link>
+            <Link href="/notifications" className="icon-btn" title="การแจ้งเตือน" style={{ textDecoration: "none", position: "relative" }}>
+              <i className="fas fa-bell"></i>
+              {unreadCount > 0 && (
+                <span style={{
+                  position: "absolute",
+                  top: -4,
+                  right: -4,
+                  background: "#DC2626",
+                  color: "white",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: "2px 6px",
+                  borderRadius: 99,
+                  minWidth: 16,
+                  textAlign: "center",
+                  lineHeight: 1
+                }}>
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
             <Link href="/profile" style={{ textDecoration:"none" }}><div className="avatar-sm" style={{ marginLeft: 4, cursor:"pointer" }}>{initials}</div></Link>
           </div>
         </header>

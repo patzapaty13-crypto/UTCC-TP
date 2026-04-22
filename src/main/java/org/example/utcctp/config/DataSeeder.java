@@ -62,17 +62,13 @@ public class DataSeeder implements CommandLineRunner {
         student.setMajor("Computer Engineering");
         student.setAcademicYear(3);
         User advisor = buildUser("advisor1", "Dr. Suda N.", "advisor@utcctp.local", Set.of(RoleType.ADVISOR));
-        User staff = buildUser("staff1", "Faculty Staff", "staff@utcctp.local", Set.of(RoleType.STAFF));
         User admin = buildUser("admin1", "Super Admin", "admin@utcctp.local", Set.of(RoleType.ADMIN));
-        User department = buildUser("department1", "หน่วยงานฝึกงาน", "department@utcctp.local", Set.of(RoleType.DEPARTMENT));
 
         userRepository.save(student);
         userRepository.save(advisor);
-        userRepository.save(staff);
         userRepository.save(admin);
-        userRepository.save(department);
 
-        // --- COMPANIES ---
+        // --- COMPANIES (for demo data only, no COMPANY role users) ---
         Company company1 = new Company();
         company1.setName("Global Tech Solutions");
         company1.setIndustry("Software Development");
@@ -81,11 +77,6 @@ public class DataSeeder implements CommandLineRunner {
         company1.setContactName("Sarah Connor");
         company1.setContactEmail("hr@globaltech.local");
         companyRepository.save(company1);
-
-        // Create company user and link to company
-        User companyUser = buildUser("company1", "Global Tech HR", "company@globaltech.local", Set.of(RoleType.COMPANY));
-        companyUser.setCompanyId(company1.getId());
-        userRepository.save(companyUser);
 
         // --- TRIPS ---
         Trip trip1 = new Trip();

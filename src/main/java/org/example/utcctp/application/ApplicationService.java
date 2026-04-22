@@ -13,7 +13,7 @@ import org.example.utcctp.model.ApplicationType;
 import org.example.utcctp.model.ApprovalHistory;
 import org.example.utcctp.model.DecisionType;
 import org.example.utcctp.model.InternshipPosition;
-import org.example.utcctp.model.NotificationType;
+import org.example.utcctp.model.Notification;
 import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.User;
@@ -143,6 +143,29 @@ public class ApplicationService {
             application.setInternshipPosition(position);
         }
         applicationRepository.save(application);
+
+        // Notify advisor if student has one
+        if (student.getAdvisorId() != null) {
+            try {
+                User advisor = userRepository.findById(student.getAdvisorId()).orElse(null);
+                if (advisor != null) {
+                    String positionTitle = application.getInternshipPosition() != null
+                            ? application.getInternshipPosition().getTitle()
+                            : (application.getTrip() != null ? application.getTrip().getTitle() : "Application");
+                    notificationService.createNotification(
+                            advisor,
+                            Notification.NotificationType.NEW_APPLICANT,
+                            "นักศึกษาสมัครฝึกงานใหม่",
+                            student.getDisplayName() + " ได้สมัคร " + positionTitle,
+                            "/advisor/students"
+                    );
+                }
+            } catch (Exception e) {
+                // Log but don't fail the application creation
+                System.err.println("Failed to notify advisor: " + e.getMessage());
+            }
+        }
+
         return mapApplication(application);
     }
 
@@ -229,6 +252,16 @@ public class ApplicationService {
         String positionTitle = application.getInternshipPosition() != null
                 ? application.getInternshipPosition().getTitle()
                 : (application.getTrip() != null ? application.getTrip().getTitle() : "Application");
+
+        // Create notification for student
+        notificationService.createNotification(
+                student,
+                Notification.NotificationType.APPLICATION_STATUS_CHANGED,
+                "สถานะใบสมัครอัปเดต: " + newStatus.name(),
+                "ใบสมัคร " + positionTitle + " ของคุณถูกเปลี่ยนเป็น " + newStatus.name() + (workflow.note() != null ? " (" + workflow.note() + ")" : ""),
+                "/student/applications"
+        );
+
         if (student.getEmail() != null && !student.getEmail().isBlank()) {
             emailService.sendAsync(
                     student.getEmail(),
@@ -270,6 +303,15 @@ public class ApplicationService {
                 ? application.getInternshipPosition().getTitle()
                 : null;
         
+        UUID positionId = application.getInternshipPosition() != null
+                ? application.getInternshipPosition().getId()
+                : null;
+        
+        UUID companyId = application.getInternshipPosition() != null
+                && application.getInternshipPosition().getCompany() != null
+                ? application.getInternshipPosition().getCompany().getId()
+                : null;
+        
         String studentName = application.getStudent() != null ? application.getStudent().getDisplayName() : application.getApplicantName();
         String studentMajor = application.getStudent() != null ? application.getStudent().getMajor() : application.getApplicantMajor();
 
@@ -282,6 +324,8 @@ public class ApplicationService {
                 application.getStatus().name(),
                 tripTitle,
                 internshipTitle,
+                positionId,
+                companyId,
                 application.getCreatedAt()
         );
     }
@@ -340,6 +384,27 @@ public class ApplicationService {
         log.setChangedBy(user);
         log.setNote("Withdrawn by student: " + (reason != null ? reason : "No reason provided"));
         statusLogRepository.save(log);
+
+        // Notify advisor if student has one
+        if (user.getAdvisorId() != null) {
+            try {
+                User advisor = userRepository.findById(user.getAdvisorId()).orElse(null);
+                if (advisor != null) {
+                    String positionTitle = application.getInternshipPosition() != null
+                            ? application.getInternshipPosition().getTitle()
+                            : (application.getTrip() != null ? application.getTrip().getTitle() : "Application");
+                    notificationService.createNotification(
+                            advisor,
+                            Notification.NotificationType.APPLICATION_STATUS_CHANGED,
+                            "นักศึกษาถอนใบสมัคร",
+                            user.getDisplayName() + " ได้ถอนใบสมัคร " + positionTitle + (reason != null ? " เหตุผล: " + reason : ""),
+                            "/advisor/students"
+                    );
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to notify advisor: " + e.getMessage());
+            }
+        }
 
         return mapApplication(application);
     }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function MobileNav({ navItems, currentPath }) {
+export default function MobileNav({ navItems, currentPath, unreadCount = 0 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -56,27 +56,51 @@ export default function MobileNav({ navItems, currentPath }) {
           >
             <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>เมนู</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: 12,
-                    borderRadius: 8,
-                    textDecoration: "none",
-                    color: currentPath === item.href ? "#3B82F6" : "#64748b",
-                    backgroundColor: currentPath === item.href ? "#eff6ff" : "transparent",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  <i className={`fas ${item.icon}`} style={{ width: 20, textAlign: "center" }}></i>
-                  <span style={{ fontWeight: 500 }}>{item.label}</span>
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isNotification = item.href.includes("notifications");
+                const hasUnread = isNotification && unreadCount > 0;
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: 12,
+                      borderRadius: 8,
+                      textDecoration: "none",
+                      color: currentPath === item.href ? "#3B82F6" : "#64748b",
+                      backgroundColor: currentPath === item.href ? "#eff6ff" : "transparent",
+                      transition: "all 0.2s",
+                      position: "relative",
+                    }}
+                  >
+                    <i className={`fas ${item.icon}`} style={{ width: 20, textAlign: "center" }}></i>
+                    <span style={{ fontWeight: 500 }}>{item.label}</span>
+                    {hasUnread && (
+                      <span style={{
+                        position: "absolute",
+                        right: 12,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "#DC2626",
+                        color: "white",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: "2px 6px",
+                        borderRadius: 99,
+                        minWidth: 18,
+                        textAlign: "center"
+                      }}>
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>

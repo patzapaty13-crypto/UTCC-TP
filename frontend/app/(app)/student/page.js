@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function StudentRedirect() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/dashboard");
+    router.replace("/student/dashboard");
   }, [router]);
   return null;
 }

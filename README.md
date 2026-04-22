@@ -34,10 +34,7 @@ Backend boots on `http://localhost:8080`. Seeded demo users:
 |-----------|----------|------------|
 | student1  | pass123  | STUDENT    |
 | advisor1  | pass123  | ADVISOR    |
-| staff1    | pass123  | STAFF      |
 | admin1    | pass123  | ADMIN      |
-| department1| pass123  | DEPARTMENT |
-| company1  | pass123  | COMPANY    |
 
 ### 2. Frontend
 

@@ -9,20 +9,14 @@ import "./login.css";
 const DEMO_USERS = [
   { username: "student1", password: "pass123", role: "STUDENT", label: "นักศึกษา", icon: "fa-user-graduate", color: "#3B82F6" },
   { username: "advisor1", password: "pass123", role: "ADVISOR", label: "อาจารย์", icon: "fa-chalkboard-user", color: "#10B981" },
-  { username: "staff1", password: "pass123", role: "STAFF", label: "เจ้าหน้าที่", icon: "fa-id-badge", color: "#F59E0B" },
   { username: "admin1", password: "pass123", role: "ADMIN", label: "ผู้ดูแลระบบ", icon: "fa-user-shield", color: "#8B5CF6" },
-  { username: "department1", password: "pass123", role: "DEPARTMENT", label: "หน่วยงาน", icon: "fa-building", color: "#EC4899" },
-  { username: "company1", password: "pass123", role: "COMPANY", label: "บริษัท", icon: "fa-briefcase", color: "#14B8A6" },
 ];
 
 function routeForRole(role) {
   return {
     STUDENT: "/student",
-    COMPANY: "/company",
     ADVISOR: "/advisor",
-    STAFF: "/staff",
     ADMIN: "/admin",
-    DEPARTMENT: "/department",
   }[role] || "/student";
 }
 

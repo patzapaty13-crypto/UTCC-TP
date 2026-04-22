@@ -65,3 +65,74 @@ export function InternshipFilters({ internships, onFilter }) {
     </div>
   );
 }
+
+export function ApplicationFilters({ applications, onFilter }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    applyFilters(value, selectedStatus);
+  };
+
+  const handleStatusChange = (e) => {
+    const value = e.target.value;
+    setSelectedStatus(value);
+    applyFilters(searchTerm, value);
+  };
+
+  const applyFilters = (search, status) => {
+    let filtered = applications;
+
+    if (search) {
+      filtered = filtered.filter(
+        (item) =>
+          item.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+          item.positionTitle?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (status) {
+      filtered = filtered.filter((item) => item.status === status);
+    }
+
+    onFilter(filtered, { searchTerm: search, status });
+  };
+
+  return (
+    <div className="card" style={{ padding: 20, marginBottom: 20, background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }}>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ flex: 1, minWidth: 280, position: "relative" }}>
+          <i className="fas fa-search" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", zIndex: 1, pointerEvents: "none" }}></i>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="ค้นหาบริษัทหรือตำแหน่ง..."
+            style={{ paddingLeft: 44, paddingRight: 16, paddingTop: 12, paddingBottom: 12, borderRadius: 8 }}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <div style={{ minWidth: 180 }}>
+          <select
+            className="form-control"
+            style={{ borderRadius: 8, padding: "12px 16px" }}
+            value={selectedStatus}
+            onChange={handleStatusChange}
+          >
+            <option value="">ทุกสถานะ</option>
+            <option value="PENDING">⏳ รอการตรวจสอบ</option>
+            <option value="UNDER_REVIEW">🔍 กำลังตรวจสอบ</option>
+            <option value="INTERVIEW_SCHEDULED">📅 นัดสัมภาษณ์</option>
+            <option value="INTERVIEW_COMPLETED">✅ สัมภาษณ์เสร็จสิ้น</option>
+            <option value="OFFER_RECEIVED">📄 ได้รับข้อเสนอ</option>
+            <option value="ACCEPTED">🤝 รับข้อเสนอแล้ว</option>
+            <option value="REJECTED">❌ ไม่ผ่านการคัดเลือก</option>
+            <option value="WITHDRAWN">🚫 ถอนใบสมัคร</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}

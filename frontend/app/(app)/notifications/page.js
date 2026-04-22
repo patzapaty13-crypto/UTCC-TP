@@ -8,6 +8,14 @@ const TYPE_CONFIG = {
   SUCCESS: { icon: "fa-circle-check", color: "#059669", bg: "#ECFDF5" },
   WARNING: { icon: "fa-triangle-exclamation", color: "#F59E0B", bg: "#FFFBEB" },
   ERROR: { icon: "fa-circle-exclamation", color: "#DC2626", bg: "#FEF2F2" },
+  INTERVIEW_SCHEDULED: { icon: "fa-calendar-check", color: "#7C3AED", bg: "#F5F3FF" },
+  APPLICATION_STATUS_CHANGED: { icon: "fa-file-alt", color: "#2563EB", bg: "#EFF6FF" },
+  OFFER_RECEIVED: { icon: "fa-gift", color: "#059669", bg: "#ECFDF5" },
+  OFFER_RESPONSE: { icon: "fa-reply", color: "#F59E0B", bg: "#FFFBEB" },
+  REPORT_GRADED: { icon: "fa-star", color: "#7C3AED", bg: "#F5F3FF" },
+  REPORT_SUBMITTED: { icon: "fa-paper-plane", color: "#2563EB", bg: "#EFF6FF" },
+  NEW_APPLICANT: { icon: "fa-user-plus", color: "#059669", bg: "#ECFDF5" },
+  SYSTEM_ANNOUNCEMENT: { icon: "fa-bullhorn", color: "#F59E0B", bg: "#FFFBEB" },
 };
 
 export default function NotificationsPage() {
@@ -25,25 +33,25 @@ export default function NotificationsPage() {
   const handleMarkRead = async (id) => {
     try {
       await api.markNotificationRead(id);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: "READ" } : n));
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleMarkAllRead = async () => {
-    const unreadIds = notifications.filter(n => n.status !== "READ").map(n => n.id);
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
     await Promise.all(unreadIds.map(id => api.markNotificationRead(id)));
-    setNotifications(prev => prev.map(n => ({ ...n, status: "READ" })));
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const filteredNotifications = notifications.filter(n => {
-    if (filter === "UNREAD") return n.status !== "READ";
-    if (filter === "READ") return n.status === "READ";
+    if (filter === "UNREAD") return !n.read;
+    if (filter === "READ") return n.read;
     return true;
   });
 
-  const unreadCount = notifications.filter(n => n.status !== "READ").length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
@@ -215,7 +223,7 @@ export default function NotificationsPage() {
           <div>
             {filteredNotifications.map((n, idx) => {
               const typeConfig = TYPE_CONFIG[n.type] || TYPE_CONFIG.INFO;
-              const isUnread = n.status !== "READ";
+              const isUnread = !n.read;
               
               return (
                 <div
@@ -269,7 +277,7 @@ export default function NotificationsPage() {
                         }}></span>
                       )}
                     </div>
-                    <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                    <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
                       {n.message}
                     </p>
                     <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8 }}>
@@ -279,39 +287,74 @@ export default function NotificationsPage() {
                   </div>
 
                   {/* Action */}
-                  {isUnread && (
-                    <button
-                      onClick={() => handleMarkRead(n.id)}
-                      style={{
-                        padding: "8px 16px",
-                        background: "#2563EB",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 10,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                        flexShrink: 0,
-                        transition: "all 0.2s ease",
-                        boxShadow: "0 2px 8px rgba(37, 99, 235, 0.2)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "#1D4ED8";
-                        e.currentTarget.style.transform = "translateY(-1px)";
-                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.3)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "#2563EB";
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(37, 99, 235, 0.2)";
-                      }}
-                    >
-                      <i className="fas fa-check"></i> อ่านแล้ว
-                    </button>
-                  )}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
+                    {n.link && (
+                      <button
+                        onClick={() => {
+                          window.location.href = n.link;
+                        }}
+                        style={{
+                          padding: "8px 16px",
+                          background: "#7C3AED",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 10,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          flexShrink: 0,
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 2px 8px rgba(124, 58, 237, 0.2)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#6D28D9";
+                          e.currentTarget.style.transform = "translateY(-1px)";
+                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.3)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#7C3AED";
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.2)";
+                        }}
+                      >
+                        <i className="fas fa-eye"></i> ดูรายละเอียด
+                      </button>
+                    )}
+                    {isUnread && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkRead(n.id);
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          background: "#2563EB",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          flexShrink: 0,
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#1D4ED8";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#2563EB";
+                        }}
+                      >
+                        <i className="fas fa-check"></i> อ่านแล้ว
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}

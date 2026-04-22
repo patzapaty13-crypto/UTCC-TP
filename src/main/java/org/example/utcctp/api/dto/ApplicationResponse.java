@@ -12,6 +12,8 @@ public record ApplicationResponse(
         String status,
         String tripTitle,
         String internshipTitle,
+        UUID positionId,
+        UUID companyId,
         Instant createdAt
 ) {
 }

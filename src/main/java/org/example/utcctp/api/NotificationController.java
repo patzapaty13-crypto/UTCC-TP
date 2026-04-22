@@ -1,12 +1,14 @@
 package org.example.utcctp.api;
 
 import org.example.utcctp.api.dto.NotificationResponse;
+import org.example.utcctp.auth.JwtService;
 import org.example.utcctp.notification.NotificationService;
 import org.example.utcctp.user.CurrentUserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -18,10 +20,12 @@ import java.util.UUID;
 public class NotificationController {
     private final NotificationService notificationService;
     private final CurrentUserService currentUserService;
+    private final JwtService jwtService;
 
-    public NotificationController(NotificationService notificationService, CurrentUserService currentUserService) {
+    public NotificationController(NotificationService notificationService, CurrentUserService currentUserService, JwtService jwtService) {
         this.notificationService = notificationService;
         this.currentUserService = currentUserService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -35,7 +39,13 @@ public class NotificationController {
     }
 
     @GetMapping("/stream")
-    public SseEmitter stream() {
-        return notificationService.subscribe(currentUserService.requireUser());
+    public SseEmitter stream(@RequestParam(required = false) String token) {
+        if (token != null) {
+            var principal = jwtService.parseToken(token);
+            if (principal != null) {
+                return notificationService.subscribe(principal.userId());
+            }
+        }
+        return notificationService.subscribe(currentUserService.requireUser().getId());
     }
 }
