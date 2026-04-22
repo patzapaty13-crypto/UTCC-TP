@@ -33,7 +33,18 @@ export default function NotificationsPage() {
   const handleMarkRead = async (id) => {
     try {
       await api.markNotificationRead(id);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+      // Reload notifications to get updated state from server
+      const updated = await api.getNotifications();
+      setNotifications(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.deleteNotification(id);
+      setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -42,7 +53,9 @@ export default function NotificationsPage() {
   const handleMarkAllRead = async () => {
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
     await Promise.all(unreadIds.map(id => api.markNotificationRead(id)));
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    // Reload notifications to get updated state from server
+    const updated = await api.getNotifications();
+    setNotifications(updated);
   };
 
   const filteredNotifications = notifications.filter(n => {
@@ -98,112 +111,141 @@ export default function NotificationsPage() {
 
       {/* Filters */}
       <div className="card" style={{ padding: 20 }}>
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <button
-            onClick={() => setFilter("ALL")}
-            style={{
-              padding: "10px 20px",
-              background: filter === "ALL" ? "#2563EB" : "transparent",
-              color: filter === "ALL" ? "white" : "var(--text-secondary)",
-              border: filter === "ALL" ? "none" : "1px solid var(--border)",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-            onMouseEnter={(e) => {
-              if (filter !== "ALL") {
-                e.currentTarget.style.background = "var(--n-50)";
-                e.currentTarget.style.borderColor = "#2563EB";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (filter !== "ALL") {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.borderColor = "var(--border)";
-              }
-            }}
-          >
-            <i className="fas fa-list"></i> ทั้งหมด ({notifications.length})
-          </button>
-          <button
-            onClick={() => setFilter("UNREAD")}
-            style={{
-              padding: "10px 20px",
-              background: filter === "UNREAD" ? "#2563EB" : "transparent",
-              color: filter === "UNREAD" ? "white" : "var(--text-secondary)",
-              border: filter === "UNREAD" ? "none" : "1px solid var(--border)",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-            onMouseEnter={(e) => {
-              if (filter !== "UNREAD") {
-                e.currentTarget.style.background = "var(--n-50)";
-                e.currentTarget.style.borderColor = "#2563EB";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (filter !== "UNREAD") {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.borderColor = "var(--border)";
-              }
-            }}
-          >
-            <i className="fas fa-bell"></i> ยังไม่อ่าน 
-            {unreadCount > 0 && (
-              <span style={{
-                padding: "2px 8px",
-                background: filter === "UNREAD" ? "rgba(255,255,255,0.2)" : "#DC2626",
-                color: filter === "UNREAD" ? "white" : "white",
-                borderRadius: 99,
-                fontSize: 11,
-                fontWeight: 800,
-              }}>
-                {unreadCount}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setFilter("READ")}
-            style={{
-              padding: "10px 20px",
-              background: filter === "READ" ? "#2563EB" : "transparent",
-              color: filter === "READ" ? "white" : "var(--text-secondary)",
-              border: filter === "READ" ? "none" : "1px solid var(--border)",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-            onMouseEnter={(e) => {
-              if (filter !== "READ") {
-                e.currentTarget.style.background = "var(--n-50)";
-                e.currentTarget.style.borderColor = "#2563EB";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (filter !== "READ") {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.borderColor = "var(--border)";
-              }
-            }}
-          >
-            <i className="fas fa-check-circle"></i> อ่านแล้ว ({notifications.length - unreadCount})
-          </button>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={() => setFilter("ALL")}
+              style={{
+                padding: "10px 20px",
+                background: filter === "ALL" ? "#2563EB" : "transparent",
+                color: filter === "ALL" ? "white" : "var(--text-secondary)",
+                border: filter === "ALL" ? "none" : "1px solid var(--border)",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                if (filter !== "ALL") {
+                  e.currentTarget.style.background = "var(--n-50)";
+                  e.currentTarget.style.borderColor = "#2563EB";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filter !== "ALL") {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }
+              }}
+            >
+              <i className="fas fa-list"></i> ทั้งหมด ({notifications.length})
+            </button>
+            <button
+              onClick={() => setFilter("UNREAD")}
+              style={{
+                padding: "10px 20px",
+                background: filter === "UNREAD" ? "#2563EB" : "transparent",
+                color: filter === "UNREAD" ? "white" : "var(--text-secondary)",
+                border: filter === "UNREAD" ? "none" : "1px solid var(--border)",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                if (filter !== "UNREAD") {
+                  e.currentTarget.style.background = "var(--n-50)";
+                  e.currentTarget.style.borderColor = "#2563EB";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filter !== "UNREAD") {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }
+              }}
+            >
+              <i className="fas fa-bell"></i> ยังไม่อ่าน 
+              {unreadCount > 0 && (
+                <span style={{
+                  padding: "2px 8px",
+                  background: filter === "UNREAD" ? "rgba(255,255,255,0.2)" : "#DC2626",
+                  color: filter === "UNREAD" ? "white" : "white",
+                  borderRadius: 99,
+                  fontSize: 11,
+                  fontWeight: 800,
+                }}>
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setFilter("READ")}
+              style={{
+                padding: "10px 20px",
+                background: filter === "READ" ? "#2563EB" : "transparent",
+                color: filter === "READ" ? "white" : "var(--text-secondary)",
+                border: filter === "READ" ? "none" : "1px solid var(--border)",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                if (filter !== "READ") {
+                  e.currentTarget.style.background = "var(--n-50)";
+                  e.currentTarget.style.borderColor = "#2563EB";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filter !== "READ") {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }
+              }}
+            >
+              <i className="fas fa-check-circle"></i> อ่านแล้ว ({notifications.length - unreadCount})
+            </button>
+          </div>
+          {unreadCount > 0 && (
+            <button
+              onClick={handleMarkAllRead}
+              style={{
+                padding: "10px 20px",
+                background: "#059669",
+                color: "white",
+                border: "none",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#047857";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#059669";
+              }}
+            >
+              <i className="fas fa-check-double"></i> อ่านทั้งหมด
+            </button>
+          )}
         </div>
       </div>
 
@@ -354,6 +396,35 @@ export default function NotificationsPage() {
                         <i className="fas fa-check"></i> อ่านแล้ว
                       </button>
                     )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(n.id);
+                      }}
+                      style={{
+                        padding: "6px 12px",
+                        background: "#DC2626",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        flexShrink: 0,
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#B91C1C";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#DC2626";
+                      }}
+                    >
+                      <i className="fas fa-trash"></i> ลบ
+                    </button>
                   </div>
                 </div>
               );

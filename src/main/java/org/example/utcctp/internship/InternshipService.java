@@ -5,6 +5,7 @@ import org.example.utcctp.api.dto.InternshipResponse;
 import org.example.utcctp.model.Company;
 import org.example.utcctp.model.InternshipPosition;
 import org.example.utcctp.model.InternshipStatus;
+import org.example.utcctp.model.User;
 import org.example.utcctp.repository.CompanyRepository;
 import org.example.utcctp.repository.InternshipPositionRepository;
 import org.springframework.http.HttpStatus;
@@ -32,18 +33,31 @@ public class InternshipService {
         return internshipRepository.findAll().stream().map(this::mapPosition).toList();
     }
 
+    public List<InternshipResponse> listPositionsByCompany(UUID companyId) {
+        return internshipRepository.findByCompanyIdOrderByCreatedAtDesc(companyId).stream().map(this::mapPosition).toList();
+    }
+
     public InternshipResponse getPosition(UUID id) {
         InternshipPosition position = internshipRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
         return mapPosition(position);
     }
 
-    public InternshipResponse createPosition(InternshipRequest request) {
-        if (request.companyId() == null) {
+    public InternshipResponse createPosition(InternshipRequest request, User currentUser) {
+        UUID companyId = request.companyId();
+        
+        // Auto-detect companyId for company users
+        if (companyId == null && currentUser.getCompanyId() != null) {
+            companyId = currentUser.getCompanyId();
+        }
+        
+        if (companyId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companyId is required");
         }
-        Company company = companyRepository.findById(request.companyId())
+        
+        Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found"));
+        
         InternshipPosition position = new InternshipPosition();
         position.setCompany(company);
         if (position.getStatus() == null) {
@@ -65,6 +79,12 @@ public class InternshipService {
         applyPosition(position, request);
         internshipRepository.save(position);
         return mapPosition(position);
+    }
+
+    public void deletePosition(UUID id) {
+        InternshipPosition position = internshipRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
+        internshipRepository.delete(position);
     }
 
     private void applyPosition(InternshipPosition position, InternshipRequest request) {

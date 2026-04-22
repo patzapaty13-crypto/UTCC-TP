@@ -3,36 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function MobileNav({ navItems, currentPath, unreadCount = 0 }) {
+export default function MobileNav({ navItems, currentPath, unreadCount = 0, isOpen: controlledOpen, onClose, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const actualIsOpen = isControlled ? controlledOpen : isOpen;
+
+  const handleClose = () => {
+    if (isControlled && onClose) {
+      onClose();
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          zIndex: 1000,
-          width: 56,
-          height: 56,
-          borderRadius: "50%",
-          backgroundColor: "#3B82F6",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 24,
-          boxShadow: "0 4px 12px rgba(59, 130, 246, 0.4)",
-        }}
-      >
-        <i className={`fas ${isOpen ? "fa-times" : "fa-bars"}`}></i>
-      </button>
-
-      {isOpen && (
+      {actualIsOpen && (
         <div
           style={{
             position: "fixed",
@@ -42,7 +28,7 @@ export default function MobileNav({ navItems, currentPath, unreadCount = 0 }) {
             display: "flex",
             justifyContent: "flex-end",
           }}
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         >
           <div
             style={{
@@ -64,7 +50,7 @@ export default function MobileNav({ navItems, currentPath, unreadCount = 0 }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -101,6 +87,32 @@ export default function MobileNav({ navItems, currentPath, unreadCount = 0 }) {
                   </Link>
                 );
               })}
+              
+              <div style={{ marginTop: 20, borderTop: "1px solid #E5E7EB", paddingTop: 20 }}>
+                <button
+                  onClick={() => {
+                    if (onLogout) onLogout();
+                    handleClose();
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: 12,
+                    borderRadius: 8,
+                    border: "none",
+                    background: "none",
+                    color: "#DC2626",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    width: "100%",
+                    textAlign: "left"
+                  }}
+                >
+                  <i className="fas fa-sign-out-alt" style={{ width: 20, textAlign: "center" }}></i>
+                  <span>ออกจากระบบ</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

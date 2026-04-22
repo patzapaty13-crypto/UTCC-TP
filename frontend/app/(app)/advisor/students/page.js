@@ -39,6 +39,11 @@ export default function AdvisorStudentsPage() {
 
   useEffect(() => {
     loadData();
+
+    // Poll for updates every 30 seconds
+    const interval = setInterval(loadData, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const getStudentApplications = (studentId) => {

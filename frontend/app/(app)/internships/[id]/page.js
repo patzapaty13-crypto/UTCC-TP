@@ -19,13 +19,39 @@ export default function InternshipDetailsPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    loadInternship();
+    loadUser();
+  }, [id]);
+
+  const loadInternship = () => {
     api.getInternship(id)
       .then(setPos)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [id]);
+  };
+
+  const loadUser = async () => {
+    try {
+      const user = await api.getMe();
+      setCurrentUser(user);
+    } catch (e) {
+      console.error("Failed to load user:", e);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("คุณต้องการลบประกาศฝึกงานนี้ใช่ไหม?")) return;
+    try {
+      await api.deleteInternship(id);
+      alert("ลบประกาศฝึกงานสำเร็จ");
+      window.location.href = "/company/internships";
+    } catch (e) {
+      alert("ไม่สามารถลบได้: " + (e.message || ""));
+    }
+  };
 
   if (loading) return (
     <div className="animate-fade-in" style={{ display:"flex", flexDirection:"column", gap:28 }}>
@@ -55,9 +81,23 @@ export default function InternshipDetailsPage({ params }) {
 
   return (
     <div className="animate-fade-in" style={{ display:"flex", flexDirection:"column", gap:28 }}>
-      <Link href="/internships" className="btn btn-ghost" style={{ width:"fit-content", padding:0, color:"var(--n-500)" }}>
-        <i className="fas fa-arrow-left"></i> กลับหน้ารวมตำแหน่งว่าง
-      </Link>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Link href="/internships" className="btn btn-ghost" style={{ width:"fit-content", padding:0, color:"var(--n-500)" }}>
+          <i className="fas fa-arrow-left"></i> กลับหน้ารวมตำแหน่งว่าง
+        </Link>
+        {currentUser && currentUser.roles?.includes("COMPANY") && (
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href={`/internships/${id}/edit`} className="btn btn-primary">
+              <i className="fas fa-edit" style={{ marginRight: 8 }}></i>
+              แก้ไข
+            </Link>
+            <button className="btn btn-danger" onClick={handleDelete}>
+              <i className="fas fa-trash" style={{ marginRight: 8 }}></i>
+              ลบ
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Hero Header */}
       <div style={{

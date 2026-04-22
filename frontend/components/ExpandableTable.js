@@ -114,7 +114,7 @@ export function ApplicationTable({ applications, onStatusChange, userRole }) {
       case "PENDING":
         return { label: "รออนุมัติ", cls: "badge-yellow" };
       case "ADVISOR_APPROVED":
-        return { label: "อนุมัติแล้ว", cls: "badge-green" };
+        return { label: "อนุมัติ", cls: "badge-green" };
       case "REVIEWING":
         return { label: "กำลังพิจารณา", cls: "badge-blue" };
       case "SHORTLISTED":

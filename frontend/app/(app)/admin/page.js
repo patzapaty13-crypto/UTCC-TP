@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function AdminRedirect() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/dashboard");
+    router.replace("/admin/dashboard");
   }, [router]);
   return null;
 }

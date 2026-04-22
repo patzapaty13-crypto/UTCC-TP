@@ -29,6 +29,11 @@ public class OfferController {
         this.currentUserService = currentUserService;
     }
 
+    @GetMapping
+    public List<OfferResponse> list() {
+        return offerService.listAll();
+    }
+
     @GetMapping("/application/{applicationId}")
     public List<OfferResponse> listByApplication(@PathVariable UUID applicationId) {
         return offerService.listByApplication(applicationId);

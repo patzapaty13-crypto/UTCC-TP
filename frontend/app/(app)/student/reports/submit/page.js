@@ -17,10 +17,6 @@ export default function SubmitReportPage() {
   // Form data
   const [formData, setFormData] = useState({
     title: "",
-    internshipCompany: "",
-    internshipPosition: "",
-    internshipPeriod: "",
-    supervisor: "",
     reportType: "WEEKLY", // WEEKLY, MONTHLY, FINAL
     weekNumber: "",
     content: "",
@@ -128,10 +124,6 @@ export default function SubmitReportPage() {
       setError("กรุณาระบุหัวข้อรายงาน");
       return;
     }
-    if (!formData.internshipCompany) {
-      setError("กรุณาเลือกบริษัทที่ฝึกงาน");
-      return;
-    }
     if (!formData.content.trim()) {
       setError("กรุณาเขียนเนื้อหารายงาน");
       return;
@@ -151,7 +143,6 @@ export default function SubmitReportPage() {
         content: formData.content,
         type: formData.reportType,
         weekNumber: formData.reportType === "WEEKLY" ? parseInt(formData.weekNumber) : null,
-        internshipPositionId: internships.find(i => i.company === formData.internshipCompany)?.id,
         submit: true // Auto-submit
       };
 
@@ -260,54 +251,6 @@ export default function SubmitReportPage() {
                 disabled={submitting}
               />
             </div>
-
-            {/* Internship Company */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, display: "block" }}>
-                บริษัทที่ฝึกงาน *
-              </label>
-              <select
-                value={formData.internshipCompany}
-                onChange={(e) => handleInputChange("internshipCompany", e.target.value)}
-                style={{ width: "100%", padding: 12, border: "1px solid var(--border)", borderRadius: 8, fontSize: 14 }}
-                disabled={submitting}
-              >
-                <option value="">เลือกบริษัท</option>
-                {internships.map(internship => (
-                  <option key={internship.id} value={internship.company}>
-                    {internship.company} - {internship.position}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Auto-filled fields */}
-            {formData.internshipCompany && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-                <div>
-                  <label style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, display: "block" }}>
-                    ตำแหน่ง
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.internshipPosition}
-                    readOnly
-                    style={{ width: "100%", padding: 12, border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, background: "var(--n-50)" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, display: "block" }}>
-                    ระยะเวลา
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.internshipPeriod}
-                    readOnly
-                    style={{ width: "100%", padding: 12, border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, background: "var(--n-50)" }}
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Content */}
             <div style={{ marginBottom: 20 }}>
@@ -481,19 +424,6 @@ export default function SubmitReportPage() {
                 ยกเลิก
               </button>
             </div>
-
-            {/* Supervisor Info */}
-            {formData.supervisor && (
-              <div className="card" style={{ padding: 20 }}>
-                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
-                  <i className="fas fa-user-tie" style={{ marginRight: 8 }}></i>
-                  ผู้ดูแล
-                </h4>
-                <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>
-                  {formData.supervisor}
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </form>

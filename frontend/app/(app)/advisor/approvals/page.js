@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import RoleDashboardShell from "@/components/RoleDashboardShell";
 
 export default function AdvisorApprovalsPage() {
+  const searchParams = useSearchParams();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const loadApplications = async () => {
     setLoading(true);
@@ -24,6 +28,17 @@ export default function AdvisorApprovalsPage() {
   useEffect(() => {
     loadApplications();
   }, []);
+
+  useEffect(() => {
+    const applicationId = searchParams.get("applicationId");
+    if (applicationId && applications.length > 0) {
+      const app = applications.find(a => a.id === applicationId);
+      if (app) {
+        setSelectedApplication(app);
+        setShowDetailModal(true);
+      }
+    }
+  }, [searchParams, applications]);
 
   const handleApprove = async (applicationId) => {
     try {
@@ -46,6 +61,11 @@ export default function AdvisorApprovalsPage() {
     }
   };
 
+  const handleViewDetails = (application) => {
+    setSelectedApplication(application);
+    setShowDetailModal(true);
+  };
+
   const pendingApplications = applications.filter((app) => app.status === "PENDING" || app.status === "REVIEWING");
   const approvedApplications = applications.filter((app) => app.status === "ADVISOR_APPROVED");
 
@@ -56,9 +76,9 @@ export default function AdvisorApprovalsPage() {
       case "REVIEWING":
         return <span className="badge badge-blue">กำลังพิจารณา</span>;
       case "ADVISOR_APPROVED":
-        return <span className="badge badge-green">อนุมัติแล้ว</span>;
+        return <span className="badge badge-green">อนุมัติ</span>;
       case "REJECTED":
-        return <span className="badge badge-red">ปฏิเสธแล้ว</span>;
+        return <span className="badge badge-red">ปฏิเสธ</span>;
       default:
         return <span className="badge badge-gray">{status}</span>;
     }
@@ -108,6 +128,14 @@ export default function AdvisorApprovalsPage() {
                       </div>
                       <div style={{ display: "flex", gap: 8 }}>
                         <button
+                          className="btn btn-ghost"
+                          style={{ padding: "10px 16px", fontWeight: 600, borderRadius: 8 }}
+                          onClick={() => handleViewDetails(app)}
+                        >
+                          <i className="fas fa-eye" style={{ marginRight: 8 }}></i>
+                          ดูรายละเอียด
+                        </button>
+                        <button
                           className="btn btn-success"
                           style={{ padding: "10px 20px", fontWeight: 600, borderRadius: 8 }}
                           onClick={() => handleApprove(app.id)}
@@ -154,7 +182,14 @@ export default function AdvisorApprovalsPage() {
                         {getStatusBadge(app.status)}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <i className="fas fa-check-circle" style={{ fontSize: 32, color: "#10b981" }}></i>
+                        <button
+                          className="btn btn-ghost"
+                          style={{ padding: "10px 16px", fontWeight: 600, borderRadius: 8 }}
+                          onClick={() => handleViewDetails(app)}
+                        >
+                          <i className="fas fa-eye" style={{ marginRight: 8 }}></i>
+                          ดูรายละเอียด
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -163,6 +198,142 @@ export default function AdvisorApprovalsPage() {
             </>
           )}
         </>
+      )}
+
+      {/* Application Detail Modal */}
+      {showDetailModal && selectedApplication && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            borderRadius: 16,
+            padding: 24,
+            width: "90%",
+            maxWidth: 700,
+            maxHeight: "90vh",
+            overflowY: "auto"
+          }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, color: "#1e293b" }}>
+              รายละเอียดใบสมัคร
+            </h2>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>ชื่อ-นามสกุล:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.studentName || selectedApplication.fullName || "-"}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>เบอร์โทรศัพท์:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.phone || "-"}</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>อีเมล:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.email || "-"}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>ที่อยู่:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.address || "-"}</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>สาขา:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.studentMajor || selectedApplication.major || "-"}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>ชั้นปี:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.studentYear || selectedApplication.year ? `${selectedApplication.studentYear || selectedApplication.year}/4` : "-"}</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>เกรดเฉลี่ย:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.gpa ? selectedApplication.gpa.toFixed(2) : "-"}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>สถานะ:</p>
+                {getStatusBadge(selectedApplication.status)}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>ตำแหน่ง/โปรแกรม:</p>
+              <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.internshipTitle || selectedApplication.tripTitle || "ใบสมัคร"}</p>
+            </div>
+
+            {selectedApplication.companyName && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>บริษัท:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{selectedApplication.companyName}</p>
+              </div>
+            )}
+
+            {selectedApplication.portfolioUrl && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>Portfolio:</p>
+                <a href={selectedApplication.portfolioUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#2563eb", textDecoration: "underline" }}>
+                  {selectedApplication.portfolioUrl}
+                </a>
+              </div>
+            )}
+
+            {selectedApplication.coverLetter && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>จดหมายแนะนำตัวเอง:</p>
+                <p style={{ fontSize: 14, color: "#1e293b", background: "#f8fafc", padding: 12, borderRadius: 8, whiteSpace: "pre-wrap" }}>{selectedApplication.coverLetter}</p>
+              </div>
+            )}
+
+            {selectedApplication.resume && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>Resume:</p>
+                <a href={selectedApplication.resume} target="_blank" rel="noopener noreferrer" style={{ color: "#2563eb", textDecoration: "underline" }}>
+                  ดู Resume
+                </a>
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>วันที่สมัคร:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>
+                  {selectedApplication.createdAt ? new Date(selectedApplication.createdAt).toLocaleDateString("th-TH") : "-"}
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: 14, color: "#64748b", marginBottom: 4 }}>วันที่อัปเดตล่าสุด:</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>
+                  {selectedApplication.updatedAt ? new Date(selectedApplication.updatedAt).toLocaleDateString("th-TH") : "-"}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedApplication(null);
+                }}
+                style={{ padding: "10px 20px", fontWeight: 600, borderRadius: 8 }}
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </RoleDashboardShell>
   );

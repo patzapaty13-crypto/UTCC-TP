@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import RoleDashboardShell from "@/components/RoleDashboardShell";
 import ActionButton from "@/components/ActionButton";
 import StatusBadge, { StatusBadgeWithCount } from "@/components/StatusBadge";
@@ -11,8 +12,10 @@ import { NoApplications, NoSearchResults } from "@/components/EmptyState";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { getStatusConfig, STATUS_CONFIG } from "@/lib/statusConfig";
+import { normalizeStatus } from "@/lib/statusUtils";
 
 export default function StudentApplicationsPage() {
+  const searchParams = useSearchParams();
   const [applications, setApplications] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +29,17 @@ export default function StudentApplicationsPage() {
   useEffect(() => {
     loadApplications();
   }, []);
+
+  useEffect(() => {
+    const applicationId = searchParams.get("applicationId");
+    if (applicationId && applications.length > 0) {
+      const app = applications.find(a => a.id === applicationId);
+      if (app) {
+        setSelectedApp(app);
+        loadTimeline(applicationId);
+      }
+    }
+  }, [searchParams, applications]);
 
   const loadApplications = async () => {
     try {
@@ -75,13 +89,78 @@ export default function StudentApplicationsPage() {
   const handleApplicationAction = async (actionData) => {
     try {
       const { applicationId, action, reason, data } = actionData;
-      
-      if (action === "WITHDRAWN") {
+
+      if (action === "withdraw") {
         return handleWithdraw(actionData);
       }
 
-      // Other actions (VIEW_OFFER, VIEW_INTERVIEW, etc.) are handled by their respective pages
-      // (/student/offers, /student/interviews) via navigation links in the ActionButton component
+      if (action === "confirm_interview") {
+        try {
+          const interviews = await api.getInterviews(applicationId);
+          if (interviews && interviews.length > 0) {
+            await api.confirmInterview(interviews[0].id);
+            alert("ยืนยันนัดสัมภาษณ์สำเร็จ");
+            loadApplications();
+          }
+        } catch (err) {
+          alert("ไม่สามารถยืนยันนัดสัมภาษณ์ได้: " + (err.message || ""));
+        }
+        return;
+      }
+
+      if (action === "reschedule") {
+        const reason = prompt("กรุณาระบุเหตุผลที่ต้องการขอเลื่อนนัด:");
+        if (reason) {
+          try {
+            const interviews = await api.getInterviews(applicationId);
+            if (interviews && interviews.length > 0) {
+              await api.rescheduleInterview(interviews[0].id, reason);
+              alert("ขอเลื่อนนัดสำเร็จ");
+              loadApplications();
+            }
+          } catch (err) {
+            alert("ไม่สามารถขอเลื่อนนัดได้: " + (err.message || ""));
+          }
+        }
+        return;
+      }
+
+      if (action === "accept_offer") {
+        try {
+          const offers = await api.getOffers(applicationId);
+          if (offers && offers.length > 0) {
+            await api.respondToOffer(offers[0].id, { status: "ACCEPTED", note: "นักศึกษาตอบรับข้อเสนอ" });
+            alert("รับข้อเสนอสำเร็จ");
+            loadApplications();
+          }
+        } catch (err) {
+          alert("ไม่สามารถรับข้อเสนอได้: " + (err.message || ""));
+        }
+        return;
+      }
+
+      if (action === "decline_offer") {
+        const reason = prompt("กรุณาระบุเหตุผลที่ปฏิเสธข้อเสนอ:");
+        if (reason) {
+          try {
+            const offers = await api.getOffers(applicationId);
+            if (offers && offers.length > 0) {
+              await api.respondToOffer(offers[0].id, { status: "REJECTED", note: reason });
+              alert("ปฏิเสธข้อเสนอสำเร็จ");
+              loadApplications();
+            }
+          } catch (err) {
+            alert("ไม่สามารถปฏิเสธข้อเสนอได้: " + (err.message || ""));
+          }
+        }
+        return;
+      }
+
+      if (action === "view_contract") {
+        alert("สัญญาจะเปิดให้ดูเมื่อบริษัทสร้างแล้ว กรุณารอสัญญาจากบริษัท");
+        return;
+      }
+
       console.log("Application action:", action, data);
 
     } catch (err) {
@@ -90,15 +169,74 @@ export default function StudentApplicationsPage() {
     }
   };
 
-  const normalizeStatus = (status) => {
-    if (status === "APPROVED") return "ACCEPTED";
-    if (status === "INTERVIEW") return "INTERVIEW_SCHEDULED";
-    if (status === "OFFERED") return "OFFER_EXTENDED";
-    return status;
+  const handleMessageAdvisor = async () => {
+    try {
+      const user = await api.getMe();
+      if (!user.advisorId) {
+        alert("คุณยังไม่มีอาจารย์ที่ปรึกษา");
+        return;
+      }
+
+      // Check if advisor info is already in user object
+      if (user.advisorUsername) {
+        window.location.href = `/messages?user=${user.advisorUsername}`;
+        return;
+      }
+
+      // If not, try to get users (this might fail for non-admin users)
+      try {
+        const users = await api.getUsers();
+        const advisor = users.find(u => u.id === user.advisorId);
+        if (advisor) {
+          window.location.href = `/messages?user=${advisor.username}`;
+        } else {
+          alert("ไม่พบข้อมูลอาจารย์ที่ปรึกษา");
+        }
+      } catch (err) {
+        // If admin endpoint fails, show a message
+        alert("ไม่สามารถดึงข้อมูลอาจารย์ได้ กรุณาค้นหาอาจารย์จากหน้าข้อความ");
+        window.location.href = `/messages`;
+      }
+    } catch (err) {
+      alert("ไม่สามารถติดต่ออาจารย์ได้: " + (err.message || ""));
+    }
   };
 
   return (
     <RoleDashboardShell role="STUDENT" title="ใบสมัครของฉัน" subtitle="ติดตามสถานะการสมัครและขั้นตอนการคัดเลือก">
+      {/* Contact Advisor Button */}
+      <div style={{ marginBottom: 24 }}>
+        <button
+          onClick={handleMessageAdvisor}
+          style={{
+            padding: "12px 24px",
+            background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
+            color: "white",
+            border: "none",
+            borderRadius: 12,
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 6px 16px rgba(124, 58, 237, 0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.3)";
+          }}
+        >
+          <i className="fas fa-comments"></i>
+          ติดต่ออาจารย์ที่ปรึกษา
+        </button>
+      </div>
+
       {/* Next Step Guidance */}
       {applications.length > 0 && (
         <StudentGuidance application={{ status: "PENDING" }} />

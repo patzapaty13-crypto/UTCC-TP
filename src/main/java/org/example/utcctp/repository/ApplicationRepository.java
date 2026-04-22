@@ -1,6 +1,7 @@
 package org.example.utcctp.repository;
 
 import org.example.utcctp.model.Application;
+import org.example.utcctp.model.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,6 +10,10 @@ import java.util.UUID;
 
 public interface ApplicationRepository extends JpaRepository<Application, UUID> {
     List<Application> findByStudentId(UUID studentId);
+    List<Application> findByStatus(ApplicationStatus status);
+
+    @Query("SELECT a FROM Application a WHERE a.status = :status AND a.internshipPosition.company.id = :companyId")
+    List<Application> findByStatusAndCompanyId(ApplicationStatus status, UUID companyId);
 
     @Query("SELECT a.status, COUNT(a) FROM Application a GROUP BY a.status")
     List<Object[]> countGroupByStatus();
