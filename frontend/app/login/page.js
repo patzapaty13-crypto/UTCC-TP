@@ -11,6 +11,8 @@ const DEMO_USERS = [
   { username: "advisor1", password: "pass123", role: "ADVISOR", label: "อาจารย์", icon: "fa-chalkboard-user", color: "#10B981" },
   { username: "staff1", password: "pass123", role: "STAFF", label: "เจ้าหน้าที่", icon: "fa-id-badge", color: "#F59E0B" },
   { username: "admin1", password: "pass123", role: "ADMIN", label: "ผู้ดูแลระบบ", icon: "fa-user-shield", color: "#8B5CF6" },
+  { username: "department1", password: "pass123", role: "DEPARTMENT", label: "หน่วยงาน", icon: "fa-building", color: "#EC4899" },
+  { username: "company1", password: "pass123", role: "COMPANY", label: "บริษัท", icon: "fa-briefcase", color: "#14B8A6" },
 ];
 
 function routeForRole(role) {
@@ -20,6 +22,7 @@ function routeForRole(role) {
     ADVISOR: "/advisor",
     STAFF: "/staff",
     ADMIN: "/admin",
+    DEPARTMENT: "/department",
   }[role] || "/student";
 }
 
@@ -122,7 +125,7 @@ export default function LoginPage() {
             <h3 className="demo-title">ทดสอบระบบ (Demo Accounts)</h3>
             <div className="demo-grid-new">
               {DEMO_USERS.map((u) => (
-                <button key={u.username} className="demo-btn" onClick={() => { setUsername(u.username); setPassword(u.password); }}>
+                <button key={u.username} className="demo-btn" onClick={() => doLogin(u.username, u.password)}>
                   <div className="demo-btn-icon" style={{ background: `${u.color}15`, color: u.color }}><i className={`fas ${u.icon}`}></i></div>
                   <div>
                     <p className="demo-btn-name">{u.username}</p>

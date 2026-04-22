@@ -64,11 +64,13 @@ public class DataSeeder implements CommandLineRunner {
         User advisor = buildUser("advisor1", "Dr. Suda N.", "advisor@utcctp.local", Set.of(RoleType.ADVISOR));
         User staff = buildUser("staff1", "Faculty Staff", "staff@utcctp.local", Set.of(RoleType.STAFF));
         User admin = buildUser("admin1", "Super Admin", "admin@utcctp.local", Set.of(RoleType.ADMIN));
+        User department = buildUser("department1", "หน่วยงานฝึกงาน", "department@utcctp.local", Set.of(RoleType.DEPARTMENT));
 
         userRepository.save(student);
         userRepository.save(advisor);
         userRepository.save(staff);
         userRepository.save(admin);
+        userRepository.save(department);
 
         // --- COMPANIES ---
         Company company1 = new Company();

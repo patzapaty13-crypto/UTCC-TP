@@ -30,12 +30,14 @@ Spring Boot 3.4 (Java 21) + Next.js 16 (React 19). Supports Supabase Postgres, C
 
 Backend boots on `http://localhost:8080`. Seeded demo users:
 
-| Username  | Password | Role     |
-|-----------|----------|----------|
-| student1  | pass123  | STUDENT  |
-| advisor1  | pass123  | ADVISOR  |
-| staff1    | pass123  | STAFF    |
-| admin1    | pass123  | ADMIN    |
+| Username  | Password | Role       |
+|-----------|----------|------------|
+| student1  | pass123  | STUDENT    |
+| advisor1  | pass123  | ADVISOR    |
+| staff1    | pass123  | STAFF      |
+| admin1    | pass123  | ADMIN      |
+| department1| pass123  | DEPARTMENT |
+| company1  | pass123  | COMPANY    |
 
 ### 2. Frontend
 

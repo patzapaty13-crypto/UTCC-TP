@@ -5,5 +5,6 @@ public enum RoleType {
     COMPANY,
     ADVISOR,
     STAFF,
-    ADMIN
+    ADMIN,
+    DEPARTMENT
 }

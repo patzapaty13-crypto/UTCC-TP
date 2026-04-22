@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import ScheduleInterviewModal from "@/components/ScheduleInterviewModal";
+import SendOfferModal from "@/components/SendOfferModal";
+import { useToast } from "@/components/Toast";
 
 const STATUS_OPTIONS = [
   { value: "PENDING", label: "รออนุมัติ" },
@@ -13,6 +16,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function RecruitmentPage() {
+  const { addToast } = useToast();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
@@ -21,6 +25,11 @@ export default function RecruitmentPage() {
   // Resume View State
   const [viewResume, setViewResume] = useState(null);
   const [resumeLoading, setResumeLoading] = useState(false);
+
+  // Modal States
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const loadData = () => {
     setLoading(true);
@@ -33,12 +42,32 @@ export default function RecruitmentPage() {
 
   const handleStatusChange = async (appId, newStatus) => {
     console.log("Selected status:", newStatus);
+    
+    // Find the application
+    const application = apps.find(a => a.id === appId);
+    
+    // If status is INTERVIEW_SCHEDULED, open interview modal
+    if (newStatus === "INTERVIEW_SCHEDULED") {
+      setSelectedApplication(application);
+      setShowInterviewModal(true);
+      return;
+    }
+    
+    // If status is OFFER_EXTENDED, open offer modal
+    if (newStatus === "OFFER_EXTENDED") {
+      setSelectedApplication(application);
+      setShowOfferModal(true);
+      return;
+    }
+    
+    // For other statuses, update directly
     setUpdating(appId);
     try {
       await api.decideForInternship(appId, { decision: newStatus, note: `Changed to ${newStatus}` });
       await loadData();
+      addToast("อัพเดทสถานะสำเร็จ", "success");
     } catch (e) {
-      alert("Error: " + e.message);
+      addToast("เกิดข้อผิดพลาด: " + e.message, "error");
     } finally {
       setUpdating(null);
     }
@@ -266,6 +295,54 @@ export default function RecruitmentPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Interview Modal */}
+      {showInterviewModal && selectedApplication && (
+        <ScheduleInterviewModal
+          application={selectedApplication}
+          onClose={() => {
+            setShowInterviewModal(false);
+            setSelectedApplication(null);
+          }}
+          onSuccess={async () => {
+            // Update application status after interview is scheduled
+            try {
+              await api.decideForInternship(selectedApplication.id, { 
+                decision: "INTERVIEW_SCHEDULED", 
+                note: "Interview scheduled" 
+              });
+              await loadData();
+              addToast("นัดสัมภาษณ์สำเร็จ!", "success");
+            } catch (e) {
+              addToast("เกิดข้อผิดพลาด: " + e.message, "error");
+            }
+          }}
+        />
+      )}
+
+      {/* Offer Modal */}
+      {showOfferModal && selectedApplication && (
+        <SendOfferModal
+          application={selectedApplication}
+          onClose={() => {
+            setShowOfferModal(false);
+            setSelectedApplication(null);
+          }}
+          onSuccess={async () => {
+            // Update application status after offer is sent
+            try {
+              await api.decideForInternship(selectedApplication.id, { 
+                decision: "OFFER_EXTENDED", 
+                note: "Offer sent" 
+              });
+              await loadData();
+              addToast("ส่งข้อเสนองานสำเร็จ!", "success");
+            } catch (e) {
+              addToast("เกิดข้อผิดพลาด: " + e.message, "error");
+            }
+          }}
+        />
       )}
     </div>
   );
