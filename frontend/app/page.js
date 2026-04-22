@@ -6,7 +6,6 @@ import Particles from "@/components/landing/Particles";
 import StatItem from "@/components/landing/StatItem";
 import StepsSection from "@/components/landing/StepsSection";
 import FeaturesBento from "@/components/landing/FeaturesBento";
-import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FaqSection from "@/components/landing/FaqSection";
 import RoleCards from "@/components/landing/RoleCards";
 import { useScrollReveal } from "@/components/landing/useScrollReveal";
@@ -148,7 +147,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <TestimonialsSection />
       <FaqSection />
 
       {/* ── CTA BANNER ─────────────────────────────────────────── */}
