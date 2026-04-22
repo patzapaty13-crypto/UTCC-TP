@@ -58,7 +58,7 @@ export default function FeaturesBento() {
                 </ul>
               )}
               
-              <Link href="/login" style={{ fontSize: 13, fontWeight: 800, color: f.color, display: "inline-flex", alignItems: "center", gap: 6, transition: "gap 0.2s" }}
+              <Link href={`/preview-feature/${i + 1}`} style={{ fontSize: 13, fontWeight: 800, color: f.color, display: "inline-flex", alignItems: "center", gap: 6, transition: "gap 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.gap="10px"}
                 onMouseLeave={e => e.currentTarget.style.gap="6px"}>
                 {f.link} <i className="fas fa-arrow-right" style={{ fontSize: 10 }}></i>
