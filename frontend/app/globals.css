@@ -19,3 +19,10 @@ html, body {
 * {
   box-sizing: border-box;
 }
+
+/* Global Placeholder Styling - Fix for visibility */
+input::placeholder, 
+textarea::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
