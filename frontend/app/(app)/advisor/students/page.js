@@ -17,18 +17,12 @@ export default function AdvisorStudentsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // In real app, this would fetch students assigned to this advisor
-      const [users, apps, currentUser] = await Promise.all([
-        api.getUsers().catch(() => []), // Fallback if not implemented
-        api.getApplications(),
-        api.getMe()
+      const [studentsData, apps] = await Promise.all([
+        api.getAdvisorStudents().catch(() => []),
+        api.getApplications()
       ]);
-      
-      // Filter only students assigned to this advisor
-      const allStudents = users.filter(u => u.roles?.includes("STUDENT")) || [];
-      const assignedStudents = allStudents.filter(s => s.advisorId === currentUser.id);
-      
-      setStudents(assignedStudents);
+
+      setStudents(studentsData || []);
       setApplications(apps || []);
     } catch (e) {
       setError(e.message);

@@ -130,43 +130,43 @@ export default function StudentReportsPage() {
       {/* Stats Cards */}
       {!loading && reports.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "var(--primary-100)", color: "var(--primary)" }}>
+          <div className="stat-card" style={{ flexDirection: "row", alignItems: "center", gap: 20, padding: 24 }}>
+            <div className="stat-card-icon" style={{ background: "var(--primary-100)", color: "var(--primary)" }}>
               <i className="fas fa-file-alt"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-label">รายงานทั้งหมด</p>
-              <p className="stat-value">{stats.total}</p>
+              <p className="stat-card-label">รายงานทั้งหมด</p>
+              <p className="stat-card-value">{stats.total}</p>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "var(--blue-100)", color: "var(--blue)" }}>
-              <i className="fas fa-paper-plane"></i>
+          <div className="stat-card" style={{ flexDirection: "row", alignItems: "center", gap: 20, padding: 24 }}>
+            <div className="stat-card-icon" style={{ background: "var(--blue-100)", color: "var(--blue)" }}>
+              <i className="fas fa-paper-plane" style={{ marginLeft: -2 }}></i>
             </div>
             <div className="stat-content">
-              <p className="stat-label">ส่งแล้ว</p>
-              <p className="stat-value">{stats.submitted}</p>
+              <p className="stat-card-label">ส่งแล้ว</p>
+              <p className="stat-card-value">{stats.submitted}</p>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "var(--success-100)", color: "var(--success)" }}>
+          <div className="stat-card" style={{ flexDirection: "row", alignItems: "center", gap: 20, padding: 24 }}>
+            <div className="stat-card-icon" style={{ background: "var(--success-100)", color: "var(--success)" }}>
               <i className="fas fa-check-circle"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-label">ตรวจแล้ว</p>
-              <p className="stat-value">{stats.graded}</p>
+              <p className="stat-card-label">ตรวจแล้ว</p>
+              <p className="stat-card-value">{stats.graded}</p>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "var(--warning-100)", color: "var(--warning)" }}>
+          <div className="stat-card" style={{ flexDirection: "row", alignItems: "center", gap: 20, padding: 24 }}>
+            <div className="stat-card-icon" style={{ background: "var(--warning-100)", color: "var(--warning)" }}>
               <i className="fas fa-star"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-label">คะแนนเฉลี่ย</p>
-              <p className="stat-value">{stats.avgScore > 0 ? stats.avgScore.toFixed(1) : "—"}</p>
+              <p className="stat-card-label">คะแนนเฉลี่ย</p>
+              <p className="stat-card-value">{stats.avgScore > 0 ? stats.avgScore.toFixed(1) : "—"}</p>
             </div>
           </div>
         </div>

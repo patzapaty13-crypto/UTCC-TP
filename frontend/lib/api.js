@@ -228,6 +228,7 @@ export const api = {
   // Advisor Stats
   // -------------------------------------------------------------
   getAdvisorStats: () => apiFetch("/dashboard/advisor-stats"),
+  getAdvisorStudents: () => apiFetch("/dashboard/advisor/students"),
 
   // -------------------------------------------------------------
   // Interviews / Offers
