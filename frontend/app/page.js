@@ -191,9 +191,9 @@ export default function LandingPage() {
                 แพลตฟอร์มบริหารจัดการทริปและฝึกงานสำหรับมหาวิทยาลัยหอการค้าไทย ที่ช่วยยกระดับประสบการณ์การเรียนรู้ของนักศึกษา
               </p>
               <div style={{ display: "flex", gap: 16 }}>
-                <a href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#1877F2"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-facebook"></i></a>
+                <a href="https://www.facebook.com/dekutcc" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#1877F2"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-facebook"></i></a>
                 <a href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#00C300"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-line"></i></a>
-                <a href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#E1306C"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-instagram"></i></a>
+                <a href="https://www.instagram.com/dekutcc?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color="#E1306C"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.4)"}><i className="fab fa-instagram"></i></a>
               </div>
             </div>
             
