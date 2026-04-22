@@ -107,3 +107,45 @@ graph TD
 *   **หน้าเว็บ (Frontend):** [https://utcc-tp-indol.vercel.app](https://utcc-tp-indol.vercel.app)
 *   **ระบบหลังบ้าน (Backend):** [https://utcc-tp-backend.onrender.com](https://utcc-tp-backend.onrender.com)
 *   **API Health Check:** [https://utcc-tp-backend.onrender.com/actuator/health](https://utcc-tp-backend.onrender.com/actuator/health)
+
+---
+
+## 💻 วิธีการติดตั้งและรันระบบ (Local Setup)
+
+### 1. ระบบหลังบ้าน (Backend - Spring Boot)
+ต้องมี Java 21 ติดตั้งในเครื่อง:
+```bash
+# รันด้วยฐานข้อมูล H2 (In-memory) ไม่ต้องตั้งค่าฐานข้อมูล
+./mvnw spring-boot:run
+```
+*   ระบบจะรันที่: `http://localhost:8080`
+*   หน้าทดสอบ API (Swagger): `http://localhost:8080/swagger-ui.html`
+
+### 2. ระบบหน้าบ้าน (Frontend - Next.js)
+ต้องมี Node.js ติดตั้งในเครื่อง:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*   ระบบจะรันที่: `http://localhost:3000`
+
+---
+
+## 🗄️ การจัดการฐานข้อมูล (Database Migrations)
+เราใช้ **Flyway** ในการควบคุมเวอร์ชันของฐานข้อมูล ไฟล์ทั้งหมดอยู่ที่ `src/main/resources/db/migration/`
+
+*   **V1 - V5:** โครงสร้างพื้นฐาน, ระบบความปลอดภัย, และ Audit Logs
+*   **V8:** ส่วนขยายสำหรับ Phase 1 (แบบฟอร์มสมัครงานและรายละเอียดตำแหน่งงานแบบละเอียด)
+*   **V11:** ระบบรายงาน (Reports) และการส่งงานของนักศึกษา
+
+---
+
+## 🛠️ รายการตัวแปรสภาพแวดล้อม (Environment Variables)
+ดูได้ที่ไฟล์ `.env.example` (Backend) และ `frontend/.env.example` (Frontend)
+
+**ตัวที่สำคัญที่สุด:**
+*   `JWT_SECRET`: รหัสลับสำหรับสร้าง Token (ห้ามเปิดเผย)
+*   `DATABASE_URL`: ลิงก์เชื่อมต่อฐานข้อมูล PostgreSQL
+*   `RESEND_API_KEY`: คีย์สำหรับส่งอีเมลผ่านระบบ Resend
+*   `CORS_ALLOWED_ORIGINS`: รายชื่อ URL ที่อนุญาตให้เรียกใช้ API (เช่น https://utcc-tp.vercel.app)
