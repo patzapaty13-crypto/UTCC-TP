@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 const ROLES = [
   { id: "STUDENT", title: "นักศึกษา", icon: "fa-user-graduate", desc: "สมัครฝึกงาน ดูทริป ส่งรายงาน", color: "#60A5FA" },
   { id: "ADVISOR", title: "อาจารย์", icon: "fa-chalkboard-user", desc: "ดูแลนักศึกษา อนุมัติเอกสาร", color: "#34D399" },
-  { id: "STAFF", title: "เจ้าหน้าที่", icon: "fa-user-shield", desc: "บริหารระบบ จัดการข้อมูล", color: "#A78BFA" },
-  { id: "COMPANY", title: "บริษัท", icon: "fa-building", desc: "ลงประกาศ รับสมัครงาน", color: "#FBBF24" }
+  { id: "STAFF", title: "เจ้าหน้าที่", icon: "fa-user-shield", desc: "บริหารระบบ จัดการข้อมูล", color: "#A78BFA" }
 ];
 
 export default function RoleCards() {

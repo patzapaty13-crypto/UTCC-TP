@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Particles from "@/components/landing/Particles";
 import StatItem from "@/components/landing/StatItem";
 import StepsSection from "@/components/landing/StepsSection";
 import FeaturesBento from "@/components/landing/FeaturesBento";
@@ -76,7 +75,19 @@ export default function LandingPage() {
         background: "linear-gradient(135deg, #020617 0%, #0F172A 40%, #1E3A8A 80%, #1D4ED8 100%)",
         overflow: "hidden", paddingTop: 80, paddingBottom: 80
       }}>
-        <Particles count={30} />
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", opacity: 0.20 }}>
+          <iframe
+            src="https://www.youtube.com/embed/gu4zf2yK6oI?autoplay=1&mute=1&loop=1&playlist=gu4zf2yK6oI&controls=0&showinfo=0&rel=0&disablekb=1"
+            style={{
+              position: "absolute",
+              top: "50%", left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "120vw", height: "120vh",
+              border: "none", pointerEvents: "none",
+            }}
+            allow="autoplay; encrypted-media"
+          />
+        </div>
         
         {/* Decorative blobs */}
         <div style={{ position:"absolute", top: "10%", right: "10%", width: 400, height: 400, borderRadius: "50%", background: "rgba(37,99,235,0.12)", filter: "blur(80px)", pointerEvents: "none" }}></div>
