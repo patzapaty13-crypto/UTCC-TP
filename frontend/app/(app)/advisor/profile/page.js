@@ -212,6 +212,7 @@ export default function AdvisorProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#7C3AED"}
                   onBlur={(e) => e.target.style.borderColor = "#DDD6FE"}
+                  placeholder="เช่น ผศ.ดร. มานะ อุตสาหะ"
                   value={formData.displayName}
                   onChange={handleChange}
                   required
@@ -235,6 +236,7 @@ export default function AdvisorProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#7C3AED"}
                   onBlur={(e) => e.target.style.borderColor = "#DDD6FE"}
+                  placeholder="advisor@utcctp.ac.th"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -258,6 +260,7 @@ export default function AdvisorProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#7C3AED"}
                   onBlur={(e) => e.target.style.borderColor = "#DDD6FE"}
+                  placeholder="เช่น วิทยาลัยดนตรี"
                   value={formData.faculty}
                   onChange={handleChange}
                 />

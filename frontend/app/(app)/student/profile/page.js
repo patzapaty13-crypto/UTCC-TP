@@ -230,6 +230,7 @@ export default function StudentProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#2563EB"}
                   onBlur={(e) => e.target.style.borderColor = "#BFDBFE"}
+                  placeholder="เช่น นายสมชาย ใจดี"
                   value={formData.displayName}
                   onChange={handleChange}
                   required
@@ -253,6 +254,7 @@ export default function StudentProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#2563EB"}
                   onBlur={(e) => e.target.style.borderColor = "#BFDBFE"}
+                  placeholder="เช่น 2310511101000"
                   value={formData.studentId}
                   onChange={handleChange}
                   required
@@ -276,6 +278,7 @@ export default function StudentProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#2563EB"}
                   onBlur={(e) => e.target.style.borderColor = "#BFDBFE"}
+                  placeholder="example@utcctp.ac.th"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -299,6 +302,7 @@ export default function StudentProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#2563EB"}
                   onBlur={(e) => e.target.style.borderColor = "#BFDBFE"}
+                  placeholder="เช่น คณะมนุษยศาสตร์และประยุกต์ศิลป์"
                   value={formData.faculty}
                   onChange={handleChange}
                 />
@@ -321,6 +325,7 @@ export default function StudentProfilePage() {
                   }}
                   onFocus={(e) => e.target.style.borderColor = "#2563EB"}
                   onBlur={(e) => e.target.style.borderColor = "#BFDBFE"}
+                  placeholder="เช่น สาขาวิชาภาษาอังกฤษธุรกิจ"
                   value={formData.major}
                   onChange={handleChange}
                 />

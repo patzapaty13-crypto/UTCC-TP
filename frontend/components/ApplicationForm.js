@@ -228,7 +228,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.fullName}
                 value={formData.fullName}
                 onChange={(v) => handleChange("fullName", v)}
-                placeholder="เช่น สมชาย ใจดี"
+                placeholder="ชื่อ - นามสกุล (ภาษาไทย)"
               />
               <InputGroup
                 label="เบอร์โทรศัพท์"
@@ -237,7 +237,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.phone}
                 value={formData.phone}
                 onChange={(v) => handleChange("phone", v)}
-                placeholder="เช่น 0812345678"
+                placeholder="08x-xxx-xxxx"
                 maxLength={10}
                 hint="ตัวเลข 10 หลัก (เช่น 08x-xxx-xxxx)"
               />
@@ -285,7 +285,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.gpa}
                 value={formData.gpa}
                 onChange={(v) => handleChange("gpa", v)}
-                placeholder="เช่น 3.50"
+                placeholder="X.XX (เกรดสะสมเฉลี่ย)"
                 type="number"
                 step="0.01"
                 hint="เกรดเฉลี่ยสะสมปัจจุบัน (0.00 - 4.00)"
@@ -297,7 +297,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
                 error={errors.major}
                 value={formData.major}
                 onChange={(v) => handleChange("major", v)}
-                placeholder="เช่น วิทยาการคอมพิวเตอร์"
+                placeholder="ชื่อคณะ / สาขาวิชาของคุณ"
               />
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <label style={{ fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
@@ -368,7 +368,7 @@ export default function ApplicationForm({ internshipId, onSuccess, onCancel }) {
               error={errors.portfolioUrl}
               value={formData.portfolioUrl}
               onChange={(v) => handleChange("portfolioUrl", v)}
-              placeholder="https://github.com/yourname"
+              placeholder="https://your-portfolio-link.com"
               type="url"
               hint="GitHub, LinkedIn, หรือ Google Drive (ถ้ามี)"
             />
