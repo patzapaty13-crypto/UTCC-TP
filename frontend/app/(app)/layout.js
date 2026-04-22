@@ -7,16 +7,65 @@ import Link from "next/link";
 import NexusChat from "@/components/NexusChat";
 import { ToastProvider } from "@/components/Toast";
 
-const NAV = [
-  { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
-  { path: "/internships", label: "ค้นหาตำแหน่งงาน", icon: "fa-briefcase" },
-  { path: "/applications", label: "ติดตามสถานะสมัคร", icon: "fa-clipboard-list" },
-  { path: "/recruitment", label: "จัดการผู้สมัคร (ATS)", icon: "fa-users-gear" },
-  { path: "/student/reports", label: "รายงาน", icon: "fa-file-lines" },
-  { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
-  { path: "/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
-  { path: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
-];
+// Navigation items by role
+const NAV_BY_ROLE = {
+  STUDENT: [
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/internships", label: "ค้นหาตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/student/applications", label: "ใบสมัครของฉัน", icon: "fa-clipboard-list" },
+    { path: "/student/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
+    { path: "/student/offers", label: "ข้อเสนองาน", icon: "fa-file-contract" },
+    { path: "/student/reports", label: "รายงาน", icon: "fa-file-lines" },
+    { path: "/profile", label: "โปรไฟล์", icon: "fa-user" },
+  ],
+  COMPANY: [
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/company/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/company/applicants", label: "ผู้สมัคร", icon: "fa-users" },
+    { path: "/recruitment", label: "จัดการผู้สมัคร (ATS)", icon: "fa-users-gear" },
+    { path: "/company/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
+    { path: "/company/offers", label: "ข้อเสนองาน", icon: "fa-file-contract" },
+    { path: "/company/interns", label: "นักศึกษาฝึกงาน", icon: "fa-user-graduate" },
+    { path: "/company/profile", label: "โปรไฟล์บริษัท", icon: "fa-building" },
+  ],
+  ADVISOR: [
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/advisor/students", label: "นักศึกษา", icon: "fa-user-graduate" },
+    { path: "/advisor/reports", label: "รายงาน", icon: "fa-file-lines" },
+    { path: "/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+  ],
+  STAFF: [
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/staff/companies", label: "บริษัท", icon: "fa-building" },
+    { path: "/staff/assign-advisor", label: "มอบหมายอาจารย์", icon: "fa-user-tie" },
+    { path: "/staff/documents", label: "เอกสาร", icon: "fa-file-alt" },
+    { path: "/internships", label: "ตำแหน่งงาน", icon: "fa-briefcase" },
+    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+  ],
+  ADMIN: [
+    { path: "/dashboard", label: "ภาพรวม", icon: "fa-chart-pie" },
+    { path: "/admin/users", label: "จัดการผู้ใช้", icon: "fa-users-cog" },
+    { path: "/admin/companies", label: "จัดการบริษัท", icon: "fa-building" },
+    { path: "/admin/audit", label: "ตรวจสอบระบบ", icon: "fa-clipboard-check" },
+    { path: "/analytics", label: "วิเคราะห์ข้อมูล", icon: "fa-chart-line" },
+    { path: "/admin/settings", label: "ตั้งค่าระบบ", icon: "fa-gears" },
+  ],
+};
+
+// Get navigation items based on user role
+const getNavForUser = (user) => {
+  if (!user || !user.roles || user.roles.length === 0) {
+    return NAV_BY_ROLE.STUDENT; // Default to student
+  }
+  
+  // Priority order: ADMIN > STAFF > ADVISOR > COMPANY > STUDENT
+  if (user.roles.includes("ADMIN")) return NAV_BY_ROLE.ADMIN;
+  if (user.roles.includes("STAFF")) return NAV_BY_ROLE.STAFF;
+  if (user.roles.includes("ADVISOR")) return NAV_BY_ROLE.ADVISOR;
+  if (user.roles.includes("COMPANY")) return NAV_BY_ROLE.COMPANY;
+  return NAV_BY_ROLE.STUDENT;
+};
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -44,6 +93,7 @@ export default function DashboardLayout({ children }) {
   const initials = (user?.displayName || user?.username || "U")
     .split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
+  const NAV = getNavForUser(user);
   const pageLabel = NAV.find(n => n.path === pathname)?.label || "Dashboard";
 
   if (loading) return (
