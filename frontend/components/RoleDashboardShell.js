@@ -30,10 +30,23 @@ const NAV_ITEMS = {
   ],
   COMPANY: [
     { href: "/company/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/company/profile", label: "ข้อมูลบริษัท", icon: "fa-building" },
     { href: "/company/internships", label: "ประกาศฝึกงาน", icon: "fa-briefcase" },
     { href: "/company/applications", label: "ใบสมัคร", icon: "fa-clipboard-list" },
+    { href: "/company/applicants", label: "ผู้สมัคร", icon: "fa-users" },
     { href: "/company/interviews", label: "นัดสัมภาษณ์", icon: "fa-calendar-check" },
+    { href: "/company/offers", label: "ข้อเสนอ", icon: "fa-file-signature" },
+    { href: "/company/interns", label: "พนักงานฝึกงาน", icon: "fa-user-tie" },
     { href: "/company/notifications", label: "การแจ้งเตือน", icon: "fa-bell" },
+  ],
+  STAFF: [
+    { href: "/staff/dashboard", label: "ภาพรวม", icon: "fa-house" },
+    { href: "/staff/applications", label: "การสมัคร", icon: "fa-clipboard-list" },
+    { href: "/staff/companies", label: "บริษัท", icon: "fa-building" },
+    { href: "/staff/assign-advisor", label: "กำหนดอาจารย์ที่ปรึกษา", icon: "fa-user-plus" },
+    { href: "/staff/documents", label: "เอกสาร", icon: "fa-folder-open" },
+    { href: "/analytics", label: "สถิติแพลตฟอร์ม", icon: "fa-chart-line" },
+    { href: "/messages", label: "ข้อความ", icon: "fa-comments" },
   ],
   ADMIN: [
     { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: "fa-house" },

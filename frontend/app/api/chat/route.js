@@ -1,7 +1,9 @@
+// Nexus AI — Google Gemini (via @google/generative-ai SDK)
+// Primary: gemini-1.5-flash (fast, free tier). Override with GEMINI_MODEL if desired.
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Direct Gemini integration — no n8n dependency, no CORS, no webhook ID changes
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
 // In-memory conversation history per session (resets on server restart)
 const sessions = new Map();
@@ -31,11 +33,11 @@ Rules:
 
 export async function POST(request) {
   console.log("[Nexus AI] Incoming request...");
-  
+
   if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-    console.error("[Nexus AI] API Key is missing or default placeholder.");
+    console.error("[Nexus AI] GEMINI_API_KEY is missing.");
     return Response.json(
-      { output: "⚙️ กรุณาใส่ API Key จริงใน .env.local ครับ" },
+      { output: "⚙️ กรุณาตั้งค่า `GEMINI_API_KEY` ใน .env.local ครับ (ขอฟรีที่ https://aistudio.google.com/app/apikey)" },
       { status: 200 }
     );
   }
@@ -47,53 +49,60 @@ export async function POST(request) {
 
     if (!chatInput) return Response.json({ output: "Input missing" });
 
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash", // Back to original model that works with this API key
-      systemInstruction: SYSTEM_PROMPT + (userRole ? `\n\nCurrent user role: ${userRole}` : ""),
-    });
-
     const sid = sessionId || "default";
     if (!sessions.has(sid)) sessions.set(sid, []);
     const history = sessions.get(sid);
 
-    const chat = model.startChat({ history: history.slice(-10) });
-    
-    console.log("[Nexus AI] Sending to Gemini...");
+    const systemInstruction = SYSTEM_PROMPT + (userRole ? `\n\nCurrent user role: ${userRole}` : "");
+
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: GEMINI_MODEL,
+      systemInstruction,
+      generationConfig: {
+        temperature: 0.6,
+        maxOutputTokens: 1024,
+      },
+    });
+
+    console.log("[Nexus AI] Calling Gemini model:", GEMINI_MODEL);
+    const chat = model.startChat({
+      history: history.slice(-10).map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+    });
+
     const result = await chat.sendMessage(chatInput);
-    const responseText = result.response.text();
-    console.log("[Nexus AI] Gemini Response received.");
+    const responseText = result?.response?.text?.()?.trim() || "";
 
-    history.push({ role: "user", parts: [{ text: chatInput }] });
-    history.push({ role: "model", parts: [{ text: responseText }] });
+    if (!responseText) {
+      console.warn("[Nexus AI] Empty response payload");
+      return Response.json({ output: "ระบบตอบกลับว่างเปล่า กรุณาลองถามอีกครั้งครับ" });
+    }
 
+    history.push({ role: "user", content: chatInput });
+    history.push({ role: "assistant", content: responseText });
+
+    console.log("[Nexus AI] Gemini response received, length:", responseText.length);
     return Response.json({ output: responseText });
   } catch (err) {
-    console.error("[Nexus AI] SDK Error:", err.message);
-    
-    // Better error handling for quota exceeded
-    if (err.message.includes("quota") || err.message.includes("429")) {
+    const msg = err?.message || String(err) || "ไม่ทราบสาเหตุ";
+    console.error("[Nexus AI] Server Error:", msg);
+
+    // Handle common Gemini error patterns
+    if (/API key/i.test(msg) || /API_KEY_INVALID/i.test(msg)) {
       return Response.json({
-        output: `⏳ **ขออภัยครับ Quota ของ AI หมดแล้ว**\n\n` +
-                `API Key นี้ใช้ได้ 20 requests ต่อวันสำหรับ Free Tier\n\n` +
-                `**วิธีแก้:**\n` +
-                `1. รอให้ quota reset (พรุ่งนี้)\n` +
-                `2. หรือสร้าง API key ใหม่ที่: https://aistudio.google.com/apikey\n\n` +
-                `ขอบคุณที่ใช้งาน Nexus AI ครับ 🙏`
+        output: "🔐 API Key ไม่ถูกต้อง กรุณาตรวจสอบ `GEMINI_API_KEY` ใน .env.local",
       });
     }
-    
-    // Better error handling for model not found
-    if (err.message.includes("404") || err.message.includes("not found")) {
+    if (/quota|rate limit|429/i.test(msg)) {
       return Response.json({
-        output: `⚠️ **Model ไม่รองรับ**\n\n` +
-                `API Key นี้ใช้ได้เฉพาะ model: gemini-2.5-flash\n\n` +
-                `กรุณาตรวจสอบ API Key หรือติดต่อผู้ดูแลระบบครับ`
+        output: "⏳ ขออภัย Gemini โดน rate limit ชั่วคราว กรุณาลองใหม่ใน 30 วินาทีครับ",
       });
     }
-    
     return Response.json({
-      output: `⚠️ เกิดข้อผิดพลาด: ${err.message}`
+      output: `⚠️ เกิดข้อผิดพลาดจาก Gemini: ${msg.slice(0, 200)}`,
     });
   }
 }

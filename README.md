@@ -96,19 +96,26 @@ SPRING_PROFILES_ACTIVE=postgres ./mvnw -DskipTests spring-boot:run
 3. Environment variable: `NEXT_PUBLIC_API_URL = https://<your-backend>.onrender.com/api/v1`.
 4. Update backend `CORS_ALLOWED_ORIGINS=https://<your-vercel-domain>`.
 
-### F. Automation — n8n (optional)
+### F. Automation — n8n Cloud (9 Active Workflows)
 
-Set `N8N_WEBHOOK_URL` to post status-change events to your n8n workflow. Payload schema:
+The backend integrates with **9 active n8n workflows** via webhooks for email delivery, AI processing, and scheduling.
 
-```json
-{
-  "applicationId": "...", "studentName": "...",
-  "oldStatus": "PENDING", "newStatus": "ACCEPTED",
-  "positionTitle": "...", "changedBy": "..."
-}
-```
+Set all `N8N_WEBHOOK_*` env vars (see `.env.example` for full list). Key endpoints:
 
----
+| Env Var | Webhook Path | Purpose |
+|---------|-------------|---------|
+| `N8N_WEBHOOK_URL` | `/webhook/otp-send` | OTP email delivery |
+| `N8N_WEBHOOK_APP_STATUS` | `/webhook/utcctp-app-status` | Application status emails |
+| `N8N_WEBHOOK_INTERVIEW` | `/webhook/utcctp-interview-scheduled` | Interview scheduling + Calendar |
+| `N8N_WEBHOOK_RESUME` | `/webhook/utcctp-resume-screening` | AI resume scoring |
+| `N8N_WEBHOOK_SECURITY` | `/webhook/security-alert` | Security alert emails |
+| `N8N_WEBHOOK_FORGOT_PW` | `/webhook/forgot-password` | Password reset emails |
+| `N8N_WEBHOOK_EVENTS` | `/webhook/utcctp-events` | Generic event router |
+
+All webhooks are **fire-and-forget** (async) via `WebhookService`. If a URL is unconfigured, the call is silently skipped — safe for local development.
+
+See [PRODUCTION_READY.md](./PRODUCTION_READY.md) for complete deployment guide.
+
 
 ## Features
 

@@ -45,7 +45,23 @@ services:
         value: openai
       - key: OPENAI_API_KEY
         sync: false
+
+      # --- n8n Webhooks ---
       - key: N8N_WEBHOOK_URL
+        sync: false
+      - key: N8N_WEBHOOK_BASE
+        sync: false
+      - key: N8N_WEBHOOK_APP_STATUS
+        sync: false
+      - key: N8N_WEBHOOK_RESUME
+        sync: false
+      - key: N8N_WEBHOOK_INTERVIEW
+        sync: false
+      - key: N8N_WEBHOOK_SECURITY
+        sync: false
+      - key: N8N_WEBHOOK_FORGOT_PW
+        sync: false
+      - key: N8N_WEBHOOK_EVENTS
         sync: false
 
       # --- CORS ---

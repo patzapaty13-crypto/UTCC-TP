@@ -283,6 +283,41 @@ public class ApplicationService {
                 "changedBy", actor.getDisplayName()
         ));
 
+        // --- Rich Application Status Pipeline (n8n) ---
+        try {
+            User stud = application.getStudent();
+            String studentEmail = stud.getEmail() != null ? stud.getEmail() : "";
+            String advisorEmail = "";
+            if (stud.getAdvisorId() != null) {
+                User advisor = userRepository.findById(stud.getAdvisorId()).orElse(null);
+                if (advisor != null && advisor.getEmail() != null) advisorEmail = advisor.getEmail();
+            }
+            String companyEmail = "";
+            String companyName = "";
+            if (application.getInternshipPosition() != null && application.getInternshipPosition().getCompany() != null) {
+                companyName = application.getInternshipPosition().getCompany().getName();
+                User companyUser = userRepository.findByCompanyId(application.getInternshipPosition().getCompany().getId())
+                        .stream().filter(u -> u.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY")))
+                        .findFirst().orElse(null);
+                if (companyUser != null && companyUser.getEmail() != null) companyEmail = companyUser.getEmail();
+            }
+            String posTitle = application.getInternshipPosition() != null ? application.getInternshipPosition().getTitle() : "Trip Application";
+            java.util.Map<String, Object> richPayload = new java.util.HashMap<>();
+            richPayload.put("applicationId", application.getId().toString());
+            richPayload.put("studentName", stud.getDisplayName());
+            richPayload.put("studentEmail", studentEmail);
+            richPayload.put("advisorEmail", advisorEmail);
+            richPayload.put("companyEmail", companyEmail);
+            richPayload.put("companyName", companyName);
+            richPayload.put("positionTitle", posTitle);
+            richPayload.put("oldStatus", oldStatus.name());
+            richPayload.put("newStatus", newStatus.name());
+            richPayload.put("changedBy", actor.getDisplayName());
+            webhookService.sendApplicationStatusChange(richPayload);
+        } catch (Exception e) {
+            System.err.println("[ApplicationService] Failed to dispatch app-status webhook: " + e.getMessage());
+        }
+
         ApprovalHistory history = new ApprovalHistory();
         history.setApplication(application);
         history.setApprover(actor);

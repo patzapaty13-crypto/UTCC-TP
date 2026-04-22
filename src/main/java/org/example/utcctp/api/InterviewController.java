@@ -9,6 +9,7 @@ import org.example.utcctp.model.Interview;
 import org.example.utcctp.model.Notification;
 import org.example.utcctp.model.User;
 import org.example.utcctp.notification.NotificationService;
+import org.example.utcctp.notification.WebhookService;
 import org.example.utcctp.repository.ApplicationRepository;
 import org.example.utcctp.repository.InternshipPositionRepository;
 import org.example.utcctp.repository.InterviewRepository;
@@ -33,6 +34,7 @@ public class InterviewController {
     private final InterviewService interviewService;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final WebhookService webhookService;
     private final UserRepository userRepository;
     private final InternshipPositionRepository internshipPositionRepository;
     private final ApplicationRepository applicationRepository;
@@ -42,6 +44,7 @@ public class InterviewController {
             InterviewService interviewService,
             JwtService jwtService,
             NotificationService notificationService,
+            WebhookService webhookService,
             UserRepository userRepository,
             InternshipPositionRepository internshipPositionRepository,
             ApplicationRepository applicationRepository,
@@ -50,6 +53,7 @@ public class InterviewController {
         this.interviewService = interviewService;
         this.jwtService = jwtService;
         this.notificationService = notificationService;
+        this.webhookService = webhookService;
         this.userRepository = userRepository;
         this.internshipPositionRepository = internshipPositionRepository;
         this.applicationRepository = applicationRepository;
@@ -292,6 +296,42 @@ public class InterviewController {
             }
         }
         
+        // --- Fire n8n Interview Auto-Scheduling webhook ---
+        try {
+            User studentForWebhook = interview.getStudentId() != null
+                    ? userRepository.findById(interview.getStudentId()).orElse(null)
+                    : null;
+            InternshipPosition posForWebhook = interview.getPositionId() != null
+                    ? internshipPositionRepository.findById(interview.getPositionId()).orElse(null)
+                    : null;
+            String companyName = (posForWebhook != null && posForWebhook.getCompany() != null)
+                    ? posForWebhook.getCompany().getName() : "";
+            String companyEmail = "";
+            if (posForWebhook != null && posForWebhook.getCompany() != null) {
+                User companyOwner = userRepository.findByCompanyId(posForWebhook.getCompany().getId())
+                        .stream().filter(u -> u.getRoles().stream().anyMatch(r -> r.name().equals("COMPANY")))
+                        .findFirst().orElse(null);
+                if (companyOwner != null) companyEmail = companyOwner.getEmail();
+            }
+            String interviewMode = "VIDEO".equals(interview.getInterviewType()) ? "ONLINE" : "ONSITE";
+            java.util.Map<String, Object> webhookPayload = new java.util.HashMap<>();
+            webhookPayload.put("interviewId", created.getId().toString());
+            webhookPayload.put("studentName", studentForWebhook != null ? studentForWebhook.getDisplayName() : "");
+            webhookPayload.put("studentEmail", studentForWebhook != null ? studentForWebhook.getEmail() : "");
+            webhookPayload.put("companyName", companyName);
+            webhookPayload.put("companyEmail", companyEmail);
+            webhookPayload.put("positionTitle", posForWebhook != null ? posForWebhook.getTitle() : "");
+            webhookPayload.put("scheduledAt", interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : "");
+            webhookPayload.put("durationMinutes", interview.getInterviewDuration() != null ? interview.getInterviewDuration() : 60);
+            webhookPayload.put("mode", interviewMode);
+            webhookPayload.put("location", interview.getLocation() != null ? interview.getLocation() : "");
+            webhookPayload.put("meetingLink", interview.getVideoLink() != null ? interview.getVideoLink() : "");
+            webhookPayload.put("notes", interview.getInstructions() != null ? interview.getInstructions() : "");
+            webhookService.sendInterviewScheduled(webhookPayload);
+        } catch (Exception e) {
+            System.err.println("[InterviewController] Failed to dispatch interview webhook: " + e.getMessage());
+        }
+
         return ResponseEntity.ok(created);
     }
 
