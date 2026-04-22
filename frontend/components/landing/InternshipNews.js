@@ -10,7 +10,8 @@ const NEWS_ITEMS = [
     date: "15 พ.ค. 2026",
     tags: ["React", "Node.js", "Full-time"],
     logoBg: "#059669",
-    logoChar: "A"
+    logoChar: "A",
+    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80"
   },
   {
     id: 2,
@@ -19,7 +20,8 @@ const NEWS_ITEMS = [
     date: "20 พ.ค. 2026",
     tags: ["Python", "SQL", "Data"],
     logoBg: "#7C3AED",
-    logoChar: "S"
+    logoChar: "S",
+    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80"
   },
   {
     id: 3,
@@ -28,7 +30,8 @@ const NEWS_ITEMS = [
     date: "25 พ.ค. 2026",
     tags: ["Figma", "Design", "Hybrid"],
     logoBg: "#2563EB",
-    logoChar: "L"
+    logoChar: "L",
+    imageUrl: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=600&q=80"
   }
 ];
 
@@ -54,11 +57,14 @@ export default function InternshipNews() {
           {NEWS_ITEMS.map((item, i) => (
             <div key={item.id} className={`reveal reveal-delay-${i + 1}`} 
               onClick={() => router.push("/login")}
-              style={{ background: "white", borderRadius: 20, padding: 32, border: "1px solid #F1F5F9", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", transition: "transform 0.3s, box-shadow 0.3s", cursor: "pointer" }}
+              style={{ background: "white", borderRadius: 20, border: "1px solid #F1F5F9", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", transition: "transform 0.3s, box-shadow 0.3s", cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-8px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.03)"; }}>
               
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+              <img src={item.imageUrl} alt={item.company} style={{ width: "100%", height: 160, objectFit: "cover" }} />
+
+              <div style={{ padding: 28, flex: 1, display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: item.logoBg, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800 }}>
                   {item.logoChar}
                 </div>
@@ -79,8 +85,9 @@ export default function InternshipNews() {
                 ))}
               </div>
 
-              <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 20, marginTop: "auto" }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#2563EB" }}>ดูรายละเอียด <i className="fas fa-chevron-right" style={{ fontSize: 10, marginLeft: 4 }}></i></span>
+                <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 20, marginTop: "auto" }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#2563EB" }}>ดูรายละเอียด <i className="fas fa-chevron-right" style={{ fontSize: 10, marginLeft: 4 }}></i></span>
+                </div>
               </div>
             </div>
           ))}
