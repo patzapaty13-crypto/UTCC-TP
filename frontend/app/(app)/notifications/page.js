@@ -36,6 +36,7 @@ export default function NotificationsPage() {
       // Reload notifications to get updated state from server
       const updated = await api.getNotifications();
       setNotifications(updated);
+      window.dispatchEvent(new CustomEvent('notifications_updated'));
     } catch (err) {
       console.error(err);
     }
@@ -45,6 +46,7 @@ export default function NotificationsPage() {
     try {
       await api.deleteNotification(id);
       setNotifications(prev => prev.filter(n => n.id !== id));
+      window.dispatchEvent(new CustomEvent('notifications_updated'));
     } catch (err) {
       console.error(err);
     }
@@ -56,6 +58,7 @@ export default function NotificationsPage() {
     // Reload notifications to get updated state from server
     const updated = await api.getNotifications();
     setNotifications(updated);
+    window.dispatchEvent(new CustomEvent('notifications_updated'));
   };
 
   const filteredNotifications = notifications.filter(n => {

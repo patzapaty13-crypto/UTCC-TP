@@ -4,6 +4,8 @@ public record UserProfileUpdateRequest(
         String displayName,
         String email,
         String major,
+        String faculty,
+        String studentId,
         Integer academicYear,
         String profilePictureUrl,
         Object skills,

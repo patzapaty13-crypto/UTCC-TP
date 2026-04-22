@@ -70,16 +70,23 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
   };
 
   useEffect(() => {
+    const fetchNotifs = () => {
+      api.getNotifications()
+        .then(notifications => {
+          const unread = notifications.filter(n => !n.read).length;
+          setUnreadCount(unread);
+        })
+        .catch(err => {
+          // Silently fail if notifications endpoint doesn't exist
+          console.warn("Notifications not available");
+        });
+    };
+
     // Initial load
-    api.getNotifications()
-      .then(notifications => {
-        const unread = notifications.filter(n => !n.read).length;
-        setUnreadCount(unread);
-      })
-      .catch(err => {
-        // Silently fail if notifications endpoint doesn't exist
-        console.warn("Notifications not available");
-      });
+    fetchNotifs();
+
+    // Listen to updates from notification pages
+    window.addEventListener('notifications_updated', fetchNotifs);
 
     // SSE connection for real-time updates - disabled until backend endpoint is available
     // const token = localStorage.getItem("utcctp_token");
@@ -107,6 +114,10 @@ export default function RoleDashboardShell({ role, title, subtitle, children, br
     //     // Silently fail if SSE is not available
     //   }
     // }
+
+    return () => {
+      window.removeEventListener('notifications_updated', fetchNotifs);
+    };
   }, []);
 
   return (

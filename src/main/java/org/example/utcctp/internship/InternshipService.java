@@ -117,18 +117,24 @@ public class InternshipService {
             position.setInternshipType(request.internshipType());
         }
         
-        if (request.allowanceAmount() != null && !request.allowanceAmount().isBlank()) {
+        if (request.salaryMin() != null && !request.salaryMin().isBlank()) {
             try {
-                String[] parts = request.allowanceAmount().split("-");
-                if (parts.length == 2) {
-                    position.setSalaryMin(new BigDecimal(parts[0].trim()));
-                    position.setSalaryMax(new BigDecimal(parts[1].trim()));
-                } else {
-                    position.setSalaryMin(new BigDecimal(request.allowanceAmount().trim()));
-                }
+                position.setSalaryMin(new BigDecimal(request.salaryMin().trim()));
             } catch (NumberFormatException e) {
                 // Ignore invalid format
             }
+        }
+        
+        if (request.salaryMax() != null && !request.salaryMax().isBlank()) {
+            try {
+                position.setSalaryMax(new BigDecimal(request.salaryMax().trim()));
+            } catch (NumberFormatException e) {
+                // Ignore invalid format
+            }
+        }
+        
+        if (request.benefits() != null) {
+            position.setBenefits(request.benefits());
         }
         
         if (request.applicationDeadline() != null && !request.applicationDeadline().isBlank()) {
@@ -159,8 +165,13 @@ public class InternshipService {
             position.setContactEmail(request.contactEmail());
         }
         
-        // Note: benefits, contactPhone, contactLine are not in InternshipRequest DTO
-        // These fields exist in InternshipPosition but are not exposed in the API
+        if (request.contactPhone() != null && !request.contactPhone().isBlank()) {
+            position.setContactPhone(request.contactPhone());
+        }
+        
+        if (request.contactLine() != null && !request.contactLine().isBlank()) {
+            position.setContactLine(request.contactLine());
+        }
     }
 
     private InternshipResponse mapPosition(InternshipPosition position) {

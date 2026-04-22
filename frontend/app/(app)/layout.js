@@ -95,6 +95,12 @@ export default function DashboardLayout({ children }) {
       }
     };
     initSession();
+
+    // Listen to profile updates
+    window.addEventListener('profile_updated', initSession);
+    return () => {
+      window.removeEventListener('profile_updated', initSession);
+    };
   }, [router, pathname]);
 
   useEffect(() => {
@@ -224,6 +230,12 @@ export default function DashboardLayout({ children }) {
           justify-content: center;
           font-size: 13px;
           font-weight: 800;
+          overflow: hidden;
+        }
+        .avatar-sm img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
       `}</style>
 
@@ -262,7 +274,19 @@ export default function DashboardLayout({ children }) {
                 </span>
               )}
             </Link>
-            <Link href="/profile" style={{ textDecoration:"none" }}><div className="avatar-sm" style={{ marginLeft: 4, cursor:"pointer" }}>{initials}</div></Link>
+            <Link href="/student/profile" style={{ textDecoration:"none" }}>
+              <div className="avatar-sm" style={{ marginLeft: 4, cursor:"pointer" }}>
+                {user?.profilePictureUrl ? (
+                  <img src={ (url => {
+                    if (!url) return null;
+                    if (url.startsWith("http")) return url;
+                    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+                    const origin = backendUrl.replace("/api/v1", "");
+                    return `${origin}${url}`;
+                  })(user.profilePictureUrl) } alt="Avatar" />
+                ) : initials}
+              </div>
+            </Link>
           </div>
         </header>
 

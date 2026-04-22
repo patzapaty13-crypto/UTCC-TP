@@ -37,11 +37,34 @@ export default function StudentProfilePage() {
     setLoading(true);
     setMessage("");
     try {
-      await api.put("/auth/me", formData);
+      const dataToSend = {
+        displayName: formData.displayName,
+        email: formData.email,
+        major: formData.major,
+        faculty: formData.faculty,
+        studentId: formData.studentId,
+        academicYear: formData.academicYear ? parseInt(formData.academicYear, 10) : null
+      };
+      
+      console.log("Sending to backend:", dataToSend);
+      const updatedUser = await api.put("/auth/me", dataToSend);
+      console.log("Save successful:", updatedUser);
+      
+      setMe(updatedUser);
+      setFormData({
+        displayName: updatedUser.displayName || "",
+        email: updatedUser.email || "",
+        major: updatedUser.major || "",
+        faculty: updatedUser.faculty || "",
+        academicYear: updatedUser.academicYear || "",
+        studentId: updatedUser.studentId || "",
+      });
+      
       setMessage("บันทึกข้อมูลสำเร็จ");
       setEditing(false);
-      loadProfile();
+      window.dispatchEvent(new CustomEvent('profile_updated'));
     } catch (err) {
+      console.error("Save error:", err);
       setMessage("เกิดข้อผิดพลาด: " + (err.message || "ไม่สามารถบันทึกได้"));
     } finally {
       setLoading(false);
@@ -67,14 +90,25 @@ export default function StudentProfilePage() {
     setLoading(true);
     try {
       const result = await api.uploadFile(file, "profile-picture");
-      await api.put("/users/me", { profilePictureUrl: result.url });
+      const updatedUser = await api.put("/auth/me", { profilePictureUrl: result.url });
+      setMe(updatedUser);
+      setFormData(prev => ({ ...prev, profilePictureUrl: updatedUser.profilePictureUrl }));
       setMessage("อัปโหลดรูปโปรไฟล์สำเร็จ");
-      loadProfile();
+      window.dispatchEvent(new CustomEvent('profile_updated'));
     } catch (err) {
       alert("อัปโหลดรูปไม่สำเร็จ: " + (err.message || ""));
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFullImageUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith("http")) return url;
+    // Remove duplicate /api/v1 if it exists in the URL from backend
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+    const origin = backendUrl.replace("/api/v1", "");
+    return `${origin}${url}`;
   };
 
   if (!me) {
@@ -113,7 +147,7 @@ export default function StudentProfilePage() {
             color: "#666"
           }}>
             {me.profilePictureUrl ? (
-              <img src={me.profilePictureUrl} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={getFullImageUrl(me.profilePictureUrl)} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               me.displayName?.charAt(0) || me.username?.charAt(0) || "?"
             )}

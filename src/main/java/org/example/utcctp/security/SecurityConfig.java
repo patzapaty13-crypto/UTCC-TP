@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/health",
                                 "/api/v1/auth/signup/request-otp",
-                                "/api/v1/auth/signup/verify"
+                                "/api/v1/auth/signup/verify",
+                                "/api/v1/files/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

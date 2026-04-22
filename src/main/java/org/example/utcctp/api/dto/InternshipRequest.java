@@ -12,10 +12,14 @@ public record InternshipRequest(
         int slots,
         String status,
         String internshipType,
-        String allowanceAmount,
+        String salaryMin,
+        String salaryMax,
+        String benefits,
         String applicationDeadline,
         String startDate,
         String endDate,
-        String contactEmail
+        String contactEmail,
+        String contactPhone,
+        String contactLine
 ) {
 }

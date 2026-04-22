@@ -40,12 +40,36 @@ public class AuthService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
-        if (request.displayName() != null) user.setDisplayName(request.displayName());
-        if (request.email() != null) user.setEmail(request.email());
-        if (request.major() != null) user.setMajor(request.major());
-        if (request.academicYear() != null) user.setAcademicYear(request.academicYear());
+        System.out.println("Updating profile for user: " + username);
+        System.out.println("Request: " + request);
+        
+        if (request.displayName() != null) {
+            user.setDisplayName(request.displayName());
+            System.out.println("Set displayName to: " + request.displayName());
+        }
+        if (request.email() != null) {
+            user.setEmail(request.email());
+            System.out.println("Set email to: " + request.email());
+        }
+        if (request.major() != null) {
+            user.setMajor(request.major());
+            System.out.println("Set major to: " + request.major());
+        }
+        if (request.faculty() != null) {
+            user.setFaculty(request.faculty());
+            System.out.println("Set faculty to: " + request.faculty());
+        }
+        if (request.studentId() != null) {
+            user.setStudentId(request.studentId());
+            System.out.println("Set studentId to: " + request.studentId());
+        }
+        if (request.academicYear() != null) {
+            user.setAcademicYear(request.academicYear());
+            System.out.println("Set academicYear to: " + request.academicYear());
+        }
         if (request.profilePictureUrl() != null) {
             user.setProfilePictureUrl(request.profilePictureUrl());
+            System.out.println("Set profilePictureUrl to: " + request.profilePictureUrl());
         }
         
         try {
@@ -64,7 +88,9 @@ public class AuthService {
         if (request.portfolio() != null) user.setPortfolio(request.portfolio());
         if (request.website() != null) user.setWebsite(request.website());
 
-        userRepository.save(user);
+        User saved = userRepository.save(user);
+        System.out.println("Saved user with id: " + saved.getId());
+        System.out.println("Saved displayName: " + saved.getDisplayName());
         return UserProfile.from(user);
     }
 

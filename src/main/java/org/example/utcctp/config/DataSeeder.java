@@ -60,6 +60,8 @@ public class DataSeeder implements CommandLineRunner {
 
         User student = buildUser("student1", "Natthanon P.", "student@utcctp.local", Set.of(RoleType.STUDENT));
         student.setMajor("Computer Engineering");
+        student.setFaculty("วิทยาศาตร์และคอมพิวเอตร์");
+        student.setStudentId("2310511101000");
         student.setAcademicYear(3);
         student.setAdvisorId(null); // Will be set after advisor is saved
         User advisor = buildUser("advisor1", "Dr. Suda N.", "advisor@utcctp.local", Set.of(RoleType.ADVISOR));

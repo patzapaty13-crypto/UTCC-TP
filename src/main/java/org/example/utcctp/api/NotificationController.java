@@ -4,6 +4,7 @@ import org.example.utcctp.api.dto.NotificationResponse;
 import org.example.utcctp.auth.JwtService;
 import org.example.utcctp.notification.NotificationService;
 import org.example.utcctp.user.CurrentUserService;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,6 +37,11 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     public NotificationResponse markRead(@PathVariable UUID id) {
         return notificationService.markRead(id, currentUserService.requireUser());
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteNotification(@PathVariable UUID id) {
+        notificationService.deleteNotification(id);
     }
 
     @GetMapping("/stream")
