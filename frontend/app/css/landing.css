@@ -1,37 +1,304 @@
-/* landing.css — Styles kept minimal, landing page now uses inline styles in page.js */
+/* ══════════════════════════════════════════════════════════════════
+   Landing Page — UX Redesign Styles
+   ══════════════════════════════════════════════════════════════════ */
 
-/* Font Awesome override for the landing */
-.landing-page * {
-  box-sizing: border-box;
+/* ── Scroll Reveal ─────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
 }
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
 
-/* Ensure iframe video fills correctly */
-.hero-iframe-bg {
+/* ── Hero Particles ────────────────────────────────────────────── */
+.particle {
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120vw; height: 120vh;
-  border: none;
+  border-radius: 50%;
   pointer-events: none;
+  animation: float-particle linear infinite;
+}
+@keyframes float-particle {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
 }
 
-
-/* Animations and Responsive Styles for Landing Page */
+/* ── Bounce (Scroll Indicator) ─────────────────────────────────── */
 @keyframes bounce {
   0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(8px); }
+  50%      { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ── Pulse glow for icons ──────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
+  50%      { box-shadow: 0 0 20px 4px rgba(37,99,235,0.15); }
+}
+
+/* ── Role Cards ────────────────────────────────────────────────── */
+.role-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 32px 28px;
+  text-align: center;
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.role-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent, rgba(96,165,250,0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.role-card:hover::before { opacity: 1; }
+.role-card:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.3);
+}
+.role-card-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 16px;
+  transition: transform 0.3s;
+}
+.role-card:hover .role-card-icon { transform: scale(1.1); }
+
+/* ── Steps / How It Works ──────────────────────────────────────── */
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+}
+.step-item {
+  text-align: center;
+  padding: 0 20px;
+  position: relative;
+}
+.step-number {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  color: white;
+  font-size: 20px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+}
+.step-connector {
+  position: absolute;
+  top: 26px;
+  left: calc(50% + 30px);
+  right: calc(-50% + 30px);
+  height: 2px;
+  background: linear-gradient(90deg, #2563EB, #7C3AED);
+  opacity: 0.3;
+  z-index: 1;
+}
+
+/* ── Feature Bento ─────────────────────────────────────────────── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+.bento-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 24px;
+  padding: 36px;
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  cursor: default;
+}
+.bento-card:first-child {
+  grid-row: span 2;
+}
+.bento-card:hover {
+  box-shadow: 0 16px 48px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  background: white;
+}
+.bento-icon {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 24px;
+}
+
+/* ── Testimonials ──────────────────────────────────────────────── */
+.testimonial-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 24px;
+  padding: 36px;
+  transition: all 0.35s;
+  position: relative;
+}
+.testimonial-card:hover {
+  box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+}
+.testimonial-quote {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.8;
+  font-weight: 500;
+  margin-bottom: 24px;
+  position: relative;
+  padding-left: 20px;
+  border-left: 3px solid #2563EB;
+}
+.testimonial-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* ── FAQ Accordion ─────────────────────────────────────────────── */
+.faq-item {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.faq-item:hover { border-color: #CBD5E1; }
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  gap: 16px;
+}
+.faq-question i {
+  transition: transform 0.3s;
+  color: #94A3B8;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.faq-item.open .faq-question i {
+  transform: rotate(180deg);
+  color: #2563EB;
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s;
+  padding: 0 24px;
+}
+.faq-item.open .faq-answer {
+  max-height: 200px;
+  padding: 0 24px 20px;
+}
+.faq-answer p {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.8;
+  font-weight: 500;
+}
+
+/* ── Back to Top ───────────────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #2563EB;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s;
+  z-index: 998;
+}
+.back-to-top.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(37,99,235,0.5);
+}
+
+/* ── Count-up Stats ────────────────────────────────────────────── */
+.stat-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -1.5px;
+  display: block;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Navbar links ──────────────────────────────────────────────── */
+.landing-nav-links { display: flex; align-items: center; gap: 8px; }
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-card:first-child {
+    grid-row: span 1;
+  }
+  .steps-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .step-connector { display: none; }
 }
 
 @media (max-width: 768px) {
-  section > div[style*="grid-template-columns: repeat(4"] {
-    grid-template-columns: repeat(2, 1fr) !important;
+  .steps-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
-  section > div[style*="grid-template-columns: repeat(2, 1fr)"],
-  section > div[style*="grid-template-columns: 1fr 1fr"],
-  footer > div > div[style*="grid-template-columns: 2fr"] {
-    grid-template-columns: 1fr !important;
-    gap: 32px !important;
-  }
+  .role-card { padding: 24px 20px; }
+
   .landing-nav-links .nav-item {
     display: none !important;
   }
@@ -41,4 +308,8 @@
   .login-right-panel {
     padding: 32px 20px !important;
   }
+}
+
+@media (max-width: 480px) {
+  .stat-value { font-size: 28px; }
 }
