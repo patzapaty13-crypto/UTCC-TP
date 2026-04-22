@@ -61,7 +61,7 @@ export default function StudentProfilePage() {
 
   const loadDocuments = async () => {
     try {
-      const docs = await api.get("/files?category=profile");
+      const docs = await api.listFiles("profile");
       setDocuments(docs || []);
     } catch (err) {
       console.error("Failed to load documents:", err);
@@ -107,12 +107,7 @@ export default function StudentProfilePage() {
 
     setUploadingDoc(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("category", "profile");
-      formData.append("docType", docType);
-
-      const result = await api.upload("/files", formData);
+      const result = await api.uploadFile(file, "profile", docType);
       setMessage(`อัปโหลด${docType === "resume" ? "Resume" : docType === "transcript" ? "Transcript" : "เอกสาร"}สำเร็จ`);
       loadDocuments();
     } catch (err) {
@@ -140,11 +135,7 @@ export default function StudentProfilePage() {
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("category", "profile-picture");
-
-      const result = await api.upload("/files", formData);
+      const result = await api.uploadFile(file, "profile-picture");
       await api.put("/users/me", { profilePictureUrl: result.url });
       setMessage("อัปโหลดรูปโปรไฟล์สำเร็จ");
       loadProfile();

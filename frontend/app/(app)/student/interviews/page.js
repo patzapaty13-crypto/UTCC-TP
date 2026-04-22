@@ -43,7 +43,7 @@ export default function StudentInterviewsPage() {
 
   const handleConfirm = async (interviewId) => {
     try {
-      await api.put(`/interviews/${interviewId}/confirm`, {});
+      await api.confirmInterview(interviewId);
       alert("ยืนยันการสัมภาษณ์สำเร็จ");
       loadInterviews();
     } catch (err) {
@@ -58,7 +58,7 @@ export default function StudentInterviewsPage() {
     }
 
     try {
-      await api.put(`/interviews/${selectedInterview.id}/reschedule`, { reason: rescheduleReason });
+      await api.rescheduleInterview(selectedInterview.id, rescheduleReason);
       alert("ส่งคำขอเลื่อนนัดสำเร็จ");
       setShowRescheduleModal(false);
       setRescheduleReason("");

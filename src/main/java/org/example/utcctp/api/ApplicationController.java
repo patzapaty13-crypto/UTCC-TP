@@ -78,4 +78,16 @@ public class ApplicationController {
         headers.setContentDispositionFormData("attachment", "internship-letter-" + id + ".pdf");
         return new org.springframework.http.ResponseEntity<>(pdf, headers, org.springframework.http.HttpStatus.OK);
     }
+
+    @GetMapping("/{id}/timeline")
+    public java.util.List<org.example.utcctp.api.dto.ApplicationStatusLogResponse> getTimeline(@PathVariable UUID id) {
+        return applicationService.getTimeline(id, currentUserService.requireUser());
+    }
+
+    @PutMapping("/{id}/withdraw")
+    @PreAuthorize("hasRole('STUDENT')")
+    public org.example.utcctp.api.dto.ApplicationResponse withdraw(@PathVariable UUID id, @RequestBody java.util.Map<String, String> payload) {
+        String reason = payload.get("reason");
+        return applicationService.withdraw(id, reason, currentUserService.requireUser());
+    }
 }

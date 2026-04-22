@@ -69,9 +69,9 @@ export default function CompanyApplicantsPage() {
       
       // If it's a status change
       if (action && action !== action.toUpperCase()) {
-        // Handle non-status actions (like VIEW_INTERVIEW, etc.)
+        // Non-status actions (like VIEW_INTERVIEW, etc.) are handled by their respective pages
+        // (/company/interviews, etc.) via navigation links in the ActionButton component
         console.log("Non-status action:", action, data);
-        // TODO: Implement specific action handlers
         toast.dismiss(loadingToast);
         return;
       }

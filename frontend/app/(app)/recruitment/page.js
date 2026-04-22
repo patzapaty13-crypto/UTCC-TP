@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-const STATUS_OPTIONS = ["PENDING", "REVIEWING", "INTERVIEW_SCHEDULED", "OFFER_EXTENDED", "ACCEPTED", "REJECTED"];
+const STATUS_OPTIONS = [
+  { value: "PENDING", label: "รออนุมัติ" },
+  { value: "REVIEWING", label: "กำลังพิจารณา" },
+  { value: "INTERVIEW_SCHEDULED", label: "นัดสัมภาษณ์" },
+  { value: "OFFER_EXTENDED", label: "ได้รับ Offer" },
+  { value: "ACCEPTED", label: "ตอบรับแล้ว" },
+  { value: "REJECTED", label: "ปฏิเสธแล้ว" },
+];
 
 export default function RecruitmentPage() {
   const [apps, setApps] = useState([]);
@@ -25,9 +32,10 @@ export default function RecruitmentPage() {
   useEffect(loadData, []);
 
   const handleStatusChange = async (appId, newStatus) => {
+    console.log("Selected status:", newStatus);
     setUpdating(appId);
     try {
-      await api.decideForInternship(appId, { decision: newStatus === "REJECTED" ? "REJECT" : "APPROVE", note: `Changed to ${newStatus}` });
+      await api.decideForInternship(appId, { decision: newStatus, note: `Changed to ${newStatus}` });
       await loadData();
     } catch (e) {
       alert("Error: " + e.message);
@@ -98,8 +106,8 @@ export default function RecruitmentPage() {
         }}>
           <span style={{ color: "white", fontWeight: "700" }}>{selected.length} รายการที่เลือก</span>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={() => handleBulkAction("APPROVE")} className="btn btn-primary" style={{ background: "#059669", border: "none" }}>อนุมัติทั้งหมด</button>
-            <button onClick={() => handleBulkAction("REJECT")} className="btn btn-error">ปฏิเสธทั้งหมด</button>
+            <button onClick={() => handleBulkAction("ADVISOR_APPROVED")} className="btn btn-primary" style={{ background: "#059669", border: "none" }}>อนุมัติทั้งหมด</button>
+            <button onClick={() => handleBulkAction("REJECTED")} className="btn btn-error">ปฏิเสธทั้งหมด</button>
             <button onClick={() => setSelected([])} className="btn btn-ghost" style={{ color: "white" }}>ยกเลิก</button>
           </div>
         </div>
@@ -110,7 +118,11 @@ export default function RecruitmentPage() {
           <thead>
             <tr>
               <th style={{ width: 40 }}>
-                <input type="checkbox" onChange={(e) => setSelected(e.target.checked ? apps.map(a => a.id) : [])} />
+                <input
+                  type="checkbox"
+                  checked={apps.length > 0 && selected.length === apps.length}
+                  onChange={(e) => setSelected(e.target.checked ? apps.map(a => a.id) : [])}
+                />
               </th>
               <th>ชื่อนักศึกษา</th>
               <th>ตำแหน่งที่สมัคร</th>
@@ -148,14 +160,17 @@ export default function RecruitmentPage() {
                 </td>
                 <td>
                   <div style={{ display: "flex", gap: "8px", alignItems:"center" }}>
-                    <select 
+                    <select
                       className="field-input sm"
                       style={{ padding: "4px 8px", width: "auto" }}
-                      value={a.status}
+                      value={a.status || "PENDING"}
                       disabled={updating === a.id}
-                      onChange={(e) => handleStatusChange(a.id, e.target.value)}
+                      onChange={(e) => {
+                        console.log("Dropdown selected value:", e.target.value);
+                        handleStatusChange(a.id, e.target.value);
+                      }}
                     >
-                      {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                     
                     <button 

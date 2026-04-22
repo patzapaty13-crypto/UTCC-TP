@@ -23,7 +23,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN', 'ADVISOR', 'STUDENT', 'COMPANY')")
+    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN', 'ADVISOR')")
     public AnalyticsDashboardResponse dashboard() {
         return analyticsService.dashboard();
     }

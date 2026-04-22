@@ -141,11 +141,12 @@ export default function InternshipDetailsPage({ params }) {
 
       {/* Application Form */}
       {showApplicationForm && (
-        <ApplicationForm 
-          internshipId={id} 
+        <ApplicationForm
+          internshipId={id}
           onSuccess={() => {
             setShowApplicationForm(false);
             alert("ส่งใบสมัครสำเร็จ!");
+            window.location.href = "/applications";
           }}
           onCancel={() => setShowApplicationForm(false)}
         />

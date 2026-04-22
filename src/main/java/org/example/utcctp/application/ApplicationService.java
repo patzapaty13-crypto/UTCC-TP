@@ -14,6 +14,7 @@ import org.example.utcctp.model.ApprovalHistory;
 import org.example.utcctp.model.DecisionType;
 import org.example.utcctp.model.InternshipPosition;
 import org.example.utcctp.model.NotificationType;
+import org.example.utcctp.model.RoleType;
 import org.example.utcctp.model.Trip;
 import org.example.utcctp.model.User;
 import org.example.utcctp.audit.AuditService;
@@ -27,6 +28,7 @@ import org.example.utcctp.repository.ApprovalHistoryRepository;
 import org.example.utcctp.repository.InternshipPositionRepository;
 import org.example.utcctp.repository.TripRepository;
 import org.example.utcctp.repository.UserRepository;
+import java.time.Instant;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -223,8 +225,6 @@ public class ApplicationService {
         User student = application.getStudent();
         String title = "Application Updated: " + newStatus.name().toLowerCase();
         String message = "Your application status has been changed to " + newStatus.name().toLowerCase() + ".";
-        // TODO: Implement notification system
-        // notificationService.notifyUser(student, title, message, NotificationType.APPLICATION);
 
         String positionTitle = application.getInternshipPosition() != null
                 ? application.getInternshipPosition().getTitle()
@@ -296,5 +296,51 @@ public class ApplicationService {
                 log.getNote(),
                 log.getCreatedAt()
         );
+    }
+
+    public List<ApplicationStatusLogResponse> getTimeline(UUID id, User user) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+        // Check access: student can only see their own applications, others can see all
+        if (user.getRoles().contains(RoleType.STUDENT) && !application.getStudent().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
+        return statusLogRepository.findByApplicationIdOrderByCreatedAtDesc(id).stream()
+                .map(this::mapStatusLog)
+                .toList();
+    }
+
+    public ApplicationResponse withdraw(UUID id, String reason, User user) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+        // Only the applicant can withdraw
+        if (!application.getStudent().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the applicant can withdraw");
+        }
+
+        // Check if application can be withdrawn (only PENDING, REVIEWING, SHORTLISTED)
+        ApplicationStatus currentStatus = application.getStatus();
+        if (currentStatus != ApplicationStatus.PENDING && currentStatus != ApplicationStatus.REVIEWING && currentStatus != ApplicationStatus.SHORTLISTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot withdraw application in current status: " + currentStatus);
+        }
+
+        ApplicationStatus oldStatus = application.getStatus();
+        application.setStatus(ApplicationStatus.WITHDRAWN);
+        // withdrawnAt field may not exist, withdrawal info is stored in status log note
+        applicationRepository.save(application);
+
+        // Log the status change
+        ApplicationStatusLog log = new ApplicationStatusLog();
+        log.setApplication(application);
+        log.setOldStatus(oldStatus);
+        log.setNewStatus(ApplicationStatus.WITHDRAWN);
+        log.setChangedBy(user);
+        log.setNote("Withdrawn by student: " + (reason != null ? reason : "No reason provided"));
+        statusLogRepository.save(log);
+
+        return mapApplication(application);
     }
 }

@@ -79,11 +79,11 @@ export default function StudentApplicationsPage() {
       if (action === "WITHDRAWN") {
         return handleWithdraw(actionData);
       }
-      
-      // Handle other actions like VIEW_OFFER, VIEW_INTERVIEW, etc.
+
+      // Other actions (VIEW_OFFER, VIEW_INTERVIEW, etc.) are handled by their respective pages
+      // (/student/offers, /student/interviews) via navigation links in the ActionButton component
       console.log("Application action:", action, data);
-      // TODO: Implement specific action handlers
-      
+
     } catch (err) {
       console.error("Application action failed:", err);
       throw err;

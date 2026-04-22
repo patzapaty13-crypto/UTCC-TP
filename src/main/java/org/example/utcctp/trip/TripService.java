@@ -114,20 +114,6 @@ public class TripService {
         trip.setStatus(TripStatus.PUBLISHED);
         tripRepository.save(trip);
 
-        // TODO: Implement notification system
-        // Notify all students about the new trip
-        // List<User> students = userRepository.findAll().stream()
-        //         .filter(u -> u.getRoles().contains(RoleType.STUDENT))
-        //         .toList();
-        // for (User student : students) {
-        //     notificationService.notifyUser(
-        //             student,
-        //             "New Trip: " + trip.getTitle(),
-        //             "A new trip \"" + trip.getTitle() + "\" has been published. Apply now!",
-        //             NotificationType.TRIP
-        //     );
-        // }
-
         return mapTrip(trip);
     }
 

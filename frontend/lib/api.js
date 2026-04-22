@@ -20,10 +20,13 @@ export async function apiFetch(path, options = {}) {
 
   const url = `${API_BASE}${path}`;
   console.log(`[API] Fetching: ${url}`);
-  
+
   const response = await fetch(url, {
     ...options,
     headers,
+  }).catch(err => {
+    console.error(`[API Network Error] ${path}:`, err);
+    throw new Error("Network error. Please check your connection.");
   });
 
   // Handle 401 — token expired or invalid
@@ -33,6 +36,18 @@ export async function apiFetch(path, options = {}) {
       window.location.href = "/login";
     }
     throw new Error("Session expired. Please log in again.");
+  }
+
+  // Handle 403 — access denied
+  if (response.status === 403) {
+    console.error(`[API Access Denied] ${path}: User does not have permission`);
+    throw new Error("You don't have permission to access this resource.");
+  }
+
+  // Handle 404 — not found
+  if (response.status === 404) {
+    console.error(`[API Not Found] ${path}: Resource not found`);
+    throw new Error("The requested resource was not found.");
   }
 
   if (response.status === 503) {
@@ -50,8 +65,10 @@ export async function apiFetch(path, options = {}) {
     try {
       const errorData = await response.json();
       message = errorData?.message || errorData?.error || message;
+      console.error(`[API Error] ${response.status} ${path}:`, message, errorData);
     } catch {
       message = await response.text() || message;
+      console.error(`[API Error] ${response.status} ${path}:`, message);
     }
     throw new Error(message);
   }
@@ -170,6 +187,8 @@ export const api = {
     if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.status, payload.interviewScheduledAt);
     return apiFetch(`/applications/${id}/status`, { method: "PUT", body: JSON.stringify(payload) });
   },
+  getApplicationTimeline: (id) => apiFetch(`/applications/${id}/timeline`),
+  withdrawApplication: (id, reason) => apiFetch(`/applications/${id}/withdraw`, { method: "PUT", body: JSON.stringify({ reason }) }),
 
   // -------------------------------------------------------------
   // Reports
@@ -205,6 +224,8 @@ export const api = {
   getInterviews: (applicationId) => apiFetch(`/interviews${applicationId ? `?applicationId=${applicationId}` : ""}`),
   createInterview: (data) => apiFetch("/interviews", { method: "POST", body: JSON.stringify(data) }),
   updateInterview: (id, data) => apiFetch(`/interviews/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  confirmInterview: (id) => apiFetch(`/interviews/${id}/confirm`, { method: "PUT", body: JSON.stringify({}) }),
+  rescheduleInterview: (id, reason) => apiFetch(`/interviews/${id}/reschedule`, { method: "PUT", body: JSON.stringify({ reason }) }),
   getOffers: (applicationId) => apiFetch(`/offers${applicationId ? `?applicationId=${applicationId}` : ""}`),
   createOffer: (data) => apiFetch("/offers", { method: "POST", body: JSON.stringify(data) }),
   updateOffer: (id, data) => apiFetch(`/offers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -212,7 +233,7 @@ export const api = {
   
   // ATS Decide
   decideForInternship: async (id, payload) => {
-    if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.decision === "APPROVE" ? "REVIEWING" : "REJECTED");
+    if (USE_MOCK_API) return updateMockApplicationStatus(id, payload.decision === "ADVISOR_APPROVED" ? "REVIEWING" : "REJECTED");
     return apiFetch(`/applications/${id}/decision`, { method: "PUT", body: JSON.stringify(payload) });
   },
   bulkDecideForInternships: async (payload) => {
@@ -245,6 +266,29 @@ export const api = {
   // -------------------------------------------------------------
   // Files & Documents
   // -------------------------------------------------------------
+  uploadFile: async (file, category, docType) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (category) formData.append("category", category);
+    if (docType) formData.append("docType", docType);
+    const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await fetch(`${API_BASE}/files`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Upload failed" }));
+      throw new Error(error.message || "Upload failed");
+    }
+    return response.json();
+  },
+  listFiles: (category) => apiFetch(`/files${category ? `?category=${category}` : ""}`),
+  downloadFile: (id) => `${API_BASE}/files/${id}`,
   upload: async (path, formData) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("utcctp_token") : null;
     const headers = {};

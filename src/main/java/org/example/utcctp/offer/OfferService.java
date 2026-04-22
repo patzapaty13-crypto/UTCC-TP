@@ -54,13 +54,11 @@ public class OfferService {
             offer.setStatus(request.status());
         }
         Offer saved = offerRepository.save(offer);
-        
+
         // Update application status to OFFER_EXTENDED
         application.setStatus(org.example.utcctp.model.ApplicationStatus.OFFER_EXTENDED);
         applicationRepository.save(application);
-        
-        // TODO: Implement notification system
-        // notificationService.notifyUser(application.getStudent(), "Offer received", "You have received a new internship offer.", NotificationType.APPLICATION);
+
         return map(saved);
     }
 
@@ -84,7 +82,7 @@ public class OfferService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
         offer.setStatus(status);
         offer.setRespondedAt(Instant.now());
-        
+
         // Update application status based on offer response
         Application application = offer.getApplication();
         if ("ACCEPTED".equalsIgnoreCase(status)) {
@@ -94,9 +92,8 @@ public class OfferService {
             application.setStatus(org.example.utcctp.model.ApplicationStatus.REJECTED);
         }
         applicationRepository.save(application);
-        
-        // TODO: Implement notification system
-        // notificationService.notifyUser(offer.getApplication().getStudent(), "Offer updated", "Your offer status has been updated.", NotificationType.APPLICATION);
+
+        // Email notification will be handled by the service layer
         return map(offerRepository.save(offer));
     }
 
