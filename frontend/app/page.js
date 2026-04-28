@@ -49,7 +49,7 @@ export default function LandingPage() {
         transition: "all 0.3s ease",
         display: "flex", alignItems: "center",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="landing-nav-container">
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <span style={{ fontSize: 20, fontWeight: 900, color: "white", letterSpacing: "-0.5px" }}>UTCC</span>
           </Link>
@@ -122,8 +122,8 @@ export default function LandingPage() {
       </section>
 
       {/* ── STATS BAR ──────────────────────────────────────────── */}
-      <section style={{ background: "#0B0F1A", padding: "40px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="reveal" style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40 }}>
+      <section className="stats-section">
+        <div className="reveal stats-grid">
           {STATS.map((s, i) => (
             <StatItem key={i} {...s} />
           ))}
@@ -135,8 +135,8 @@ export default function LandingPage() {
       <InternshipNews />
 
       {/* ── ABOUT (Kept video as requested) ────────────────────── */}
-      <section id="about" style={{ padding: "100px 32px", background: "white" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+      <section id="about" className="about-section">
+        <div className="about-grid">
           <div className="reveal" style={{ position: "relative" }}>
             <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.15)", background: "#0F172A", aspectRatio: "16/9" }}>
               <iframe src="https://www.youtube.com/embed/1aXaSzhdPus?autoplay=0&mute=1&controls=1" style={{ width: "100%", height: "100%", border: "none" }} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" />
@@ -163,7 +163,7 @@ export default function LandingPage() {
       <FaqSection />
 
       {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer style={{ background: "#020617", padding: "64px 32px 32px" }}>
+      <footer className="landing-footer">
         <div className="reveal" style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48, marginBottom: 48, paddingBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <div style={{ gridColumn: "1 / -1", maxWidth: 400 }}>
